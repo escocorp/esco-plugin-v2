@@ -1,0 +1,87 @@
+package plugin;
+
+import arc.util.Log;
+import arc.util.Strings;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.zip.InflaterInputStream;
+
+import static mindustry.Vars.charset;
+
+public class Utils {
+    public static String stripFoo(String string) {
+        StringBuilder var1 = new StringBuilder(string);
+        for (int i = string.length() - 1; i >= 0; i--) {
+            if (var1.charAt(i) >= 0xf80 && var1.charAt(i) <= 0x107f) var1.deleteCharAt(i);
+        }
+        return var1.toString();
+    }
+
+    public static String formatTime(long time) {
+        long days = time / 86400;
+        long hours = (time % 86400) / 3600;
+        long minutes = (time % 3600) / 60;
+        long seconds = time % 60;
+
+        StringBuilder sb = new StringBuilder();
+        if (days > 0) sb.append(days).append("d");
+        if (hours > 0) sb.append(hours).append("h");
+        if (minutes > 0) sb.append(minutes).append("m");
+        if (seconds > 0 || sb.length() == 0) sb.append(seconds).append("s");
+
+        return sb.toString().trim();
+    }
+
+    public static long parseTime(String time) {
+        if (time.length() == 0 || !Character.isDigit(time.charAt(0)))
+            return -1;
+        char timeMod = Character.toLowerCase(time.charAt(time.length() - 1)); // last char
+
+        if (Character.isDigit(timeMod)) {
+            // minutes
+            if (!Strings.canParseInt(time))
+                return -1;
+            return Long.parseLong(time) * 60;
+        }
+
+        time = time.substring(0, time.length() - 1);
+        if (!Strings.canParseInt(time))
+            return -1;
+
+        long parsed = Long.parseLong(time);
+        if (timeMod == 'h')
+            return parsed * 60 * 60;
+        if (timeMod == 'd')
+            return parsed * 60 * 60 * 24;
+        if (timeMod == 'w')
+            return parsed * 60 * 60 * 24 * 7;
+        if (timeMod == 'm')
+            return parsed * 60 * 60 * 24 * 30;
+        if (timeMod == 'y')
+            return parsed * 60 * 60 * 24 * 365;
+        return parsed;
+    }
+
+    public static String decompress(byte[] data){
+        if (data == null) return "";
+        try(DataInputStream stream = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(data)))){
+
+            stream.read(); // Version
+            int bytelen = stream.readInt();
+            if(bytelen > 1024 * 100) return "";
+            byte[] bytes = new byte[bytelen];
+            stream.readFully(bytes);
+
+            return new String(bytes, charset);
+        }catch(IOException e){
+            Log.err(e);
+        }
+        return ""; // Somehow this failed to read the code
+    }
+
+    public static int countWords(String word, String text) {
+        return (text.length() - text.replace(word, "").length()) / word.length();
+    }
+}
