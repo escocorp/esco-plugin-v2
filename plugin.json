@@ -1,7 +1,7 @@
 {
-  "name": "ExamplePlugin",
-  "author": "Anuke",
-  "main": "example.ExamplePlugin",
-  "description": "A plugin to demonstrate some basic features.",
+  "name": "plugin",
+  "author": "firnoarde",
+  "main": "plugin.PPlugin",
+  "description": "Simple server plugin",
   "version": 1.0
 }
