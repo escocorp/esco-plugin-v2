@@ -29,7 +29,7 @@ public class Commands {
         });
 
         handler.<Message>register("players", "See players count", (a, m)->{
-            reply(message, "Players: "+Groups.player.size())
+            reply(message, "Players: "+Groups.player.size());
         });
     }
 }
