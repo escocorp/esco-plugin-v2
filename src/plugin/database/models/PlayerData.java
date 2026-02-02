@@ -4,6 +4,7 @@ import arc.struct.ObjectMap;
 import mindustry.gen.Player;
 import plugin.PVars;
 import plugin.database.Database;
+import mindustry.gen.Groups;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,6 +18,16 @@ public class PlayerData {
     PlayerData(int id, String uuid) {
         this.id = id;
         this.uuid = uuid;
+    }
+
+    public static Optional<Player> getPlayerById(int id) {
+        Optional<PlayerData> pdOpt = getPlayerData(id);
+        Player p = null;
+        if(pdOpt.isPresent()) {
+            PlayerData pd = pdOpt.get();
+            p = Groups.player.find(player->player.uuid().equals(pd.uuid));
+        }
+        return Optional.ofNullable(p);
     }
 
     public static Optional<PlayerData> getOrCreatePlayerData(Player p) {

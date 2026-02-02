@@ -1,5 +1,6 @@
-package plugin;
+package plugin.utils;
 
+import arc.util.Http;
 import arc.util.Log;
 import arc.util.Strings;
 
@@ -9,8 +10,22 @@ import java.io.IOException;
 import java.util.zip.InflaterInputStream;
 
 import static mindustry.Vars.charset;
+import static plugin.PVars.vpnApi;
 
 public class Utils {
+    public static void isAnon(String ip, Runnable callback) {
+        Http.get(
+                vpnApi + ip,
+                (resp)->{
+                    if(resp.getResultAsString().contains("\"anon\":true"))
+                        callback.run();
+                },
+                (err)->{
+                    Log.err("Failed to check ip", err);
+                }
+        );
+    }
+
     public static String stripFoo(String string) {
         StringBuilder var1 = new StringBuilder(string);
         for (int i = string.length() - 1; i >= 0; i--) {
@@ -81,7 +96,25 @@ public class Utils {
         return ""; // Somehow this failed to read the code
     }
 
-    public static int countWords(String word, String text) {
+    /*public static int countWords(String word, String text) {
         return (text.length() - text.replace(word, "").length()) / word.length();
+    }*/
+
+    public static int countWords(String w, String t) {
+        return countOccurrences(w, t);
     }
+
+    public static int countOccurrences(String word, String text) {
+    if (word.isEmpty()) return 0;
+
+    int count = 0;
+    int index = 0;
+
+    while ((index = text.indexOf(word, index)) != -1) {
+        count++;
+        index += word.length();
+    }
+
+    return count;
+}
 }

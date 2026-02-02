@@ -6,7 +6,7 @@ import arc.util.CommandHandler.CommandRunner;
 import mindustry.gen.Player;
 
 import plugin.Bundle;
-import plugin.Permission;
+import plugin.utils.Permission;
 
 public class CustomHandler {
     final CommandHandler handler;
@@ -55,8 +55,8 @@ public class CustomHandler {
     }
 
     public class CommandData {
-        String name, args;
-        Permission permission;
+        public String name, args;
+        public Permission permission;
 
         CommandData(String name, String args, Permission perm) {
             this.name = name;

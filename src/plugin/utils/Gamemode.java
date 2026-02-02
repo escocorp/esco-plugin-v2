@@ -1,21 +1,23 @@
-package plugin;
+package plugin.utils;
 
 public enum Gamemode {
     idk(),
-    survival(false, "survival"),
-    sandbox(true, "sandbox");
+    survival(false, "survival", "srv!"),
+    sandbox(true, "sandbox", "snd!");
 
     public boolean optimized;
-    public String simpleName;
+    public String simpleName, botPrefix;
 
     Gamemode() {
         this.optimized = false;
         this.simpleName = name();
+        this.botPrefix = "idk!";
     }
 
-    Gamemode(boolean optimized, String simpleName) {
+    Gamemode(boolean optimized, String simpleName, String botPrefix) {
         this.optimized = optimized;
         this.simpleName = simpleName;
+        this.botPrefix = botPrefix;
     }
 
     public static Gamemode parseGamemode(String name) {

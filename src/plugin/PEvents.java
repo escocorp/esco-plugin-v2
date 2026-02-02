@@ -1,5 +1,6 @@
 package plugin;
 
+import arc.util.Log;
 import arc.util.Timer;
 import mindustry.Vars;
 import mindustry.game.EventType;
@@ -8,18 +9,24 @@ import mindustry.gen.Groups;
 import mindustry.gen.Player;
 import mindustry.net.Administration;
 import mindustry.world.blocks.logic.LogicBlock;
+import plugin.database.models.Admin;
 import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
+import plugin.discord.Bot;
 import plugin.packets.Packets;
+import plugin.utils.Permission;
 
 import java.util.Optional;
 
-import static plugin.Permission.getPerms;
-import static plugin.Utils.countWords;
-import static plugin.Utils.decompress;
+import static plugin.PVars.discordLink;
+import static plugin.utils.Permission.getPerms;
+import static plugin.utils.Permission.seqToString;
+import static plugin.utils.Utils.*;
 import static plugin.commands.ClientCommands.updateRtvVotes;
+import static plugin.database.models.Admin.getAdmin;
 import static plugin.database.models.Ban.getBan;
 import static plugin.commands.ClientCommands.rtvVotes;
+import static plugin.database.models.PlayerData.getPlayerData;
 
 public class PEvents {
     public static void load() {
@@ -32,21 +39,34 @@ public class PEvents {
                 return;
             }
 
+            isAnon(player.ip(), ()->{
+                player.kick("You detected by [pink]AntiGoyda[] system\nTry re-connect and disable vpn/proxy");
+            });
+
             Optional<Ban> ban = getBan(player);
             if(ban.isPresent()) {
                 ban.get().kickPlayer(player);
                 return;
             }
 
-            player.admin(getPerms(player).contains(Permission.admin));
+            getAdmin(player).ifPresent(a->{
+                if(a.perms.contains(Permission.admin) && !a.hidden)
+                    player.admin(true);
+                if(a.perms.size > 1)
+                    player.sendMessage("Your permissions "+seqToString(a.perms));
+            });
         });
 
         Events.on(EventType.PlayerJoin.class, (e)->{ // full connect
             Player player = e.player;
+
+            getPlayerData(player).ifPresent(p->Bundle.sendMessage("messages.join", String.valueOf(p.id), player.coloredName()));
+            Log.info("Player @ joined [@]", player.plainName(), player.uuid());
+            Bot.sendJoinMessage(player);
             // simple bot check
             Timer.schedule(()->{
                 if(player.con.isConnected() && player.con.lastReceivedClientSnapshot == -1)
-                    player.kick("[scarlet]Try reconnect", 0);
+                    player.kick("[scarlet]Try reconnect\nDiscord "+discordLink, 0);
             }, 1);
 
         });
@@ -54,6 +74,9 @@ public class PEvents {
         Events.on(EventType.PlayerLeave.class, (e)->{
             Player player = e.player;
 
+            getPlayerData(player).ifPresent(p->Bundle.sendMessage("messages.leave", String.valueOf(p.id), player.coloredName()));
+            Log.info("Player @ left [@]", player.plainName(), player.uuid());
+            Bot.sendLeaveMessage(player);
             purgeCache(player);
 
             if(rtvVotes.contains(player)) {
@@ -63,7 +86,16 @@ public class PEvents {
             }
         });
 
+        Events.on(EventType.PlayerChatEvent.class, (e)->{
+            Player player = e.player;
+            String message = e.message;
+
+	    if(!message.startsWith("/"))
+            	Bot.sendServerMessage(("`"+player.plainName()+": "+stripFoo(message)+"`").replace("@", ""));
+        });
+
         Events.on(EventType.ServerLoadEvent.class, (e)->{
+            Administration.Config.showConnectMessages.set(false);
             Packets.load();
             Vars.netServer.admins.addActionFilter(a->{
                 Administration.ActionType type = a.type;
@@ -86,5 +118,6 @@ public class PEvents {
     public static void purgeCache(Player p) {
         Permission.cache.remove(p);
         PlayerData.cache.remove(p);
+        Admin.cache.remove(p);
     }
 }

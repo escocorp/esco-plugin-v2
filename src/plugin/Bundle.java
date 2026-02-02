@@ -15,12 +15,16 @@ import static plugin.PVars.bundleApi;
 
 public class Bundle {
     public static final Seq<String> locales = Seq.with("en", "ru");
+    public static final ObjectMap<String, String> localesAliases = new ObjectMap<>();
 
     private static final ObjectMap<String, StringMap> bundles = new ObjectMap<>();
 
     public static String defaultLocale = "en";
 
     public static void load() {
+        localesAliases.put("en_US", "en");
+        localesAliases.put("ru_RU", "ru");
+
         for (String locale : locales) {
             loadLocale(locale);
         }
@@ -61,6 +65,9 @@ public class Bundle {
     }
 
     public static String get(String key, String locale) {
+        if(localesAliases.containsKey(locale))
+            locale = localesAliases.get(locale);
+
         String value = getInternal(key, locale);
         if (value != null) return value;
 
@@ -93,8 +100,12 @@ public class Bundle {
         Groups.player.each(p->p.sendMessage(get(req, p.locale)));
     }
 
-    public static void sendMessage(String req, String... params) {
+    public static void sendMessage(String req, Object... params) {
         Groups.player.each(p->p.sendMessage(MessageFormat.format(get(req, p.locale), params)));
+    }
+
+    public static void sendMessage(String req, Player player, Object... params) {
+        player.sendMessage(MessageFormat.format(get(req, player.locale), params));
     }
 
     public static void sendMessage(String req, Player player) {

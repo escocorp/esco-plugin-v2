@@ -12,7 +12,9 @@ import java.time.Instant;
 import java.util.Optional;
 import arc.util.Time;
 
-import static plugin.Utils.formatTime;
+import static plugin.PVars.discordLink;
+import static plugin.utils.Utils.formatTime;
+import plugin.PVars;
 
 public class Ban {
     int id, playerId, adminId;
@@ -31,11 +33,18 @@ public class Ban {
     }
     
     public void kickPlayer(Player p) {
+        String time;
+        if(unbanTime == null) {
+            time = "Never (perm-ban)";
+        } else {
+            time = formatTime((unbanTime.toEpochMilli() - Time.millis()) / 1000);
+        }
         p.kick(
                 MessageFormat.format(
                         Bundle.get("banned"),
                         reason,
-                        formatTime((unbanTime.toEpochMilli() - Time.millis()) / 1000)
+                        time,
+                        discordLink
                 ),
                 0
         );
@@ -103,14 +112,31 @@ public class Ban {
         return Database.executeQueryAsync(
                 """
                 SELECT b.*
-FROM bans b
-JOIN players p ON b.player_id = p.id
-WHERE p.uuid = ?
-  AND b.active = true
-  AND (b.unban_time IS NULL OR b.unban_time > NOW())
-LIMIT 1;
+                FROM bans b
+                WHERE b.active = true
+                  AND (b.unban_time IS NULL OR b.unban_time > NOW())
+                  AND (
+                        b.player_id = (SELECT id FROM players WHERE uuid = ?)
+        
+                        OR b.player_id IN (
+                            SELECT id FROM players WHERE last_ip = ?
+                        )
+        
+                        OR b.player_id IN (
+                            SELECT ul.player_id
+                            FROM usid_list ul
+                            WHERE ul.usid = ?
+                              AND ul.server = ?
+                        )
+                  )
+                LIMIT 1;
                 """,
-                stmt->stmt.setString(1, player.uuid()),
+                stmt -> {
+                    stmt.setString(1, player.uuid());
+                    stmt.setString(2, player.ip());
+                    stmt.setString(3, player.usid());
+                    stmt.setString(4, PVars.gamemode.simpleName);
+                },
                 Ban::getBan
         );
     }

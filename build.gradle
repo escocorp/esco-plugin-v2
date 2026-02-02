@@ -1,8 +1,9 @@
 apply plugin: "java"
+apply plugin: 'kotlin'
 
 version '1.0'
 
-sourceCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_17
 
 sourceSets.main.java.srcDirs = ["src"]
 
@@ -27,6 +28,11 @@ dependencies{
     implementation "com.zaxxer:HikariCP:7.0.2"
     implementation "org.slf4j:slf4j-api:2.0.9"
     implementation "org.slf4j:slf4j-simple:2.0.17"
+
+    implementation("net.dv8tion:JDA:6.3.0") {
+        exclude module: 'opus-java'
+    }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 jar{
@@ -39,4 +45,15 @@ jar{
         include "plugin.json"
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+buildscript {
+    ext.kotlin_version = '2.2.21'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+compileKotlin {
 }
