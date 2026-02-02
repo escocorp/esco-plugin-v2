@@ -8,6 +8,7 @@ import arc.util.CommandHandler.CommandRunner;
 import java.util.Comparator;
 
 import static plugin.discord.Bot.reply;
+import mindustry.gen.Groups;
 
 public class Commands {
     public static void register(CommandHandler handler) {
@@ -25,6 +26,10 @@ public class Commands {
             }
 
             reply(m, "Available commands:\n"+commands.toString());
+        });
+
+        handler.<Message>register("players", "See players count", (a, m)->{
+            reply(message, "Players: "+Groups.player.size())
         });
     }
 }
