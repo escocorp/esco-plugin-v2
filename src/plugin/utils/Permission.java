@@ -1,4 +1,4 @@
-package plugin;
+package plugin.utils;
 
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -64,5 +64,11 @@ public enum Permission {
         }
 
         return Permission.parsePerms(perms);
+    }
+
+    public static String seqToString(Seq<Permission> s) {
+        StringBuilder sb = new StringBuilder();
+        s.each(p->sb.append(p.name()+" "));
+        return sb.toString();
     }
 }

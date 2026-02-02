@@ -1,6 +1,7 @@
 package plugin.packets;
 
 import arc.Events;
+import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.core.NetClient;
@@ -13,12 +14,10 @@ import mindustry.net.NetConnection;
 import mindustry.gen.Player;
 import mindustry.net.Packets;
 import plugin.Bundle;
-import plugin.Permission;
+import plugin.utils.Permission;
 
 import static mindustry.Vars.netServer;
-import static mindustry.net.Packets.AdminAction.*;
-import static plugin.Permission.getPerms;
-import static plugin.Utils.parseTime;
+import static plugin.utils.Permission.getPerms;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.PlayerData.getPlayerData;
 
@@ -29,10 +28,7 @@ public class AdminRequest {
         Packets.AdminAction action = packet.action;
         Object params = packet.params;
 
-        if(!getPerms(player).contains(Permission.admin)) {
-            Bundle.sendMessage("noperms", player);
-            return;
-        }
+        Seq<Permission> perms = getPerms(player);
 
         if(other == null) {
             return;
@@ -42,17 +38,33 @@ public class AdminRequest {
 
         switch (action) {
             case wave -> {
+                if(!perms.contains(Permission.admin)) {
+                    Bundle.sendMessage("noperms", player);
+                    return;
+                }
                 Vars.logic.skipWave();
                 Log.info("@ skipped wave!", player);
             }
             case ban -> {
                 // ban(other, player, "Touch grass", parseTime("10"));
+                if(!perms.contains(Permission.punish)) {
+                    Bundle.sendMessage("noperms", player);
+                    return;
+                }
                 player.sendMessage("use /ban");
             }
             case kick -> {
+                if(!perms.contains(Permission.punish)) {
+                    Bundle.sendMessage("noperms", player);
+                    return;
+                }
                 other.kick(Bundle.get("admin.kicked")+" "+player.coloredName());
             }
             case trace -> {
+                if(!perms.contains(Permission.admin)) {
+                    Bundle.sendMessage("noperms", player);
+                    return;
+                }
                 String uuid = other.uuid();
                 var pdata = getPlayerData(other);
 
@@ -68,6 +80,10 @@ public class AdminRequest {
                 }
             }
             case switchTeam -> {
+                if(!perms.contains(Permission.admin)) {
+                    Bundle.sendMessage("noperms", player);
+                    return;
+                }
                 if(params instanceof Team team) {
                     other.team(team);
                     other.sendMessage(Bundle.get("team.changed")+" "+team.coloredName());

@@ -2,7 +2,7 @@ package plugin.commands;
 
 import arc.util.CommandHandler;
 import plugin.Bundle;
-import plugin.Patches;
+import plugin.utils.Patches;
 
 public class ServerCommands {
     public static void register(CommandHandler handler) {

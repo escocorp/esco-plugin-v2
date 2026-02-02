@@ -16,17 +16,18 @@ CREATE TABLE usid_list (
     UNIQUE (usid, server)
 );
 
-CREATE TABLE admins(
-    id SERIAL PRIMARY KEY,
-    player_id INTEGER REFERENCES players(id),
-    rank_id INTEGER REFERENCES admin_ranks(id),
-    UNIQUE(player_id)
-);
-
 CREATE TABLE admin_ranks (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100),
   permissions TEXT[]
+);
+
+CREATE TABLE admins(
+    id SERIAL PRIMARY KEY,
+    player_id INTEGER REFERENCES players(id),
+    rank_id INTEGER REFERENCES admin_ranks(id),
+    hidden BOOLEAN DEFAULT false,
+    UNIQUE(player_id)
 );
 
 CREATE TABLE bans (
