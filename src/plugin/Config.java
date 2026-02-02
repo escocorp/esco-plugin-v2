@@ -24,6 +24,7 @@ public class Config {
         PVars.botToken = getEnv("TOKEN");
         PVars.serverChannelStr = getEnv("CHANNEL_ID");
         PVars.serverGuildStr = getEnv("GUILD_ID");
+        PVars.logsChannelStr = getEnv("LOGS_ID");
     }
 
     private static String getEnv(String name) {

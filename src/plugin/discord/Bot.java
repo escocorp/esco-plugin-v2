@@ -32,6 +32,7 @@ public class Bot {
             serverGuild = jda.getGuildById(serverGuildStr);
             if(serverGuild != null) {
                 serverChannel = serverGuild.getChannelById(TextChannel.class, serverChannelStr);
+                logsChannel = serverGuild.getChannelById(TextChannel.class, logsChannelStr);
             } else {
                 Log.err("Failed to get server guild!");
             }
@@ -44,6 +45,12 @@ public class Bot {
             Log.err("Failed to load discord bot!", e);
         }
     }
+
+    public static void sendLog(String message) {
+        if(logsChannel != null)
+            logsChannel.sendMessage("["+gamemode.simpleName+"]"+message).queue();
+    }
+
     public static void sendServerMessage(String message) {
         if(serverChannel == null) return;
         serverChannel.sendMessage(message).queue();
