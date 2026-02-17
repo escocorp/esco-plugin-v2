@@ -2,8 +2,11 @@ package plugin.commands;
 
 import arc.util.CommandHandler;
 import arc.util.Log;
+import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import plugin.Bundle;
+import plugin.discord.Bot;
+import plugin.history.History;
 import plugin.utils.Loader;
 import plugin.utils.Patches;
 import static plugin.PVars.*;
@@ -31,6 +34,16 @@ public class ServerCommands {
 
         handler.register("savelog", "save logs", (a)->{
             Loader.saveLogs();
+        });
+
+        handler.register("historysize", "", (a)->{
+            Log.info("Stacks: @", History.history.size);
+        });
+
+        handler.register("say", "<text...>", "", (a)->{
+            Log.info("Server: @", a[0]);
+            Call.sendMessage("[scarlet][Server]:[white] "+a[0]);
+            Bot.sendServerMessage("Server: "+a[0]);
         });
     }
 }

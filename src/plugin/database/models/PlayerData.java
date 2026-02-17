@@ -90,6 +90,12 @@ public class PlayerData {
                             SELECT id, ?, ?
                             FROM update_players
                             ON CONFLICT (usid, server) DO NOTHING
+                        ),
+                        insert_stats AS (
+                            INSERT INTO statistics (player_id)
+                            SELECT id
+                            FROM update_players
+                            ON CONFLICT (player_id) DO NOTHING
                         )
                         SELECT *
                         FROM update_players;

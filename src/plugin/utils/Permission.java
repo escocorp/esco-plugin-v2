@@ -18,7 +18,7 @@ public enum Permission {
     editMaps;
 
     public static final ObjectMap<Player, Seq<Permission>> cache = new ObjectMap<>();
-    public static final Permission[] all = values();
+    // public static final Permission[] all = values();
 
     public static Seq<Permission> parsePerms(String[] perms) {
         Seq<Permission> rperms = new Seq<>();

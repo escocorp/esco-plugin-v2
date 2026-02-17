@@ -4,7 +4,8 @@ public enum Gamemode {
     idk(),
     survival(false, "survival", "srv!"),
     sandbox(true, "sandbox", "snd!"),
-    attack(false, "attack", "atk!");
+    attack(false, "attack", "atk!"),
+    pvp(false, "pvp", "pvp!");
 
     public boolean optimized;
     public String simpleName, botPrefix;

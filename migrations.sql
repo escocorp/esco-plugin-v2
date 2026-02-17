@@ -54,3 +54,11 @@ CREATE TABLE logs (
     server_id INTEGER REFERENCES servers(id) NOT NULL,
     player_id INTEGER REFERENCES players(id)
 );
+
+CREATE TABLE statistics (
+    id SERIAL PRIMARY KEY,
+    player_id INTEGER references players(id) UNIQUE,
+    playtime BIGINT DEFAULT 0 NOT NULL,
+    blocks_build INTEGER DEFAULT 0 NOT NULL,
+    blocks_broken INTEGER DEFAULT 0 NOT NULL
+);
