@@ -12,6 +12,8 @@ import plugin.utils.Gamemode;
 import plugin.utils.VoteMap;
 import plugin.utils.VotekickSession;
 
+import java.util.Random;
+
 import arc.struct.Seq;
 import plugin.database.models.Log;
 
@@ -34,7 +36,10 @@ public class PVars {
     public static CustomHandler clientCommands;
     public static CommandHandler discordCommands;
 
+    public static Random random = new Random();
+
     public static ObjectMap<String, Player> linkCodes = new ObjectMap<>();
+    public static Seq<Player> historyPlayers = new Seq<>();
 
     public static boolean needRestart = false;
 

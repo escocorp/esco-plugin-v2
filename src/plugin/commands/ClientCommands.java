@@ -38,7 +38,6 @@ import static plugin.utils.Utils.parseTime;
 import static plugin.database.models.Ban.ban;
 
 public class ClientCommands {
-    public static Seq<Player> rtvVotes = new Seq<>();
     static final int commandsPerPage = 10;
     public static int voteCooldown = 60 * 5;
 
@@ -71,7 +70,7 @@ public class ClientCommands {
                 String req = "commands." + c.name + ".description";
                 String desc = Bundle.get(req, player.locale);
                 if(desc.equals(req))
-                    desc = Bundle.get("commands.nodesc");
+                    desc = Bundle.get("commands.nodesc", player.locale);
 
                 availableCommands++;
                 result.append("[orange]/")
@@ -97,16 +96,20 @@ public class ClientCommands {
             p.sendMessage("[green]Ok!");
         });
 
+        handler.registerCommand("stats", "", (a, p)->{
+            StringBuilder sb = new StringBuilder("[stat]Stats:\n");
+
+            PlayerStats.getPlayerStats(p).ifPresent(s->{
+                s.update(p, false);
+                sb.append("Blocks build: ").append(s.blocksBuild).append("\n");
+                sb.append("Blocks broken: ").append(s.blocksBroken).append("\n");
+                sb.append("Playtime: ").append(Utils.formatTime(s.playtime));
+            });
+
+            p.sendMessage(sb.toString());
+        });
+
         handler.registerCommand("rtv", "[y/n]", (a, p)->{
-            if(mapVote == null) {
-                mapVote = new VoteMap(p);
-                mapVote.vote(p, 1);
-                return;
-            }
-            if(mapVote.voted.containsKey(p.ip())) {
-                sendMessage("rtv.error.voted", p);
-                return;
-            }
             int i;
             if(a.length == 0)
                 i = 1;
@@ -116,26 +119,57 @@ public class ClientCommands {
                 sendMessage("vote.unknownvote", p);
                 return;
             }
+            if(mapVote == null) {
+                mapVote = new VoteMap(p);
+                mapVote.vote(p, i);
+                return;
+            }
+            if(mapVote.voted.containsKey(p.ip())) {
+                sendMessage("rtv.error.voted", p);
+                return;
+            }
             mapVote.vote(p, i);
         });
 
         handler.registerCommand("ban", "<id> <time> <reason...>", Permission.punish, (a, p)->{
             if(Strings.canParseInt(a[0])) {
                 int id = Strings.parseInt(a[0]);
-                boolean banned = ban(id, p, a[2], parseTime(a[1]));
+                long time = parseTime(a[1]);
+		        boolean perm = a[1].equalsIgnoreCase("perm");
+                if(time == -1 && !perm) {
+                    p.sendMessage("[scarlet]Unknown time, use d w m y or perm!");
+                    return;
+                }
+                boolean banned;
+                if(perm) {
+                    banned = ban(id, p, a[2], -1);
+                } else {
+                    banned = ban(id, p, a[2], time);
+                }
                 if(banned) {
                     p.sendMessage("[green]Player banned!");
-                    getPlayerById(id).ifPresent(player->{
+                    /*getPlayerById(id).ifPresent(player->{
                         Optional<Ban> ban = getBan(player);
                         if(ban.isPresent()) {
                             ban.get().kickPlayer(player);
                         }
-                    });
+                    });*/
                 } else {
                     p.sendMessage("[scarlet]Failed to ban player");
                 }
             } else {
                 p.sendMessage("[scarlet]ID must be int!");
+            }
+        });
+
+        handler.registerCommand("history", (a, p)->{
+            if(historyPlayers.contains(p)) {
+                historyPlayers.remove(p);
+                p.sendMessage("[scarlet]Disabled");
+                Call.hideHudText(p.con);
+            } else {
+                historyPlayers.add(p);
+                p.sendMessage("[green]Enabled!");
             }
         });
 
@@ -155,7 +189,7 @@ public class ClientCommands {
             infoMessage("discord.link", p, gamemode.botPrefix, code, discordLink);
         });
 
-        handler.registerCommand("hidden", "<bool>", (a, p)->{
+        handler.registerCommand("hidden", "<bool>", Permission.admin, (a, p)->{
             int i = parseBool(a[0]);
             Optional<Integer> idOpt = getPlayerId(p);
             int id;
@@ -176,19 +210,19 @@ public class ClientCommands {
             }
         });
 
-        if(gamemode == sandbox)
+        /*
             handler.registerCommand("team", "<team>", (arg, player)->{
-                if(Strings.canParseInt(arg[0])) {
+                if(!Strings.canParseInt(arg[0])) {
                     sendMessage("args.mustbeint", player, "<team>");
                     return;
                 }
                 int id = Strings.parseInt(arg[0]);
-                if(id > 255) {
-                    sendMessage("args.lessthan", player, "<team>", 256);
+                if(id > 5) {
+                    sendMessage("args.lessthan", player, "<team>", 5);
                     return;
                 }
                 player.team(Team.get(id));
-            });
+            });*/
 
         handler.registerCommand("artv", "", admin, (a, p)->{
             Events.fire(new EventType.GameOverEvent(Team.derelict));
@@ -334,13 +368,5 @@ public class ClientCommands {
                 }
             }
         });
-    }
-
-    public static void updateRtvVotes() {
-        if (rtvVotes.size >= Math.max(1, (int) Math.round(Groups.player.size() * 0.8))) {
-            Events.fire(new EventType.GameOverEvent(Team.derelict));
-            rtvVotes.clear();
-            sendMessage("rtv.pass");
-        }
     }
 }

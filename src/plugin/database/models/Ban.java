@@ -45,7 +45,8 @@ public class Ban {
                         Bundle.get("banned"),
                         reason,
                         time,
-                        discordLink
+                        discordLink,
+                        id
                 ),
                 0
         );
@@ -104,33 +105,40 @@ public class Ban {
     }
 
     public static Timestamp getTimestamp(long seconds) {
+        if(seconds < 0) return null; // перм бан
+
         long millis = seconds * 1000;
-        Timestamp unbanTs = new Timestamp(System.currentTimeMillis() + millis);
-        return unbanTs;
+        return new Timestamp(System.currentTimeMillis() + millis);
+    }
+
+    public static Optional<Ban> getBan(int id) {
+        return Database.executeQueryAsync(
+                "SELECT * FROM bans WHERE id = ?",
+                stmt->stmt.setInt(1, id),
+                Ban::getBan
+        );
     }
 
     public static Optional<Ban> getBan(Player player) {
         return Database.executeQueryAsync(
                 """
-                SELECT b.*
-                FROM bans b
-                WHERE b.active = true
-                  AND (b.unban_time IS NULL OR b.unban_time > NOW())
-                  AND (
-                        b.player_id = (SELECT id FROM players WHERE uuid = ?)
-        
-                        OR b.player_id IN (
-                            SELECT id FROM players WHERE last_ip = ?
-                        )
-        
-                        OR b.player_id IN (
-                            SELECT ul.player_id
-                            FROM usid_list ul
-                            WHERE ul.usid = ?
-                              AND ul.server = ?
-                        )
-                  )
-                LIMIT 1;
+SELECT b.*
+FROM bans b
+JOIN players p ON p.id = b.player_id
+WHERE b.active = true
+  AND (b.unban_time IS NULL OR b.unban_time > NOW())
+  AND (
+        p.uuid = ?
+        OR p.last_ip = ?
+        OR EXISTS (
+            SELECT 1
+            FROM usid_list ul
+            WHERE ul.player_id = p.id
+              AND ul.usid = ?
+              AND ul.server = ?
+        )
+  )
+LIMIT 1;
                 """,
                 stmt -> {
                     stmt.setString(1, player.uuid());

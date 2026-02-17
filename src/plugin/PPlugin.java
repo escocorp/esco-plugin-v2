@@ -8,6 +8,7 @@ import mindustry.mod.Plugin;
 import plugin.commands.ClientCommands;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommands;
+import plugin.database.BanListener;
 import plugin.database.models.Server;
 import plugin.discord.Bot;
 import plugin.utils.Loader;
@@ -29,6 +30,7 @@ public class PPlugin extends Plugin {
         MapPreview.loadColors();
         Loader.loadServerId();
         Loader.loadLogging();
+        BanListener.load();
         // Foos.Companion.init();
 
         Threads.daemon(Bot::load);

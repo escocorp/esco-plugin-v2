@@ -57,19 +57,19 @@ public class Bot {
         serverChannel.sendMessage(message).queue();
     }
 
-    public static void sendJoinMessage(Player player) {
+    public static void sendJoinMessage(Player player, int id) {
         if(serverChannel == null) return;
         EmbedBuilder embed = new EmbedBuilder()
                 .setColor(Color.green)
-                .addField("", player.plainName() + " joined!", false);
+                .addField("", "[" + id + "] " + player.plainName() + " joined!", false);
         serverChannel.sendMessageEmbeds(embed.build()).queue();
     }
 
-    public static void sendLeaveMessage(Player player) {
+    public static void sendLeaveMessage(Player player, int id) {
         if(serverChannel == null) return;
         EmbedBuilder embed = new EmbedBuilder()
                 .setColor(Color.red)
-                .addField("", player.plainName() + " left!", false);
+                .addField("", "[" + id + "] " + player.plainName() + " left!", false);
         serverChannel.sendMessageEmbeds(embed.build()).queue();
     }
 

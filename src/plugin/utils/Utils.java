@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.zip.InflaterInputStream;
 
 import static mindustry.Vars.charset;
+import static plugin.PVars.random;
 import static plugin.PVars.vpnApi;
 
 public class Utils {
@@ -41,7 +42,6 @@ public class Utils {
 
     public static String getRandomString(int len) {
         StringBuilder sb = new StringBuilder();
-        Random random = new Random();
 
         for(int i = 0;i < len;i++) {
             sb.append(characters.charAt(random.nextInt(characters.length())));

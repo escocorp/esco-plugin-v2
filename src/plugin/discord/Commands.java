@@ -1,9 +1,12 @@
 package plugin.discord;
 
 import arc.Core;
+import arc.math.Mathf;
 import arc.util.CommandHandler;
+import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.gen.Player;
+import mindustry.maps.Map;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import arc.struct.Seq;
@@ -14,6 +17,7 @@ import java.util.Comparator;
 
 import static plugin.PVars.linkCodes;
 import static plugin.discord.Bot.reply;
+import static plugin.utils.MapPreview.parseMap;
 import static plugin.utils.Permission.editMaps;
 import static plugin.utils.Permission.getPermsByDiscordId;
 
@@ -79,6 +83,64 @@ public class Commands {
                 else
                     ctx.reply("Failed");
             });
+        });
+
+        handler.<Context>register("maps", "[page]", "", (arg, ctx)->{
+            Seq<Map> mapsList = Vars.maps.customMaps();
+            if(mapsList.isEmpty()) {
+                ctx.reply("No custom maps on server");
+                return;
+            }
+            if(arg.length > 0 && !Strings.canParseInt(arg[0])) {
+                ctx.reply("Page must be int!");
+                return;
+            }
+            int page = arg.length > 0 ? Strings.parseInt(arg[0]) : 1;
+            int pages = Mathf.ceil(mapsList.size / 16.0F);
+            page--;
+            if (page < pages && page >= 0) {
+                StringBuilder maps = new StringBuilder();
+
+                for (int i = 16 * page; i < Math.min(16 * (page + 1), mapsList.size); i++) {
+                    Map map = mapsList.get(i);
+                    maps.append(Strings.stripColors(map.name())).append("\n");
+                }
+
+                ctx.replyEmbed(
+                        new EmbedBuilder()
+                                .setColor(Color.green)
+                                .setTitle(Strings.format("Maps: @. Page @/@", mapsList.size, page + 1, pages))
+                                .addField("", maps.toString(), false)
+                                .build()
+                );
+            } else {
+                ctx.reply("Unknown page. Avail. pages 1-"+pages);
+            }
+        });
+
+        handler.<Context>register("map", "<name...>", "", (args, ctx)->{
+            Seq<Map> mapsList = Vars.maps.customMaps();
+            if(mapsList.isEmpty()) {
+                ctx.reply("No custom maps on server");
+                return;
+            }
+            Map map = mapsList.find(m->m.name().equals(args[0]));
+            if(map == null) {
+                ctx.reply("No map found");
+                return;
+            }
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(Color.magenta)
+                    .setTitle(map.name())
+                    .setFooter(map.width+"x"+map.height)
+                    .setAuthor(map.author());
+                    // .setDescription(map.description())
+                    //.setImage("attachment://minimap.png");
+
+            var msg = ctx.channel.sendMessageEmbeds(embed.build());
+            msg.addFiles(FileUpload.fromData(map.file.file(), map.file.name()));
+            //msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
+            msg.queue();
         });
     }
 }

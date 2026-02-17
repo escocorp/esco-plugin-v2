@@ -38,18 +38,15 @@ public class Database {
         }
     }
 
-    /**
-     * @author <a href="https://github.com/ols45234">ols45234</a>
-     * */
-    public static <T> Optional<T> executeQueryAsync(String sql, ThrowingConsumer<PreparedStatement> parameterSetter, SQLFunction<ResultSet, T> mapper) {
+    public static <T> Optional<T> executeQueryAsync(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            parameterSetter.accept(pstmt);
+            statementSetter.accept(pstmt);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(mapper.apply(rs));
+                    return Optional.of(serealizer.apply(rs));
                 }
                 return Optional.empty();
             }
@@ -59,14 +56,11 @@ public class Database {
             return Optional.empty();
         }
     }
-    /**
-     * @author <a href="https://github.com/ols45234">ols45234</a>
-     * */
-    public static boolean executeUpdate(String sql, ThrowingConsumer<PreparedStatement> parameterSetter) {
+    public static boolean executeUpdate(String sql, StatementSetter<PreparedStatement> statementSetter) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            parameterSetter.accept(pstmt);
+            statementSetter.accept(pstmt);
             int updated = pstmt.executeUpdate();
             return updated > 0;
 
@@ -76,19 +70,16 @@ public class Database {
             return false;
         }
     }
-    /**
-     * @author <a href="https://github.com/ols45234">ols45234</a>
-     * */
-    public static <T> List<T> executeQueryList(String sql, ThrowingConsumer<PreparedStatement> parameterSetter, SQLFunction<ResultSet, T> mapper) {
+    public static <T> List<T> executeQueryList(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
         List<T> results = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            parameterSetter.accept(pstmt);
+            statementSetter.accept(pstmt);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    results.add(mapper.apply(rs));
+                    results.add(serealizer.apply(rs));
                 }
             }
         } catch (SQLException e) {
@@ -97,18 +88,14 @@ public class Database {
         }
         return results;
     }
-    /**
-     * @author <a href="https://github.com/ols45234">ols45234</a>
-     * */
+
     @FunctionalInterface
-    public interface ThrowingConsumer<T> {
+    public interface StatementSetter<T> {
         void accept(T t) throws SQLException;
     }
-    /**
-     * @author <a href="https://github.com/ols45234">ols45234</a>
-     * */
+    
     @FunctionalInterface
-    public interface SQLFunction<T, R> {
+    public interface Serealizer<T, R> {
         R apply(T t) throws SQLException;
     }
 }

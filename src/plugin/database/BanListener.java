@@ -1,0 +1,55 @@
+package plugin.database;
+
+import arc.util.Log;
+import arc.util.Strings;
+import org.postgresql.PGConnection;
+import org.postgresql.PGNotification;
+import plugin.database.models.Ban;
+import plugin.database.models.PlayerData;
+import plugin.discord.Bot;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class BanListener {
+    private static int failedTimes = 0;
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    public static void load() {
+        executor.submit(()->{
+            try(Connection con = Database.dataSource.getConnection()) {
+                PGConnection pgCon = con.unwrap(PGConnection.class);
+                try(Statement st = con.createStatement()) {
+                    st.execute("LISTEN new_ban");
+                }
+
+                while(true) {
+                    PGNotification[] notifications = pgCon.getNotifications();
+
+                    if(notifications != null)
+                        for(PGNotification notify : notifications) {
+                            String payload = notify.getParameter();
+                            if(!Strings.canParseInt(payload)) continue;
+                            int i = Strings.parseInt(payload);
+                            Ban.getBan(i).ifPresent(ban->
+                                    PlayerData.getPlayerById(ban.playerId).ifPresent(p->
+                                            ban.kickPlayer(p)
+                                    )
+                            );
+                        }
+
+                    Thread.sleep(1500);
+                }
+            } catch (Exception e) {
+                Log.err(e);
+                Bot.sendLog(e.getMessage());
+                if(failedTimes < 5) {
+                    load();
+                    failedTimes += 1;
+                }
+            }
+        });
+    }
+}

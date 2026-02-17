@@ -1,9 +1,11 @@
 package plugin.discord;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import plugin.utils.Permission;
 
 import java.util.List;
@@ -34,5 +36,9 @@ public class Context {
 
     public void reply(String content) {
         message.reply(content).queue();
+    }
+
+    public void replyEmbed(MessageEmbed embed) {
+        message.reply(MessageCreateData.fromEmbeds(embed)).queue();
     }
 }

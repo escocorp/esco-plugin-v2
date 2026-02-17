@@ -28,7 +28,7 @@ public class CustomHandler {
                 //return "[scarlet]Too few arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
                 return Bundle.get("commands.fewargs", player.locale, command.text, command.paramText);
             }else{ //unknown command
-                CommandHandler.Command closest = getClosest(command.text);
+                CommandHandler.Command closest = getClosest(response.runCommand);
 
                 if(closest != null){
                     return Bundle.get("commands.didyoumean", player.locale, closest.text);
@@ -104,9 +104,9 @@ public class CustomHandler {
 
     public void registerPseudoCommands() {
         addPseudoCommand("t", "<message...>");
-        addPseudoCommand("a", "<message...>", Permission.admin);
-        addPseudoCommand("votekick", "[player] [reason...]");
-        addPseudoCommand("vote", "<y/n/c>");
+        // addPseudoCommand("a", "<message...>", Permission.admin);
+        // addPseudoCommand("votekick", "[player] [reason...]");
+        // addPseudoCommand("vote", "<y/n/c>");
         addPseudoCommand("sync", "");
     }
 
@@ -123,6 +123,7 @@ public class CustomHandler {
         public Permission permission;
 
         CommandData(String name, String args, Permission perm) {
+            this.name = name;
             this.args = args;
             this.permission = perm;
         }

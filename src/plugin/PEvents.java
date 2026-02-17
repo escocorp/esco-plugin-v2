@@ -6,33 +6,37 @@ import arc.util.Timer;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import arc.Events;
-import mindustry.gen.Call;
-import mindustry.gen.Groups;
-import mindustry.gen.Player;
+import mindustry.gen.*;
 import mindustry.net.Administration;
+import mindustry.world.Build;
+import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
 import plugin.database.models.Admin;
 import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
+import plugin.database.models.PlayerStats;
 import plugin.discord.Bot;
+import plugin.history.History;
+import plugin.history.HistoryStack;
 import plugin.packets.Packets;
 import plugin.utils.Loader;
 import plugin.utils.Permission;
+import arc.util.Strings;
+import mindustry.net.Administration.ActionType;
 
 import java.util.Optional;
 
 import static plugin.PVars.*;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.Log.putLog;
+import static plugin.database.models.PlayerData.getPlayerId;
 import static plugin.discord.Bot.sendLog;
 import static plugin.utils.Gamemode.sandbox;
 import static plugin.utils.Permission.getPerms;
 import static plugin.utils.Permission.seqToString;
 import static plugin.utils.Utils.*;
-import static plugin.commands.ClientCommands.updateRtvVotes;
 import static plugin.database.models.Admin.getAdmin;
 import static plugin.database.models.Ban.getBan;
-import static plugin.commands.ClientCommands.rtvVotes;
 import static plugin.database.models.PlayerData.getPlayerData;
 
 public class PEvents {
@@ -77,6 +81,9 @@ public class PEvents {
                     player.sendMessage("Your permissions "+seqToString(a.perms));
             });
 
+            if(mapVote != null)
+                mapVote.checkPass();
+
             // putLog(pd.id, "system", "All checks finished");
         });
 
@@ -88,13 +95,16 @@ public class PEvents {
                 player.kick("[scarlet]Failed to create player!");
                 return;
             }
-
             PlayerData pd = pdOpt.get();
+
+            PlayerStats.setJoinTime(player);
+            PlayerStats.getPlayerStats(player);
+
             Bundle.sendMessage("messages.join", String.valueOf(pd.id), player.coloredName());
             putLog(pd.id, "event", "Player joined!");
 
-            Log.info("Player @ joined [@]", player.plainName(), player.uuid());
-            Bot.sendJoinMessage(player);
+            Log.info("[@] Player @ joined [@]", pd.id, player.plainName(), player.uuid());
+            Bot.sendJoinMessage(player, pd.id);
 
             Call.clientPacketReliable(player.con, "SendMeSubtitle", player == null ? null : String.valueOf(player.id));
 
@@ -117,22 +127,24 @@ public class PEvents {
             if(pdOpt.isPresent()) {
                 PlayerData pd = pdOpt.get();
                 Bundle.sendMessage("messages.leave", String.valueOf(pd.id), player.coloredName());
+                Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid());
+                Bot.sendLeaveMessage(player, pd.id);
                 putLog(pd.id, "event", "Player disconnected");
             }
             if(currentlyKicking != null && currentlyKicking.target.equals(player)) {
-                ban(currentlyKicking.targetId, currentlyKicking.startedId, "Leave during votekick", 2*60*60);
+                ban(currentlyKicking.targetId, currentlyKicking.startedId, "AutoBan: Leave during votekick", 2*60*60);
                 currentlyKicking.cancel();
             }
 
-            Log.info("Player @ left [@]", player.plainName(), player.uuid());
-            Bot.sendLeaveMessage(player);
             purgeData(player);
 
-            if(rtvVotes.contains(player)) {
+            /*if(rtvVotes.contains(player)) {
                 rtvVotes.remove(player);
                 Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
-            }
-            updateRtvVotes();
+            }*/
+            if(mapVote != null)
+                mapVote.checkPass();
+
             if(needRestart) {
                 Loader.exit();
             }
@@ -147,7 +159,7 @@ public class PEvents {
             });
 
 	        if(!message.startsWith("/"))
-            	Bot.sendServerMessage(("`"+player.plainName()+": "+stripFoo(message)+"`").replace("@", ""));
+            	Bot.sendServerMessage(("`"+player.plainName()+": "+stripFoo(Strings.stripColors(message))+"`").replace("@", ""));
         });
 
         Events.on(EventType.ServerLoadEvent.class, (e)->{
@@ -178,9 +190,83 @@ public class PEvents {
                 return true;
             });
         });
-        Events.on(EventType.GameOverEvent.class, (e)->{
-            rtvVotes.clear();
+
+        Events.on(EventType.BlockBuildEndEvent.class, (e)->{
+            if(e.tile == null || e.unit == null)
+                return;
+
+            Player player = e.unit.getPlayer();
+
+            if(player != null)
+                PlayerStats.getPlayerStats(player).ifPresent(s->{
+                    if(e.breaking)
+                        s.adjBlocksBroken();
+                    else
+                        s.adjBlocksBuild();
+                });
+
+            if(e.breaking) return;
+
+            Unit unit = e.unit;
+            Tile tile = e.tile;
+            Integer pid = null;
+            String name = null;
+            if(player != null) {
+                pid = getPlayerId(player).orElse(null);
+                name = player.coloredName();
+            }
+
+            History.write(tile.pos(), name, pid, ActionType.buildSelect, tile.block(), unit.type());
         });
+
+        Events.on(EventType.BlockBuildBeginEvent.class, (e)-> {
+            if(e.tile == null || e.unit == null || !e.breaking)
+                return;
+            Player player = e.unit.getPlayer();
+            Unit unit = e.unit;
+            Tile tile = e.tile;
+            Integer pid = null;
+            String name = null;
+            if(player != null) {
+                pid = getPlayerId(player).orElse(null);
+                name = player.coloredName();
+            }
+
+            History.write(tile.pos(), name, pid, ActionType.breakBlock, tile.block(), unit.type());
+        });
+
+        Events.on(EventType.BuildRotateEvent.class, (e)->{
+            if(e.build == null || e.unit == null || e.unit.getPlayer() == null)
+                return;
+            Player player = e.unit.getPlayer();
+            Building build = e.build;
+            Integer pid = null;
+            String name = null;
+            if(player != null) {
+                pid = getPlayerId(player).orElse(null);
+                name = player.coloredName();
+            }
+
+            History.write(build.pos(), name, pid, ActionType.rotate, build.block, null);
+        });
+
+        Events.on(EventType.ConfigEvent.class, (e)->{
+            if(e.player == null || e.tile == null)
+                return;
+            Player player = e.player;
+            Building build = e.tile;
+            Integer pid = getPlayerId(player).orElse(null);
+            String name = player.coloredName();
+
+            History.write(build.pos(), name, pid, ActionType.configure, build.block, null);
+        });
+
+        Events.on(EventType.GameOverEvent.class, (e)->{
+            if(mapVote != null)
+                mapVote.cancel();
+            History.clear();
+        });
+
         Events.on(EventType.WorldLoadEvent.class, (e)->{
             if(gamemode == sandbox)
                 Timer.schedule(()->{
@@ -190,12 +276,21 @@ public class PEvents {
                     Vars.state.rules.blockHealthMultiplier = 0.1f;
                 }, 1);
         });
+
+        Events.on(EventType.TapEvent.class, (e)->{
+            if(e.player == null || e.tile == null || !historyPlayers.contains(e.player))
+                return;
+            Call.setHudText(e.player.con, History.getMessage(e.tile.pos()));
+        });
     }
 
     public static void purgeData(Player p) {
         Permission.cache.remove(p);
         PlayerData.cache.remove(p);
         Admin.cache.remove(p);
+        PlayerStats.purge(p);
+        historyPlayers.remove(p);
+
         if(linkCodes.containsValue(p, false))
             linkCodes.forEach(e->{
                 if(e.value.equals(p))

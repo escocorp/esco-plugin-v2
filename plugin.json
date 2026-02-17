@@ -1,6 +1,6 @@
 {
   "name": "plugin",
-  "author": "firnoarde",
+  "author": "grely",
   "main": "plugin.PPlugin",
   "description": "Simple server plugin",
   "version": 1.0
