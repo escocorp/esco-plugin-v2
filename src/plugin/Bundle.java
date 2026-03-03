@@ -119,10 +119,10 @@ public class Bundle {
     }
 
     public static void infoMessage(String req, Player player) {
-        Call.infoMessage(player.con, Bundle.get(req));
+        Call.infoMessage(player.con, Bundle.get(req, player.locale));
     }
 
     public static void infoMessage(String req, Player player, Object... params) {
-        Call.infoMessage(player.con, format(Bundle.get(req), params));
+        Call.infoMessage(player.con, format(Bundle.get(req, player.locale), params));
     }
 }

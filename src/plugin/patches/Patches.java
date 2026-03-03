@@ -1,42 +1,20 @@
-package plugin.utils;
+package plugin.patches;
 
 import arc.*;
 import arc.files.*;
-import arc.func.*;
-import arc.struct.*;
 import arc.util.*;
 import arc.util.Timer;
-import arc.util.CommandHandler.*;
-import arc.util.Timer.*;
-import arc.util.serialization.*;
-import arc.util.serialization.JsonValue.*;
-import arc.util.serialization.Jval.*;
 import mindustry.*;
-import mindustry.core.GameState.*;
-import mindustry.core.*;
 import mindustry.game.EventType.*;
 import mindustry.game.*;
 import mindustry.gen.*;
-import mindustry.io.*;
-import mindustry.maps.Map;
-import mindustry.maps.*;
-import mindustry.maps.Maps.*;
-import mindustry.mod.Mods.*;
-import mindustry.net.Administration.*;
-import mindustry.net.Packets.*;
 import mindustry.net.*;
-import mindustry.type.*;
 
-import java.io.*;
-import java.net.*;
 import java.time.*;
 import java.time.format.*;
-import java.util.*;
-import java.util.regex.*;
 
 import static arc.util.ColorCodes.*;
 import static arc.util.Log.*;
-import static mindustry.Vars.*;
 
 import plugin.Bundle;
 import plugin.ai.DumbAI;
@@ -54,6 +32,12 @@ public class Patches {
             Timer.schedule(()->{
                 despawnUnits();
             }, 30*60, 30*60);
+            Timer.schedule(()->{
+                Call.sendMessage("[stat]Time to change map! Save your buildings.");
+                Timer.schedule(()->{
+                    Events.fire(new GameOverEvent(Team.derelict));
+                }, 5);
+            }, 60*60*2, 60*60*2);
         }
         loadLogger();
     }

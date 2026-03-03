@@ -8,6 +8,9 @@ import arc.util.Strings;
 import mindustry.net.Administration;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
+import mindustry.world.Tile;
+
+import java.util.Optional;
 
 public class History {
     public static final LongMap<HistoryStack> history = new LongMap<>();
@@ -30,24 +33,35 @@ public class History {
         return sb.toString();
     }
 
-    public static void write(long pos, String playerName, Integer playerId,
+    public static void write(Tile tile,
+                             String playerName,
+                             Optional<Integer> playerId,
                              Administration.ActionType type,
-                             Block block, UnitType unit) {
+                             Block block,
+                             UnitType unit) {
 
-        HistoryStack stack = history.get(pos); // long
-
-        if(stack == null){
-            stack = new HistoryStack();
-            history.put(pos, stack); // long
-        }
+        if(tile == null) return;
 
         HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit);
 
-        if(stack.size() >= 6){
-            stack.removeFirst();
-        }
+        tile.getLinkedTiles(t -> {
 
-        stack.add(record);
+            long pos = t.pos();
+
+            HistoryStack stack = history.get(pos);
+
+            if(stack == null){
+                stack = new HistoryStack();
+                history.put(pos, stack);
+            }
+
+            if(stack.size() >= 6){
+                stack.removeFirst();
+            }
+
+            stack.add(record);
+
+        });
     }
 
     public static void clear() {

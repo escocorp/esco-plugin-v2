@@ -4,21 +4,26 @@ import arc.Core;
 import arc.util.Log;
 import arc.util.Timer;
 import mindustry.Vars;
+import mindustry.content.Items;
+import mindustry.content.UnitTypes;
 import mindustry.game.EventType;
 import arc.Events;
 import mindustry.gen.*;
 import mindustry.net.Administration;
-import mindustry.world.Build;
+import mindustry.type.Item;
 import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
+import mindustry.world.blocks.storage.CoreBlock;
+import mindustry.world.modules.ItemModule;
+import plugin.antigrief.AntiFimoz;
+import plugin.antigrief.Graylist;
 import plugin.database.models.Admin;
 import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
 import plugin.discord.Bot;
 import plugin.history.History;
-import plugin.history.HistoryStack;
-import plugin.packets.Packets;
+import plugin.menus.Menus;
 import plugin.utils.Loader;
 import plugin.utils.Permission;
 import arc.util.Strings;
@@ -26,11 +31,13 @@ import mindustry.net.Administration.ActionType;
 
 import java.util.Optional;
 
+import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.Log.putLog;
 import static plugin.database.models.PlayerData.getPlayerId;
-import static plugin.discord.Bot.sendLog;
+import static plugin.discord.Bot.*;
+import static plugin.utils.Gamemode.campaign;
 import static plugin.utils.Gamemode.sandbox;
 import static plugin.utils.Permission.getPerms;
 import static plugin.utils.Permission.seqToString;
@@ -58,11 +65,14 @@ public class PEvents {
                 }
             });
 
-            isAnon(player.ip(), ()->{
-                if(pd.discordId == null) {
+            isAnon(player.ip(), (resp)->{
+                if(resp.anon && pd.discordId == null) {
                     putLog(pd.id, "system", "Detected using vpn or proxy.");
                     player.kick("You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + discordLink);
                 }
+                //AntiFimoz.apply(resp.isp, player);
+                //if(player.con.isConnected())
+                    Graylist.apply(player, resp.isp, pd);
             });
 
             Optional<Ban> banOpt = getBan(player);
@@ -100,13 +110,15 @@ public class PEvents {
             PlayerStats.setJoinTime(player);
             PlayerStats.getPlayerStats(player);
 
-            Bundle.sendMessage("messages.join", String.valueOf(pd.id), player.coloredName());
+            sendMessage("messages.join", String.valueOf(pd.id), player.coloredName());
             putLog(pd.id, "event", "Player joined!");
 
             Log.info("[@] Player @ joined [@]", pd.id, player.plainName(), player.uuid());
             Bot.sendJoinMessage(player, pd.id);
 
             Call.clientPacketReliable(player.con, "SendMeSubtitle", player == null ? null : String.valueOf(player.id));
+            if(pd.prefs.showWelcomeMenu)
+                Menus.showWelcome(player);
 
             // simple bot check
             Timer.schedule(()->{
@@ -114,7 +126,7 @@ public class PEvents {
                     putLog(pd.id, "system", "Player detected as bot");
                     player.kick("[scarlet]Try reconnect\nDiscord " + discordLink, 0);
                 }
-            }, 1);
+            }, 2);
 
         });
 
@@ -126,14 +138,15 @@ public class PEvents {
             Optional<PlayerData> pdOpt = getPlayerData(player);
             if(pdOpt.isPresent()) {
                 PlayerData pd = pdOpt.get();
-                Bundle.sendMessage("messages.leave", String.valueOf(pd.id), player.coloredName());
+                sendMessage("messages.leave", String.valueOf(pd.id), player.coloredName());
                 Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid());
                 Bot.sendLeaveMessage(player, pd.id);
                 putLog(pd.id, "event", "Player disconnected");
             }
             if(currentlyKicking != null && currentlyKicking.target.equals(player)) {
-                ban(currentlyKicking.targetId, currentlyKicking.startedId, "AutoBan: Leave during votekick", 2*60*60);
+                ban(currentlyKicking.targetId, currentlyKicking.startedId, "AutoBan: Leave during votekick\n"+currentlyKicking.reason, 2*60*60);
                 currentlyKicking.cancel();
+                sendMessage("votekick.targetleft");
             }
 
             purgeData(player);
@@ -145,7 +158,7 @@ public class PEvents {
             if(mapVote != null)
                 mapVote.checkPass();
 
-            if(needRestart) {
+            if(Groups.player.isEmpty() && needRestart) {
                 Loader.exit();
             }
         });
@@ -158,13 +171,17 @@ public class PEvents {
                 putLog(pd.id, "event", "Player sent message "+message);
             });
 
-	        if(!message.startsWith("/"))
-            	Bot.sendServerMessage(("`"+player.plainName()+": "+stripFoo(Strings.stripColors(message))+"`").replace("@", ""));
+	        if(!message.startsWith("/")) {
+                String content = ("`"+player.plainName()+": "+stripFoo(Strings.stripColors(message))+"`").replace("@", "");
+                Bot.sendServerMessage(content);
+                if(Math.random()>0.8)
+                    sendParrotMessage(content);
+            }
         });
 
         Events.on(EventType.ServerLoadEvent.class, (e)->{
-            Administration.Config.showConnectMessages.set(false);
-            Packets.load();
+            Loader.loadAfterStart();
+
             Vars.netServer.admins.addActionFilter(a->{
                 Administration.ActionType type = a.type;
                 Player player = a.player;
@@ -180,7 +197,7 @@ public class PEvents {
                         String code = decompress(b);
                         if(code.isEmpty()) return true;
                         if(countWords("radar", code) > 25) {
-                            Bundle.sendMessage("logic.antilag", player);
+                            sendMessage("logic.antilag", player);
                             putLog(pd.id, "system", "Player possible building lag machines!");
                             return false;
                         }
@@ -188,6 +205,12 @@ public class PEvents {
 
                 // putLog(a, pd);
                 return true;
+            });
+
+            Vars.netServer.admins.addChatFilter((player, message)->{
+                if(AntiFimoz.applyMessage(message, player))
+                    return null;
+                return message;
             });
         });
 
@@ -209,14 +232,14 @@ public class PEvents {
 
             Unit unit = e.unit;
             Tile tile = e.tile;
-            Integer pid = null;
             String name = null;
+            Optional<Integer> pid = Optional.empty();
             if(player != null) {
-                pid = getPlayerId(player).orElse(null);
                 name = player.coloredName();
+                pid = getPlayerId(player);
             }
 
-            History.write(tile.pos(), name, pid, ActionType.buildSelect, tile.block(), unit.type());
+            History.write(tile, name, pid, ActionType.buildSelect, tile.block(), unit.type());
         });
 
         Events.on(EventType.BlockBuildBeginEvent.class, (e)-> {
@@ -225,14 +248,14 @@ public class PEvents {
             Player player = e.unit.getPlayer();
             Unit unit = e.unit;
             Tile tile = e.tile;
-            Integer pid = null;
             String name = null;
+            Optional<Integer> pid = Optional.empty();
             if(player != null) {
-                pid = getPlayerId(player).orElse(null);
                 name = player.coloredName();
+                pid = getPlayerId(player);
             }
 
-            History.write(tile.pos(), name, pid, ActionType.breakBlock, tile.block(), unit.type());
+            History.write(tile, name, pid, ActionType.breakBlock, tile.block(), unit.type());
         });
 
         Events.on(EventType.BuildRotateEvent.class, (e)->{
@@ -240,14 +263,14 @@ public class PEvents {
                 return;
             Player player = e.unit.getPlayer();
             Building build = e.build;
-            Integer pid = null;
             String name = null;
+            Optional<Integer> pid = Optional.empty();
             if(player != null) {
-                pid = getPlayerId(player).orElse(null);
                 name = player.coloredName();
+                pid = getPlayerId(player);
             }
 
-            History.write(build.pos(), name, pid, ActionType.rotate, build.block, null);
+            History.write(build.tile, name, pid, ActionType.rotate, build.block, null);
         });
 
         Events.on(EventType.ConfigEvent.class, (e)->{
@@ -255,32 +278,49 @@ public class PEvents {
                 return;
             Player player = e.player;
             Building build = e.tile;
-            Integer pid = getPlayerId(player).orElse(null);
             String name = player.coloredName();
 
-            History.write(build.pos(), name, pid, ActionType.configure, build.block, null);
+            History.write(build.tile, name, getPlayerId(player), ActionType.configure, build.block, null);
         });
 
         Events.on(EventType.GameOverEvent.class, (e)->{
             if(mapVote != null)
                 mapVote.cancel();
             History.clear();
+            sendRoundMessage("Game Over! Team "+e.winner.name+" wins!\nTotal players: "+Groups.player.size());
         });
 
         Events.on(EventType.WorldLoadEvent.class, (e)->{
-            if(gamemode == sandbox)
-                Timer.schedule(()->{
+            Timer.schedule(()->{
+                if(gamemode == sandbox) {
                     Vars.state.rules.unitDamageMultiplier = 0;
                     Vars.state.rules.blockDamageMultiplier = 0;
                     Vars.state.rules.unitHealthMultiplier = 0.1f;
                     Vars.state.rules.blockHealthMultiplier = 0.1f;
-                }, 1);
+                } else if(gamemode == campaign) {
+                    CoreBlock.CoreBuild core = Vars.state.rules.defaultTeam.core();
+                    if(core == null) return;
+                    ItemModule items = core.items;
+                    items.add(Items.copper, 500);
+                    items.add(Items.silicon, 300);
+                    items.add(Items.graphite, 250);
+                    items.add(Items.coal, 1500);
+                    items.add(Items.metaglass, 65);
+                    items.add(Items.lead, 350);
+                    for(int i = 0;i<5;i++)
+                        UnitTypes.mono.spawn(core.team(), core.x, core.y);
+                }
+            }, 1);
         });
 
         Events.on(EventType.TapEvent.class, (e)->{
             if(e.player == null || e.tile == null || !historyPlayers.contains(e.player))
                 return;
             Call.setHudText(e.player.con, History.getMessage(e.tile.pos()));
+        });
+
+        Events.on(EventType.WaveEvent.class, (e)->{
+            Groups.player.each(p->PlayerStats.getPlayerStats(p).ifPresent(s->s.adjWavesSurvived()));
         });
     }
 

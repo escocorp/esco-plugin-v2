@@ -4,6 +4,7 @@ import arc.Events;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Strings;
+import arc.util.Time;
 import arc.util.Timekeeper;
 import mindustry.Vars;
 import mindustry.core.NetServer;
@@ -23,6 +24,7 @@ import plugin.utils.Utils;
 import plugin.utils.VoteMap;
 import plugin.utils.VotekickSession;
 
+import static mindustry.Vars.netServer;
 import static plugin.Bundle.infoMessage;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
@@ -30,9 +32,10 @@ import static plugin.database.models.Admin.getAdmin;
 import static plugin.database.models.Admin.updateHidden;
 import static plugin.database.models.Ban.*;
 import static plugin.database.models.PlayerData.*;
+import static plugin.menus.Menus.showShop;
+import static plugin.menus.Menus.slot;
 import static plugin.utils.Gamemode.sandbox;
-import static plugin.utils.Permission.admin;
-import static plugin.utils.Permission.getPerms;
+import static plugin.utils.Permission.*;
 import static plugin.utils.Utils.parseBool;
 import static plugin.utils.Utils.parseTime;
 import static plugin.database.models.Ban.ban;
@@ -42,6 +45,26 @@ public class ClientCommands {
     public static int voteCooldown = 60 * 5;
 
     public static void register(CustomHandler handler) {
+        handler.registerCommand("slot", "<bet>", (a, p)->{
+            if(!Strings.canParseInt(a[0])) {
+                sendMessage("args.mustbeint", p, "<bet>");
+                return;
+            }
+            PlayerStats.getPlayerStats(p).ifPresent(s->slot(p, s, Strings.parseInt(a[0])));
+        });
+        handler.registerCommand("shop", (a, p)->{
+            PlayerStats.getPlayerStats(p).ifPresent(s->showShop(s, p));
+        });
+        handler.registerCommand("sync", (args, player)->{
+            if(Time.timeSinceMillis(player.getInfo().lastSyncTime) < 1000 * 5){
+                player.sendMessage("[scarlet]You may only /sync every 5 seconds.");
+                return;
+            }
+
+            player.getInfo().lastSyncTime = Time.millis();
+            Call.worldDataBegin(player.con);
+            netServer.sendWorldData(player);
+        });
         handler.registerCommand("help", "[page]", (args, player)->{
             if (args.length > 0 && !Strings.canParseInt(args[0])) {
                 player.sendMessage("[scarlet]\"page\" must be a integer.");
@@ -103,6 +126,8 @@ public class ClientCommands {
                 s.update(p, false);
                 sb.append("Blocks build: ").append(s.blocksBuild).append("\n");
                 sb.append("Blocks broken: ").append(s.blocksBroken).append("\n");
+                sb.append("Waves survived: ").append(s.wavesSurvived).append("\n");
+                sb.append("Balance: [green]$[]").append(s.balance).append("\n");
                 sb.append("Playtime: ").append(Utils.formatTime(s.playtime));
             });
 
@@ -148,12 +173,6 @@ public class ClientCommands {
                 }
                 if(banned) {
                     p.sendMessage("[green]Player banned!");
-                    /*getPlayerById(id).ifPresent(player->{
-                        Optional<Ban> ban = getBan(player);
-                        if(ban.isPresent()) {
-                            ban.get().kickPlayer(player);
-                        }
-                    });*/
                 } else {
                     p.sendMessage("[scarlet]Failed to ban player");
                 }
@@ -225,7 +244,7 @@ public class ClientCommands {
             });*/
 
         handler.registerCommand("artv", "", admin, (a, p)->{
-            Events.fire(new EventType.GameOverEvent(Team.derelict));
+            //Events.fire(new EventType.GameOverEvent(Team.derelict));
         });
 
         handler.registerCommand("a", "<message...>", admin, (arg, p)->{
@@ -236,7 +255,7 @@ public class ClientCommands {
         handler.registerCommand("vote", "<y/n/c>", (arg, player) -> {
             if(currentlyKicking == null){
                 // player.sendMessage("[scarlet]Nobody is being voted on.");
-                sendMessage("novoteinprogress", player);
+                sendMessage("vote.novoteinprogress", player);
             }else{
                 if(getPerms(player).contains(admin) && arg[0].equalsIgnoreCase("c")){
                     // Call.sendMessage(Strings.format("[lightgray]Vote canceled by admin[orange] @[lightgray].", player.name));
@@ -334,12 +353,15 @@ public class ClientCommands {
                 }
 
                 if(found != null){
+                    Seq<Permission> perms = getPerms(found);
                     if(found == player){
                         // player.sendMessage("[scarlet]You can't vote to kick yourself.");
                         sendMessage("votekick.kickyouself", player);
-                    }else if(found.admin || getPerms(found).contains(admin)){
+                    }else if(found.admin || perms.contains(admin)){
                         // player.sendMessage("[scarlet]Did you really expect to be able to kick an admin?");
                         sendMessage("votekick.admin", player);
+                    }else if(perms.contains(votekickImmune)) {
+                        sendMessage("votekick.immune", player);
                     }else if(found.isLocal()){
                         // player.sendMessage("[scarlet]Local players cannot be kicked.");
                         sendMessage("votekick.localplayer2", player);

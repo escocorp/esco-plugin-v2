@@ -4,6 +4,7 @@ import arc.struct.IntMap;
 import arc.struct.ObjectMap;
 import arc.struct.StringMap;
 import arc.util.CommandHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mindustry.gen.Player;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -24,9 +25,9 @@ public class PVars {
 
     public static final String discordLink = "https://discord.gg/KfusjwYFDx";
 
-    public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr;
+    public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, roundsChannelStr, parrotChannelStr;
     public static Guild serverGuild;
-    public static TextChannel serverChannel, logsChannel, votekicksChannel;
+    public static TextChannel serverChannel, logsChannel, votekicksChannel, roundsChannel, parrotChannel;
 
     public static String dbHost, dbPort, dbPassword, dbUser, db;
 
@@ -46,4 +47,6 @@ public class PVars {
     public static Seq<Log> logsBuffer = new Seq<>();
 
     public static IntMap<String> SSUsers = new IntMap<>(8);
+
+    public static final ObjectMapper objectMapper = new ObjectMapper();
 }

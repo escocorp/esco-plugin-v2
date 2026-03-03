@@ -4,13 +4,15 @@ import mindustry.net.Administration.ActionType;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
 
-public record HistoryRecord(String playerName, Integer playerId, ActionType type, Block block, UnitType unit) {
+import java.util.Optional;
+
+public record HistoryRecord(String playerName, Optional<Integer> playerId, ActionType type, Block block, UnitType unit) {
     public String getMessage() {
         String actor = playerName == null ?
                 unit == null ? "unknown" : unit.emoji() :
                 playerName;
-        if(playerId != null)
-            actor = playerId + " " + actor;
+        if(playerId.isPresent())
+            actor = playerId.get() + " " + actor;
         return switch(type) {
             case rotate -> actor + " [tan]rotated[white] " + block.emoji();
             case breakBlock -> actor + " [tan]broken[white] " + block.emoji();

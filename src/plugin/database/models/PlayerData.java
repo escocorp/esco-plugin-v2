@@ -1,7 +1,9 @@
 package plugin.database.models;
 
 import arc.struct.ObjectMap;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import mindustry.gen.Player;
+import org.postgresql.util.PGobject;
 import plugin.PVars;
 import plugin.database.Database;
 import mindustry.gen.Groups;
@@ -10,21 +12,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import static plugin.PVars.gamemode;
-import static plugin.PVars.serverId;
+import static arc.util.Log.err;
+import static plugin.PVars.*;
 import static plugin.database.Database.executeQueryAsync;
 import static plugin.database.Database.executeUpdate;
+import static plugin.utils.Utils.getUDPAddress;
 
 public class PlayerData {
     public static ObjectMap<Player, PlayerData> cache = new ObjectMap<>();
     public int id;
     public String uuid;
     public Long discordId;
+    public PlayerPrefs prefs;
 
-    PlayerData(int id, String uuid, Long discordId) {
+    PlayerData(int id, String uuid, Long discordId, PlayerPrefs prefs) {
         this.id = id;
         this.uuid = uuid;
         this.discordId = discordId;
+        this.prefs = prefs;
     }
 
     public boolean updateDiscordId(Long dsid) {
@@ -39,8 +44,28 @@ public class PlayerData {
                 }
         );
         if(updated)
-            this.discordId = discordId;
+            this.discordId = dsid;
         return updated;
+    }
+
+    public boolean updatePrefs() {
+        try {
+            PGobject object = new PGobject();
+            object.setType("jsonb");
+            object.setValue(objectMapper.writeValueAsString(prefs));
+            return executeUpdate(
+                    """
+                            UPDATE players SET prefs = ? WHERE id = ?
+                            """,
+                    stmt -> {
+                        stmt.setObject(1, object);
+                        stmt.setInt(2, id);
+                    }
+            );
+        } catch (Exception e) {
+            err(e);
+            return false;
+        }
     }
 
     public Optional<String> getUsid() {
@@ -83,13 +108,18 @@ public class PlayerData {
                                 color     = EXCLUDED.color,
                                 locale    = EXCLUDED.locale,
                                 last_seen = NOW()
-                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id
+                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs
                         ),
                         insert_usid AS (
                             INSERT INTO usid_list (player_id, usid, server)
                             SELECT id, ?, ?
                             FROM update_players
                             ON CONFLICT (usid, server) DO NOTHING
+                        ),
+                        insert_connection AS (
+                            INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
+                            SELECT last_name, last_ip, ?, ?, id
+                            FROM update_players
                         ),
                         insert_stats AS (
                             INSERT INTO statistics (player_id)
@@ -108,6 +138,8 @@ public class PlayerData {
                     stmt.setString(5, p.color.toString());
                     stmt.setString(6, p.usid());
                     stmt.setInt(7, serverId);
+                    stmt.setString(8, getUDPAddress(p));
+                    stmt.setInt(9, serverId);
                 },
                 PlayerData::getPlayerData
         );
@@ -147,6 +179,13 @@ public class PlayerData {
     }
 
     public static PlayerData getPlayerData(ResultSet rs) throws SQLException {
-        return new PlayerData(rs.getInt("id"), rs.getString("uuid"), rs.getObject("discord_id", Long.class));
+        PlayerPrefs prefs;
+        try {
+            prefs = objectMapper.readValue(rs.getString("prefs"), PlayerPrefs.class);
+        } catch (Exception e) {
+            prefs = new PlayerPrefs();
+            err(e);
+        }
+        return new PlayerData(rs.getInt("id"), rs.getString("uuid"), rs.getObject("discord_id", Long.class), prefs);
     }
 }

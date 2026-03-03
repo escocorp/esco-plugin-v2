@@ -55,6 +55,7 @@ public class Commands {
             EmbedBuilder embed = new EmbedBuilder();
 
             Groups.player.each((p)->{
+                PlayerData.getPlayerData(p).ifPresent(pd->sb.append("[").append(pd.id).append("] "));
                 sb.append(p.plainName()).append("\n");
             });
 

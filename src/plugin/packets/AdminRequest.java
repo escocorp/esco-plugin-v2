@@ -14,6 +14,7 @@ import mindustry.net.NetConnection;
 import mindustry.gen.Player;
 import mindustry.net.Packets;
 import plugin.Bundle;
+import plugin.menus.Menus;
 import plugin.utils.Permission;
 
 import static mindustry.Vars.netServer;
@@ -28,13 +29,13 @@ public class AdminRequest {
         Packets.AdminAction action = packet.action;
         Object params = packet.params;
 
-        Seq<Permission> perms = getPerms(player);
-
         if(other == null) {
             return;
         }
 
         Events.fire(new EventType.AdminRequestEvent(player, other, action));
+
+        Seq<Permission> perms = getPerms(player);
 
         switch (action) {
             case wave -> {
@@ -65,6 +66,7 @@ public class AdminRequest {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
+                /*
                 String uuid = other.uuid();
                 var pdata = getPlayerData(other);
 
@@ -77,7 +79,8 @@ public class AdminRequest {
                     Call.traceInfo(player.con, other, info);
                 }else{
                     NetClient.traceInfo(other, info);
-                }
+                }*/
+                Menus.showTrace(player, other, perms);
             }
             case switchTeam -> {
                 if(!perms.contains(Permission.admin)) {
