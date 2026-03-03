@@ -2,10 +2,13 @@ package plugin.utils;
 
 import arc.files.Fi;
 import arc.func.Cons;
+import arc.net.Connection;
 import arc.util.Http;
 import arc.util.Log;
+import arc.util.Reflect;
 import arc.util.Strings;
 import mindustry.Vars;
+import mindustry.gen.Player;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -14,17 +17,19 @@ import java.util.Random;
 import java.util.zip.InflaterInputStream;
 
 import static mindustry.Vars.charset;
-import static plugin.PVars.random;
-import static plugin.PVars.vpnApi;
+import static plugin.PVars.*;
 
 public class Utils {
     public static final String characters = "qwertyuiopasdfghjklzxcvbnm123456789=";
-    public static void isAnon(String ip, Runnable callback) {
+    public static void isAnon(String ip, Cons<ApiResponse> callback) {
         Http.get(
                 vpnApi + ip,
                 (resp)->{
-                    if(resp.getResultAsString().contains("\"anon\":true"))
-                        callback.run();
+                    try {
+                        callback.get(objectMapper.readValue(resp.getResultAsString(), ApiResponse.class));
+                    } catch (Exception e) {
+                        Log.err("Failed to parse api response", e);
+                    }
                 },
                 (err)->{
                     Log.err("Failed to check ip", err);
@@ -145,4 +150,7 @@ public class Utils {
 
     return count;
 }
+    public static String getUDPAddress(Player player) {
+        return Reflect.<Connection>get(player.con, "connection").getRemoteAddressUDP().getAddress().toString().substring(1);
+    }
 }

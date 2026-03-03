@@ -8,7 +8,7 @@ import plugin.Bundle;
 import plugin.discord.Bot;
 import plugin.history.History;
 import plugin.utils.Loader;
-import plugin.utils.Patches;
+import plugin.patches.Patches;
 import static plugin.PVars.*;
 import static plugin.discord.Bot.sendLog;
 

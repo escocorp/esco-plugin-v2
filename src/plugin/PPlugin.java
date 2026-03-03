@@ -9,16 +9,14 @@ import plugin.commands.ClientCommands;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommands;
 import plugin.database.BanListener;
-import plugin.database.models.Server;
 import plugin.discord.Bot;
 import plugin.utils.Loader;
-import plugin.utils.Patches;
+import plugin.menus.Menu;
+import plugin.menus.TextMenu;
+import plugin.patches.Patches;
 import plugin.utils.MapPreview;
 
-import java.util.Optional;
-
 import static plugin.PVars.*;
-import static plugin.database.models.Server.getOrCreateServer;
 
 public class PPlugin extends Plugin {
     @Override
@@ -30,7 +28,10 @@ public class PPlugin extends Plugin {
         MapPreview.loadColors();
         Loader.loadServerId();
         Loader.loadLogging();
+        Loader.loadTimers();
         BanListener.load();
+        Menu.load();
+        TextMenu.load();
         // Foos.Companion.init();
 
         Threads.daemon(Bot::load);

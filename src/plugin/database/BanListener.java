@@ -2,6 +2,7 @@ package plugin.database;
 
 import arc.util.Log;
 import arc.util.Strings;
+import arc.util.Time;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
 import plugin.database.models.Ban;
@@ -12,6 +13,9 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static plugin.Bundle.sendMessage;
+import static plugin.utils.Utils.formatTime;
 
 public class BanListener {
     private static int failedTimes = 0;
@@ -34,9 +38,10 @@ public class BanListener {
                             if(!Strings.canParseInt(payload)) continue;
                             int i = Strings.parseInt(payload);
                             Ban.getBan(i).ifPresent(ban->
-                                    PlayerData.getPlayerById(ban.playerId).ifPresent(p->
-                                            ban.kickPlayer(p)
-                                    )
+                                    PlayerData.getPlayerById(ban.playerId).ifPresent(p-> {
+                                        sendMessage("advertise.banned", ban.playerId, p.coloredName(), ban.unbanTime == null ? "never" :formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000), ban.reason);
+                                        ban.kickPlayer(p);
+                                    })
                             );
                         }
 

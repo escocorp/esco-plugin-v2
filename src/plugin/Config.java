@@ -5,6 +5,7 @@ import arc.util.Log;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import static plugin.utils.Gamemode.parseGamemode;
+import static plugin.utils.Gamemode.pvp;
 
 public class Config {
     private static final Dotenv dotenv = Dotenv.configure()
@@ -33,6 +34,8 @@ public class Config {
         PVars.serverGuildStr = getEnv("GUILD_ID");
         PVars.logsChannelStr = getEnv("LOGS_ID");
         PVars.votekicksChannelStr = getEnv("VOTEKICKS_ID");
+        PVars.roundsChannelStr = getEnv("ROUNDS_ID");
+        PVars.parrotChannelStr = getEnv("PARROT_ID");
     }
 
 

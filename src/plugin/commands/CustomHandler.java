@@ -107,7 +107,7 @@ public class CustomHandler {
         // addPseudoCommand("a", "<message...>", Permission.admin);
         // addPseudoCommand("votekick", "[player] [reason...]");
         // addPseudoCommand("vote", "<y/n/c>");
-        addPseudoCommand("sync", "");
+        // addPseudoCommand("sync", "");
     }
 
     public void addPseudoCommand(String name, String args) {

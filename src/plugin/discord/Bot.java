@@ -34,6 +34,8 @@ public class Bot {
                 serverChannel = serverGuild.getChannelById(TextChannel.class, serverChannelStr);
                 logsChannel = serverGuild.getChannelById(TextChannel.class, logsChannelStr);
                 votekicksChannel = serverGuild.getChannelById(TextChannel.class, votekicksChannelStr);
+                roundsChannel = serverGuild.getChannelById(TextChannel.class, roundsChannelStr);
+                parrotChannel = serverGuild.getChannelById(TextChannel.class, parrotChannelStr);
             } else {
                 Log.err("Failed to get server guild!");
             }
@@ -55,6 +57,16 @@ public class Bot {
     public static void sendServerMessage(String message) {
         if(serverChannel == null) return;
         serverChannel.sendMessage(message).queue();
+    }
+
+    public static void sendParrotMessage(String message) {
+        if(parrotChannel == null) return;
+        parrotChannel.sendMessage(message).queue();
+    }
+
+    public static void sendRoundMessage(String message) {
+        if(roundsChannel == null) return;
+        roundsChannel.sendMessage("["+gamemode.simpleName+"] "+message).queue();
     }
 
     public static void sendJoinMessage(Player player, int id) {

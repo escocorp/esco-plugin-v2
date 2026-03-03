@@ -3,6 +3,7 @@ package plugin.database.models;
 import arc.struct.ObjectMap;
 import arc.struct.StringMap;
 import arc.util.Time;
+import arc.util.Timekeeper;
 import mindustry.gen.Player;
 
 import java.sql.ResultSet;
@@ -15,26 +16,37 @@ import static plugin.database.Database.executeUpdate;
 public class PlayerStats {
     public int id, playerId;
     public long playtime;
-    public int blocksBuild, blocksBroken;
+    public int blocksBuild, blocksBroken, balance, wavesSurvived;
 
-    public PlayerStats(int id, int playerId, long playtime, int blocksBuild, int blocksBroken) {
+    public transient Timekeeper lastGambling;
+
+    public PlayerStats(int id, int playerId, long playtime, int blocksBuild, int blocksBroken, int balance, int wavesSurvived) {
         this.id = id;
         this.playerId = playerId;
         this.playtime = playtime; // sec!!
         this.blocksBuild = blocksBuild;
         this.blocksBroken = blocksBroken;
+        this.balance = balance;
+        this.wavesSurvived = wavesSurvived;
     }
 
     public static ObjectMap<String, PlayerStats> cache = new ObjectMap<>();
     public static ObjectMap<String, Long> joinTime = new ObjectMap<>();
 
+    public PlayerStats setLastGambling(Timekeeper time) {
+        this.lastGambling = time;
+        return this;
+    }
+
     public boolean write() {
-        return executeUpdate("UPDATE statistics SET playtime = ?, blocks_build = ?, blocks_broken = ? WHERE id = ?",
+        return executeUpdate("UPDATE statistics SET playtime = ?, blocks_build = ?, blocks_broken = ?, balance = ?, waves_survived = ? WHERE id = ?",
                 stmt->{
             stmt.setLong(1, playtime);
             stmt.setInt(2, blocksBuild);
             stmt.setInt(3, blocksBroken);
-            stmt.setInt(4, id);
+            stmt.setInt(4, balance);
+            stmt.setInt(5, wavesSurvived);
+            stmt.setInt(6, id);
                 });
     }
 
@@ -58,11 +70,34 @@ public class PlayerStats {
 
     public PlayerStats adjBlocksBuild() {
         this.blocksBuild += 1;
+        if(blocksBuild % 50 == 0)
+            adjBalance();
         return this;
     }
 
     public PlayerStats adjBlocksBroken() {
         this.blocksBroken += 1;
+        return this;
+    }
+
+    public PlayerStats adjWavesSurvived() {
+        this.wavesSurvived += 1;
+        if(wavesSurvived % 5 == 0)
+            adjBalance();
+        return this;
+    }
+
+    public PlayerStats adjBalance() {
+        return adjBalance(1);
+    }
+
+    public PlayerStats adjBalance(int count) {
+        this.balance += count;
+        return this;
+    }
+
+    public PlayerStats subBalance(int count) {
+        this.balance -= count;
         return this;
     }
 
@@ -107,7 +142,9 @@ public class PlayerStats {
                 rs.getInt("player_id"),
                 rs.getLong("playtime"),
                 rs.getInt("blocks_build"),
-                rs.getInt("blocks_broken")
+                rs.getInt("blocks_broken"),
+                rs.getInt("balance"),
+                rs.getInt("waves_survived")
         );
     }
 }

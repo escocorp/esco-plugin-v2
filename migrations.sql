@@ -3,10 +3,11 @@ CREATE TABLE players (
     uuid TEXT NOT NULL UNIQUE ,
     last_name TEXT NOT NULL,
     last_ip TEXT NOT NULL,
-    locale VARCHAR(5) NOT NULL, -- en_US 5 symb.
+    locale VARCHAR(30) NOT NULL, -- en_US 5 symb.
     color VARCHAR(11) NOT NULL, -- #23456789 + [] 11 symb
     last_seen TIMESTAMP DEFAULT NOW(),
-    discord_id BIGINT default NULL UNIQUE
+    discord_id BIGINT default NULL UNIQUE,
+    prefs JSONB NOT NULL DEFAULT '{}'
 );
 
 CREATE TABLE servers (
@@ -60,5 +61,21 @@ CREATE TABLE statistics (
     player_id INTEGER references players(id) UNIQUE,
     playtime BIGINT DEFAULT 0 NOT NULL,
     blocks_build INTEGER DEFAULT 0 NOT NULL,
-    blocks_broken INTEGER DEFAULT 0 NOT NULL
+    blocks_broken INTEGER DEFAULT 0 NOT NULL,
+    waves_survived INTEGER DEFAULT 0 NOT NULL,
+    balance INTEGER DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE graylist (
+    id SERIAL PRIMARY KEY,
+    isp VARCHAR(100)
+);
+
+CREATE TABLE connections (
+    id SERIAL PRIMARY KEY,
+    player_name TEXT NOT NULL,
+    address VARCHAR(20) NOT NULL,
+    address_udp VARCHAR(20) NOT NULL,
+    server_id INTEGER REFERENCES servers(id) NOT NULL,
+    player_id INTEGER REFERENCES players(id) NOT NULL
 );
