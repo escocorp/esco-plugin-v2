@@ -1,15 +1,12 @@
 package plugin.utils;
 
-import arc.util.Log.*;
 import arc.util.Timer;
 import mindustry.gen.Groups;
 import mindustry.net.Administration;
 // import plugin.antigrief.AntiFimoz;
-import plugin.antigrief.ClientCrasher;
 import plugin.database.models.Log;
-import plugin.database.models.PlayerStats;
 import plugin.database.models.Server;
-import plugin.gamemodes.TDGamemode;
+import plugin.gamemodes.TDGamemodeKt;
 import plugin.packets.Packets;
 
 import java.util.Optional;
@@ -33,7 +30,7 @@ public class Loader {
 
     public static void loadGamemode() {
         if(gamemode == Gamemode.tdefense)
-            TDGamemode.load();
+            TDGamemodeKt.load();
     }
 
     public static void loadTimers() {

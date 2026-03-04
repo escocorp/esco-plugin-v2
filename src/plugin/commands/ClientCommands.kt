@@ -26,6 +26,9 @@ import plugin.utils.VotekickSession
 import java.util.*
 import java.util.function.Consumer
 
+const val commandsPerPage = 10
+var voteCooldown = 60 * 5
+
 fun register(handler: CustomHandler) {
     handler.registerCommand("vanish", "", Permission.vanish, CommandRunner { _: Array<String?>?, p: Player? ->
         if (PVars.vanishedPlayers.contains(p)) {
@@ -113,7 +116,7 @@ fun register(handler: CustomHandler) {
 
             if (!perms.contains(c.permission)) continue
 
-            if (availableCommands >= ClientCommands.commandsPerPage) {
+            if (availableCommands >= commandsPerPage) {
                 pages.add(result.toString())
                 result.setLength(0)
                 availableCommands = 0
@@ -409,11 +412,11 @@ fun register(handler: CustomHandler) {
                         Bundle.sendMessage("votekick.onlyyourteam", player)
                     } else {
                         val vtime =
-                            cooldowns.get(player.uuid()) { Timekeeper(ClientCommands.voteCooldown.toFloat()) }
+                            cooldowns.get(player.uuid()) { Timekeeper(voteCooldown.toFloat()) }
 
                         if (!vtime.get()) {
                             // player.sendMessage("[scarlet]You must wait " + voteCooldown/60 + " minutes between votekicks.");
-                            Bundle.sendMessage("votekick.wait", player, ClientCommands.voteCooldown / 60)
+                            Bundle.sendMessage("votekick.wait", player, voteCooldown / 60)
                             return@CommandRunner
                         }
 
