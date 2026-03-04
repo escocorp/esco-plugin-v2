@@ -2,7 +2,6 @@ package plugin;
 
 import arc.struct.IntMap;
 import arc.struct.ObjectMap;
-import arc.struct.StringMap;
 import arc.util.CommandHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mindustry.gen.Player;
