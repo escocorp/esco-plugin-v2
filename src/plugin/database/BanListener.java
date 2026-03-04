@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static plugin.Bundle.sendMessage;
-import static plugin.utils.Utils.formatTime;
+import static plugin.utils.UtilsKt.formatTime;
 
 public class BanListener {
     private static int failedTimes = 0;

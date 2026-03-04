@@ -16,7 +16,7 @@ import static arc.util.Log.err;
 import static plugin.PVars.*;
 import static plugin.database.Database.executeQueryAsync;
 import static plugin.database.Database.executeUpdate;
-import static plugin.utils.Utils.getUDPAddress;
+import static plugin.utils.UtilsKt.getUDPAddress;
 
 public class PlayerData {
     public static ObjectMap<Player, PlayerData> cache = new ObjectMap<>();
