@@ -9,6 +9,7 @@ import plugin.commands.ClientCommandsKt;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommandsKt;
 import plugin.database.BanListener;
+import plugin.discord.BotKt;
 import plugin.utils.Loader;
 import plugin.menus.Menu;
 import plugin.menus.TextMenu;
