@@ -7,6 +7,7 @@ import mindustry.net.Administration;
 // import plugin.antigrief.AntiFimoz;
 import plugin.antigrief.ClientCrasher;
 import plugin.database.models.Log;
+import plugin.database.models.PlayerStats;
 import plugin.database.models.Server;
 import plugin.packets.Packets;
 
@@ -42,6 +43,15 @@ public class Loader {
             if(!Groups.player.isEmpty())
                 sendMessage("advertise.reports", discordLink);
         }, 15*60, 35*60);
+        Timer.schedule(()->{
+            Groups.player.each(p->{
+                PlayerStats.getPlayerStats(p).ifPresent(s->{
+                    info("Writing ALL player stats");
+                    s.update(p, false);
+                    s.write();
+                });
+            });
+        }, 0, 6*60);
     }
 
     public static void loadServerId() {
