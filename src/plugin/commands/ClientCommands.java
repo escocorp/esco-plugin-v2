@@ -55,8 +55,38 @@ public class ClientCommands {
             vanishedPlayers.add(p);
             Call.playerDisconnect(p.id);
         });
-        handler.registerCommand("pay", "<player> <cost>", (args, player)->{
-
+        handler.registerCommand("pay", "<playername> <amount>", (args, player)->{
+            Player target = Groups.player.find(p->p.plainName().equalsIgnoreCase(args[0]));
+            if(target == null || target == player) {
+                player.sendMessage("[scarlet]Player with that name not found!");
+                return;
+            }
+            if(!Strings.canParseInt(args[1])) {
+                sendMessage("args.mustbeint", player, "<amount>");
+                return;
+            }
+            var targetStatsOpt = PlayerStats.getPlayerStats(target);
+            var playerStatsOpt = PlayerStats.getPlayerStats(player);
+            if(targetStatsOpt.isEmpty() || playerStatsOpt.isEmpty()) {
+                player.sendMessage("[scarlet]Unknown error");
+                return;
+            }
+            var targetStats = targetStatsOpt.get();
+            var playerStats = playerStatsOpt.get();
+            int amount = Strings.parseInt(args[1]);
+            if(amount < 1) {
+                player.sendMessage("Amount must be > 0");
+                return;
+            }
+            if(amount > playerStats.balance) {
+                sendMessage("menu.shop.nomoney", player);
+                return;
+            }
+            int commision = amount / 100;
+            playerStats.subBalance(amount);
+            targetStats.adjBalance(amount - commision);
+            target.sendMessage("[green]Player "+player.coloredName() +" [green]give you $[white]"+amount+" [green](commision $[white]"+commision+"[green])");
+            player.sendMessage("[green]You give " + target.coloredName() + " [green]$[white]"+amount+" [green](commision $[white]"+commision+"[green])");
         });
         handler.registerCommand("economy", "", (a, p)->{
             infoMessage("infomessage.economyguide", p);

@@ -43,6 +43,7 @@ public class Loader {
             if(!Groups.player.isEmpty())
                 sendMessage("advertise.reports", discordLink);
         }, 15*60, 35*60);
+        /*
         Timer.schedule(()->{
             Groups.player.each(p->{
                 PlayerStats.getPlayerStats(p).ifPresent(s->{
@@ -51,7 +52,7 @@ public class Loader {
                     s.write();
                 });
             });
-        }, 0, 6*60);
+        }, 0, 6*60);*/
     }
 
     public static void loadServerId() {
