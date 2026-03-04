@@ -5,7 +5,6 @@ import arc.util.Log;
 import arc.util.Threads;
 import mindustry.mod.Plugin;
 
-import plugin.commands.ClientCommands;
 import plugin.commands.ClientCommandsKt;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommands;

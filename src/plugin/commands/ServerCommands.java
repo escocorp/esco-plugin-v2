@@ -6,7 +6,6 @@ import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import plugin.Bundle;
 import plugin.discord.Bot;
-import plugin.gamemodes.TDGamemode;
 import plugin.history.History;
 import plugin.utils.Loader;
 import plugin.patches.Patches;
