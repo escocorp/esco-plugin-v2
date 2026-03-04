@@ -42,7 +42,7 @@ import static plugin.discord.Bot.*;
 import static plugin.utils.Gamemode.*;
 import static plugin.utils.Permission.getPerms;
 import static plugin.utils.Permission.seqToString;
-import static plugin.utils.Utils.*;
+import static plugin.utils.UtilsKt.*;
 import static plugin.database.models.Admin.getAdmin;
 import static plugin.database.models.Ban.getBan;
 import static plugin.database.models.PlayerData.getPlayerData;

@@ -20,7 +20,6 @@ import plugin.database.models.PlayerData
 import plugin.database.models.PlayerStats
 import plugin.menus.Menus
 import plugin.utils.Permission
-import plugin.utils.Utils
 import plugin.utils.VoteMap
 import plugin.utils.VotekickSession
 import java.util.*
@@ -157,14 +156,14 @@ fun register(handler: CustomHandler) {
             sb.append("Blocks broken: ").append(s.blocksBroken).append("\n")
             sb.append("Waves survived: ").append(s.wavesSurvived).append("\n")
             sb.append("Balance: [green]$[]").append(s.balance).append("\n")
-            sb.append("Playtime: ").append(Utils.formatTime(s.playtime))
+            sb.append("Playtime: ").append(UtilsKt.formatTime(s.playtime))
         })
         p!!.sendMessage(sb.toString())
     }
 
     handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String?>?, p: Player? ->
         val i: Int = if (a!!.isEmpty()) 1
-        else Utils.parseBool(a[0])
+        else UtilsKt.parseBool(a[0])
         if (i == 0) {
             Bundle.sendMessage("vote.unknownvote", p)
             return@CommandRunner
@@ -188,7 +187,7 @@ fun register(handler: CustomHandler) {
         CommandRunner { a: Array<String?>?, p: Player? ->
             if (Strings.canParseInt(a!![0])) {
                 val id = Strings.parseInt(a[0])
-                val time = Utils.parseTime(a[1])
+                val time = UtilsKt.parseTime(a[1])
                 val perm = a[1].equals("perm", ignoreCase = true)
                 if (time == -1L && !perm) {
                     p!!.sendMessage("[scarlet]Unknown time, use d w m y or perm!")
@@ -230,14 +229,14 @@ fun register(handler: CustomHandler) {
             p!!.sendMessage("Account already linked!")
             return@CommandRunner
         }
-        val code = Utils.getRandomString(5)
+        val code = UtilsKt.getRandomString(5)
 
         PVars.linkCodes.put(code, p)
         Bundle.infoMessage("discord.link", p, PVars.gamemode.botPrefix, code, PVars.discordLink)
     })
 
     handler.registerCommand("hidden", "<bool>", Permission.admin, CommandRunner { a: Array<String?>?, p: Player? ->
-        val i = Utils.parseBool(a!![0])
+        val i = UtilsKt.parseBool(a!![0])
         val idOpt = PlayerData.getPlayerId(p)
         if (idOpt.isEmpty) {
             return@CommandRunner
