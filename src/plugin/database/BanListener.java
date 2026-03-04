@@ -7,7 +7,6 @@ import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
 import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
-import plugin.discord.Bot;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -49,7 +48,7 @@ public class BanListener {
                 }
             } catch (Exception e) {
                 Log.err(e);
-                Bot.sendLog(e.getMessage());
+                BotKt.sendLog(e.getMessage());
                 if(failedTimes < 5) {
                     load();
                     failedTimes += 1;
