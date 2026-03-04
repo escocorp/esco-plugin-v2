@@ -55,6 +55,9 @@ public class ClientCommands {
             vanishedPlayers.add(p);
             Call.playerDisconnect(p.id);
         });
+        handler.registerCommand("pay", "<player> <cost>", (args, player)->{
+
+        });
         handler.registerCommand("economy", "", (a, p)->{
             infoMessage("infomessage.economyguide", p);
         });
