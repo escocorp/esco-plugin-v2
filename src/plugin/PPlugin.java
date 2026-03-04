@@ -9,7 +9,6 @@ import plugin.commands.ClientCommandsKt;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommandsKt;
 import plugin.database.BanListener;
-import plugin.discord.Bot;
 import plugin.utils.Loader;
 import plugin.menus.Menu;
 import plugin.menus.TextMenu;
@@ -35,7 +34,7 @@ public class PPlugin extends Plugin {
         TextMenu.load();
         // Foos.Companion.init();
 
-        Threads.daemon(Bot::load);
+        Threads.daemon(BotKt::load);
 
         Log.info("Plugin successfully loaded!");
     }

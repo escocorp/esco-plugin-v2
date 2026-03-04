@@ -21,7 +21,6 @@ import plugin.database.models.Admin;
 import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
-import plugin.discord.Bot;
 import plugin.history.History;
 import plugin.menus.Menus;
 import plugin.utils.Loader;
@@ -115,7 +114,7 @@ public class PEvents {
             putLog(pd.id, "event", "Player joined!");
 
             Log.info("[@] Player @ joined [@]", pd.id, player.plainName(), player.uuid());
-            Bot.sendJoinMessage(player, pd.id);
+            BotKt.sendJoinMessage(player, pd.id);
 
             Call.clientPacketReliable(player.con, "SendMeSubtitle", player == null ? null : String.valueOf(player.id));
             if(pd.prefs.showWelcomeMenu)
@@ -142,7 +141,7 @@ public class PEvents {
                 PlayerData pd = pdOpt.get();
                 sendMessage("messages.leave", String.valueOf(pd.id), player.coloredName());
                 Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid());
-                Bot.sendLeaveMessage(player, pd.id);
+                BotKt.sendLeaveMessage(player, pd.id);
                 putLog(pd.id, "event", "Player disconnected");
             }
             if(currentlyKicking != null && currentlyKicking.target.equals(player)) {
@@ -179,7 +178,7 @@ public class PEvents {
 
 	        if(!message.startsWith("/")) {
                 String content = ("`"+player.plainName()+": "+stripFoo(Strings.stripColors(message))+"`").replace("@", "");
-                Bot.sendServerMessage(content);
+                BotKt.sendServerMessage(content);
                 if(Math.random()>0.8)
                     sendParrotMessage(content);
             }
