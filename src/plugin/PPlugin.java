@@ -7,7 +7,7 @@ import mindustry.mod.Plugin;
 
 import plugin.commands.ClientCommandsKt;
 import plugin.commands.CustomHandler;
-import plugin.commands.ServerCommands;
+import plugin.commands.ServerCommandsKt;
 import plugin.database.BanListener;
 import plugin.discord.Bot;
 import plugin.utils.Loader;
@@ -42,7 +42,7 @@ public class PPlugin extends Plugin {
 
     @Override
     public void registerServerCommands(CommandHandler handler){
-        ServerCommands.register(handler);
+        ServerCommandsKt.register(handler);
     }
 
     @Override
