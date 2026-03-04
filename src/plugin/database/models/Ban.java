@@ -14,7 +14,7 @@ import arc.util.Time;
 
 import static plugin.PVars.discordLink;
 import static plugin.PVars.serverId;
-import static plugin.utils.Utils.formatTime;
+import static plugin.utils.UtilsKt.formatTime;
 import plugin.PVars;
 
 public class Ban {

@@ -34,7 +34,7 @@ import static mindustry.io.MapIO.colorFor;
 public class MapPreview {
     public static void loadColors() {
         try {
-            Fi colors = Utils.getResource("block_colors.png");
+            Fi colors = UtilsKt.getResource("block_colors.png");
             BufferedImage image = ImageIO.read(colors.read());
             Vars.content
                     .blocks()

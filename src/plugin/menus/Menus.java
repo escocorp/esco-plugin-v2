@@ -26,7 +26,7 @@ import static plugin.PVars.gamemode;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.PlayerData.getPlayerData;
 import static plugin.utils.Gamemode.pvp;
-import static plugin.utils.Utils.parseTime;
+import static plugin.utils.UtilsKt.parseTime;
 
 public class Menus {
     static final ObjectIntMap<UnitType> unitCosts = new ObjectIntMap<>();
