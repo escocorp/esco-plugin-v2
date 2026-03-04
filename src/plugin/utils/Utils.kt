@@ -86,6 +86,7 @@ fun formatTime(time: Long): String {
 }
 
 fun parseTime(time: String?): Long {
+    time?: return 0
     var time = time
     if (time.isEmpty() || !Character.isDigit(time[0])) return -1
     val timeMod = time[time.length - 1].lowercaseChar() // last char
