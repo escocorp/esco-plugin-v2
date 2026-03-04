@@ -16,7 +16,7 @@ import java.awt.*;
 import java.util.Comparator;
 
 import static plugin.PVars.linkCodes;
-import static plugin.discord.Bot.reply;
+import static plugin.discord.BotKt.*;
 import static plugin.utils.MapPreview.parseMap;
 import static plugin.utils.Permission.editMaps;
 import static plugin.utils.Permission.getPermsByDiscordId;

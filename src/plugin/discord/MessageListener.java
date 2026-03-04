@@ -16,7 +16,7 @@ import java.text.MessageFormat;
 
 import static plugin.PVars.discordCommands;
 import static plugin.PVars.gamemode;
-import static plugin.discord.Bot.reply;
+import static plugin.discord.BotKt.*;
 
 import arc.util.CommandHandler.CommandResponse;
 import arc.util.CommandHandler.ResponseType;

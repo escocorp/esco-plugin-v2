@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 
 import static plugin.Bundle.sendMessage;
 import static plugin.utils.UtilsKt.formatTime;
+import static plugin.discord.BotKt.*;
 
 public class BanListener {
     private static int failedTimes = 0;
@@ -48,7 +49,7 @@ public class BanListener {
                 }
             } catch (Exception e) {
                 Log.err(e);
-                BotKt.sendLog(e.getMessage());
+                sendLog(e.getMessage());
                 if(failedTimes < 5) {
                     load();
                     failedTimes += 1;
