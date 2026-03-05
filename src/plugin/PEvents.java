@@ -157,16 +157,12 @@ public class PEvents {
                 rtvVotes.remove(player);
                 Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
             }*/
-            if(mapVote != null)
-                Timer.schedule(()->mapVote.checkPass(), 0.2f);
-            /*
-            if(mapVote != null)
-                mapVote.checkPass();
-             */
-
-            if(Groups.player.isEmpty() && needRestart) {
-                Loader.exit();
-            }
+            Timer.schedule(()->{
+                if(mapVote != null) mapVote.checkPass();
+                if(Groups.player.isEmpty() && needRestart) {
+                    Loader.exit();
+                }
+            }, 0.2f);
         });
 
         Events.on(EventType.PlayerChatEvent.class, (e)->{
@@ -180,7 +176,7 @@ public class PEvents {
 	        if(!message.startsWith("/")) {
                 String content = ("`"+player.plainName()+": "+stripFoo(Strings.stripColors(message))+"`").replace("@", "");
                 BotKt.sendServerMessage(content);
-                if(Math.random()>0.8)
+                if(Math.random()>0.9)
                     sendParrotMessage(content);
             }
         });
