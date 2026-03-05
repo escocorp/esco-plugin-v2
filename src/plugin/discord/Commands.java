@@ -72,6 +72,7 @@ public class Commands {
         });
 
         handler.<Context>register("link", "<code>", "", (arg, ctx)->{
+            if(arg[0].lenght() > 15) return;
             if(!linkCodes.containsKey(arg[0])) {
                 ctx.reply("Code not found! Are you on server?");
                 return;
