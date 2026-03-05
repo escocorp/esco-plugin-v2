@@ -3,6 +3,7 @@ package plugin;
 import arc.struct.IntMap;
 import arc.struct.ObjectMap;
 import arc.util.CommandHandler;
+import arc.util.Time;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mindustry.gen.Player;
 import net.dv8tion.jda.api.entities.Guild;
@@ -48,4 +49,6 @@ public class PVars {
     public static IntMap<String> SSUsers = new IntMap<>(8);
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    //public static long startTime = Time.millis();
 }

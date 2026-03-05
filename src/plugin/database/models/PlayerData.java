@@ -10,12 +10,12 @@ import mindustry.gen.Groups;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import static arc.util.Log.err;
 import static plugin.PVars.*;
-import static plugin.database.Database.executeQueryAsync;
-import static plugin.database.Database.executeUpdate;
+import static plugin.database.Database.*;
 import static plugin.utils.UtilsKt.getUDPAddress;
 
 public class PlayerData {
@@ -37,6 +37,46 @@ public class PlayerData {
         this.uuid = uuid;
         this.discordId = discordId;
         this.prefs = prefs;
+    }
+
+    public static List<String> deepSearchNames(Player player) {
+        return executeQueryList(
+                """
+                SELECT DISTINCT p.last_name
+                FROM players p
+                LEFT JOIN usid_list u ON u.player_id = p.id
+                LEFT JOIN connections c ON c.player_id = p.id
+                WHERE p.last_ip = ?
+                   OR u.usid = ?
+                   OR c.address = ?
+                """,
+                stmt -> {
+                    stmt.setString(1, player.ip());
+                    stmt.setString(2, player.usid());
+                    stmt.setString(3, player.ip());
+                },
+                rs -> rs.getString("last_name")
+        );
+    }
+
+    public static List<PlayerData> deepSearch(Player player) {
+        return executeQueryList(
+                """
+                SELECT DISTINCT p.*
+                FROM players p
+                LEFT JOIN usid_list u ON u.player_id = p.id
+                LEFT JOIN connections c ON c.player_id = p.id
+                WHERE p.last_ip = ?
+                   OR u.usid = ?
+                   OR c.address = ?
+                """,
+                stmt -> {
+                    stmt.setString(1, player.ip());
+                    stmt.setString(2, player.usid());
+                    stmt.setString(3, player.ip());
+                },
+                PlayerData::getPlayerData
+        );
     }
 
     public boolean updateDiscordId(Long dsid) {
