@@ -23,16 +23,16 @@ import mindustry.world.blocks.environment.Floor
 import kotlin.math.roundToInt
 import mindustry.gen.Groups
 
-val items = ObjectMap<UnitType?, Seq<Item>?>()
+val items = ObjectMap<UnitType, Seq<Item>?>()
 
 fun loadRes() {
     // region ground attack
     items.putAll(
         dagger, with(copper, lead, graphite),
         mace, with(copper, lead, graphite, silicon, sand, titanium),
-        fortress, with(copper, lead, silicon, graphite, metaglass, sand, thorium),
-        scepter, with(copper, lead, titanium, silicon, graphite, sand, metaglass, thorium, surgeAlloy),
-        reign, with(copper, lead, titanium, metaglass, sand, thorium, surgeAlloy, silicon, graphite)
+        fortress, with(copper, lead, silicon, graphite, metaglass, sand, thorium, phaseFabric, plastanium),
+        scepter, with(copper, lead, titanium, silicon, graphite, sand, metaglass, thorium, surgeAlloy, phaseFabric, plastanium),
+        reign, with(copper, lead, titanium, metaglass, sand, thorium, surgeAlloy, silicon, graphite, plastanium, phaseFabric)
     )
 
     // endregion
@@ -41,9 +41,9 @@ fun loadRes() {
     items.putAll(
         nova, with(lead, silicon, copper),
         pulsar, with(copper, lead, silicon, graphite, titanium),
-        quasar, with(copper, lead, silicon, graphite, metaglass, titanium, thorium),
-        vela, with(copper, lead, silicon, graphite, metaglass, titanium, thorium, surgeAlloy),
-        corvus, with(copper, lead, silicon, graphite, metaglass, titanium, thorium, surgeAlloy)
+        quasar, with(copper, lead, silicon, graphite, metaglass, titanium, thorium, plastanium),
+        vela, with(copper, lead, silicon, graphite, metaglass, titanium, thorium, surgeAlloy, plastanium, phaseFabric),
+        corvus, with(copper, lead, silicon, graphite, metaglass, titanium, thorium, surgeAlloy, plastanium, phaseFabric)
     )
 
     // endregion
@@ -52,9 +52,9 @@ fun loadRes() {
     items.putAll(
         crawler, with(coal, lead, copper),
         atrax, with(coal, graphite, silicon, lead, copper),
-        spiroct, with(coal, graphite, silicon, lead, copper, titanium, metaglass),
-        arkyid, with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand),
-        toxopid, with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand, surgeAlloy)
+        spiroct, with(coal, graphite, silicon, lead, copper, titanium, metaglass, plastanium),
+        arkyid, with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand, plastanium, phaseFabric),
+        toxopid, with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand, surgeAlloy, plastanium, phaseFabric)
     )
 
     // endregion
@@ -63,9 +63,9 @@ fun loadRes() {
     items.putAll(
         risso, with(silicon, metaglass, titanium, lead, copper),
         minke, with(silicon, metaglass, titanium, graphite, lead, copper),
-        bryde, with(silicon, metaglass, titanium, graphite, lead, copper),
-        sei, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy),
-        omura, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy)
+        bryde, with(silicon, metaglass, titanium, graphite, lead, copper, plastanium),
+        sei, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric),
+        omura, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric)
     )
     // endregion
 
@@ -79,16 +79,16 @@ fun loadRes() {
     items.putAll(
         retusa, with(silicon, metaglass, titanium, lead, copper),
         oxynoe, with(silicon, metaglass, titanium, graphite, lead, copper),
-        cyerce, with(silicon, metaglass, titanium, graphite, lead, copper),
-        aegires, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy),
-        navanax, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy)
+        cyerce, with(silicon, metaglass, titanium, graphite, lead, copper, plastanium),
+        aegires, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric),
+        navanax, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric)
     )
     // endregion
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
-var actions : Seq<Administration.ActionType> = with(ActionType.breakBlock, ActionType.buildSelect, ActionType.pickupBlock, ActionType.placeBlock, ActionType.dropPayload)
-var healthMod = 1f
+var actions : Seq<Administration.ActionType> = with(ActionType.breakBlock, /*ActionType.buildSelect,*/ ActionType.pickupBlock, ActionType.placeBlock, ActionType.dropPayload)
+//var healthMod = 1f
 var resMod = 1f
 const val baseRes = 40
 
@@ -97,7 +97,7 @@ fun load() {
     loadRes()
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
         Vars.netServer.admins.addActionFilter(ActionFilter { action: PlayerAction? ->
-            if (action != null && action.tile != null && actions.contains(action.type) && action.block !== Blocks.shockMine && floors.contains(action.tile.floor())) {
+            if (action != null && action.tile != null && actions.contains(action.type) && (action.block !== Blocks.shockMine || action.tile.block() !== Blocks.shockMine) && floors.contains(action.tile.floor())) {
                 return@ActionFilter false
             }
             true
@@ -120,8 +120,8 @@ fun load() {
     Events.on(UnitSpawnEvent::class.java) { e: UnitSpawnEvent? ->
         if(e!!.unit.team() != Vars.state.rules.defaultTeam) {
             Timer.schedule({
-                e.unit.healthMultiplier(healthMod)
-                e.unit.heal()
+                //e.unit.healthMultiplier(healthMod)
+                //e.unit.heal()
                 e.unit.controller(TDGroundAI())
             }, 0.5f)
         }
@@ -131,13 +131,22 @@ fun load() {
     }
     Events.on(WaveEvent::class.java) { _: WaveEvent? ->
         if (Vars.state.wave % 4 == 0) {
-            healthMod += 0.1f
+            Vars.state.rules.waveTeam.rules().unitHealthMultiplier += 0.1f
             if (resMod < 200) resMod += 0.2f
         }
     }
 }
 
 private fun reload() {
-    healthMod = 1f
+    // healthMod = 1f
     resMod = 1f
+    Timer.schedule({ ->
+        val rules = Vars.state.rules
+        rules.defaultTeam.rules().blockDamageMultiplier = 1f;
+        rules.defaultTeam.rules().unitDamageMultiplier = 1f;
+        rules.waveTeam.rules().unitDamageMultiplier = 0f;
+        rules.waveTeam.rules().blockDamageMultiplier = 0f;
+        Vars.state.rules = rules;
+        Call.setRules(rules)
+    }, 1f)
 }
