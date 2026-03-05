@@ -16,7 +16,7 @@ class TDAI : AIController() {
         }
         coreBuild?: return
         moveTo(coreBuild, 0f, 100f, true, null)
-        if(unit.within(coreBuild, 4)) {
+        if(unit.within(coreBuild, 4f)) {
             for(mount in unit.mounts) {
                 mount.target = coreBuild
                 mount.aimX = coreBuild.x
