@@ -12,9 +12,11 @@ import mindustry.gen.Player;
 import mindustry.net.Administration;
 import mindustry.type.UnitType;
 import plugin.Bundle;
+import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
 import plugin.utils.Permission;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static plugin.Bundle.label;
@@ -215,6 +217,9 @@ public class Menus {
                 showBanMenu(pl2, pdOpt.get().id);
             });
         }
+        menu.add("DeepSearch", (pl2)->{
+            Call.infoMessage(pl2.con, String.join(" ", PlayerData.deepSearchNames(other).toArray(new String[0])));
+        });
         menu.add("[red]Close")
                 .show(p);
     }
