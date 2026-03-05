@@ -91,6 +91,11 @@ public class Menus {
             return;
         }
 
+        if(stats.balance > 30000) {
+            p.sendMessage("[scarlet]You have too much money");
+            return;
+        }
+
         if(stats.lastGambling != null && !stats.lastGambling.get()) {
             p.sendMessage("[scarlet]Not so fast!");
             return;
