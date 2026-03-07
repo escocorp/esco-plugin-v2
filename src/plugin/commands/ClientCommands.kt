@@ -1,5 +1,6 @@
 package plugin.commands
 
+import mindustry.game.Team
 import arc.Events
 import arc.struct.ObjectMap
 import arc.struct.Seq

@@ -23,6 +23,7 @@ public class SendChatMessage {
         Player player = con.player;
         String message = packet.message;
 
+        //do not receive chat messages from clients that are too young or not registered
         if(net.server() && player != null && player.con != null && (Time.timeSinceMillis(player.con.connectTime) < 500 || !player.con.hasConnected || !player.isAdded())) return;
 
         //detect and kick for foul play
@@ -50,6 +51,7 @@ public class SendChatMessage {
 
         //check if it's a command
         CommandHandler.CommandResponse response = netServer.clientCommands.handleMessage(message, player);
+        Log.debug("@ @", message, response.type);
         if(response.type == CommandHandler.ResponseType.noCommand){ //no command to handle
             message = netServer.admins.filterMessage(player, message);
             //suppress chat message if it's filtered out
@@ -67,7 +69,7 @@ public class SendChatMessage {
 
             //invoke event for all clients but also locally
             //this is required so other clients get the correct name even if they don't know who's sending it yet
-            sendMessage(netServer.chatFormatter.format(player, message), message, player);
+            Call.sendMessage(netServer.chatFormatter.format(player, message), message, player);
         }else{
 
             //a command was sent, now get the output

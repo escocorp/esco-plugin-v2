@@ -218,7 +218,7 @@ public class Menus {
             });
         }
         menu.add("DeepSearch", (pl2)->{
-            Call.infoMessage(pl2.con, String.join(" ", PlayerData.deepSearchNames(other).toArray(new String[0])));
+            Call.infoMessage(pl2.con, String.join("\n", PlayerData.deepSearchNames(other).toArray(new String[0])));
         });
         menu.add("[red]Close")
                 .show(p);
