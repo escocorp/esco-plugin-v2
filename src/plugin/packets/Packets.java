@@ -11,7 +11,7 @@ import static plugin.PVars.SSUsers;
 public class Packets {
     public static void load() {
         Vars.net.handleServer(AdminRequestCallPacket.class, AdminRequest::handle);
-        // Vars.net.handleServer(SendChatMessageCallPacket.class, SendChatMessage::handle);
+        Vars.net.handleServer(SendChatMessageCallPacket.class, SendChatMessage::handle);
 
         loadCustom();
     }

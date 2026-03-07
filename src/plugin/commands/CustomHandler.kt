@@ -5,6 +5,7 @@ import arc.struct.Seq
 import arc.util.CommandHandler
 import arc.util.CommandHandler.CommandResponse
 import arc.util.CommandHandler.CommandRunner
+import arc.util.Log
 import arc.util.Strings
 import mindustry.Vars
 import mindustry.core.NetServer.InvalidCommandHandler
@@ -19,31 +20,33 @@ class CustomHandler {
     constructor(handler: CommandHandler) {
         this.handler = handler
         registerPseudoCommands()
-        Vars.netServer.invalidHandler = InvalidCommandHandler { player: Player?, response: CommandResponse? ->
-            val command = response!!.command
+        Vars.netServer.invalidHandler = InvalidCommandHandler { player: Player, response: CommandResponse ->
+            //val command = response.command
+            Log.debug("Type "+response.type)
             if (response.type == CommandHandler.ResponseType.manyArguments) {
                 //return "[scarlet]Too many arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
                 return@InvalidCommandHandler Bundle.get(
                     "commands.manyargs",
-                    player!!.locale,
-                    command.text,
-                    command.paramText
+                    player.locale,
+                    response.command.text,
+                    response.command.paramText
                 )
             } else if (response.type == CommandHandler.ResponseType.fewArguments) {
                 //return "[scarlet]Too few arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
                 return@InvalidCommandHandler Bundle.get(
                     "commands.fewargs",
-                    player!!.locale,
-                    command.text,
-                    command.paramText
+                    player.locale,
+                    response.command.text,
+                    response.command.paramText
                 )
             } else { //unknown command
-                val closest = getClosest(response.runCommand)
+                //val closest = getClosest(response.runCommand)
+                val closest: CommandHandler.Command? = getClosest(response.runCommand, player)
 
                 if (closest != null) {
-                    return@InvalidCommandHandler Bundle.get("commands.didyoumean", player!!.locale, closest.text)
+                    return@InvalidCommandHandler Bundle.get("commands.didyoumean", player.locale).replace("{0}", closest.text)
                 } else {
-                    return@InvalidCommandHandler Bundle.get("commands.unknown", player!!.locale)
+                    return@InvalidCommandHandler Bundle.get("commands.unknown", player.locale)
                 }
             }
         }
@@ -97,14 +100,14 @@ class CustomHandler {
         // CommandData cd = new CommandData(name, args, perm);
         commands.add(CommandData(name, args, perm))
 
-        handler!!.register<Player?>(name, args, "", CommandRunner { a: Array<String?>?, p: Player? ->
+        handler!!.register<Player>(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
             if (!Permission.getPerms(p).contains(perm)) {
                 //Bundle.sendMessage("noperms", p);
                 val command = getClosest(name, p)
                 if (command == null) {
-                    Bundle.sendMessage("commands.unknown", p!!.locale)
+                    Bundle.sendMessage("commands.unknown", p)
                 } else {
-                    Bundle.sendMessage("commands.didyoumean", p!!.locale, command.text)
+                    Bundle.sendMessage("commands.didyoumean", p, command.text)
                 }
                 return@CommandRunner
             }
