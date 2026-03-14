@@ -1,7 +1,6 @@
-package plugin.utils;
+package plugin.votes;
 
 import arc.Events;
-import arc.scene.style.ScaledNinePatchDrawable;
 import arc.struct.ObjectIntMap;
 import arc.util.Timer;
 import mindustry.Vars;

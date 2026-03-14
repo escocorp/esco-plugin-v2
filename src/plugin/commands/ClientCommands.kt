@@ -23,12 +23,13 @@ import plugin.database.models.PlayerData
 import plugin.database.models.PlayerStats
 import plugin.menus.Menus
 import plugin.utils.Permission
-import plugin.utils.VoteMap
-import plugin.utils.VotekickSession
+import plugin.votes.VoteMap
+import plugin.votes.VotekickSession
 import java.util.*
 import java.util.function.Consumer
 
 import plugin.utils.*
+import kotlin.math.roundToInt
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
@@ -71,7 +72,7 @@ fun register(handler: CustomHandler) {
             Bundle.sendMessage("menu.shop.nomoney", player)
             return@CommandRunner
         }
-        val commision = amount / 100
+        val commision = (amount * 0.02f).roundToInt()
         playerStats.subBalance(amount)
         targetStats.adjBalance(amount - commision)
         target.sendMessage("[green]Player " + player!!.coloredName() + " [green]give you $[white]" + amount + " [green](commision $[white]" + commision + "[green])")

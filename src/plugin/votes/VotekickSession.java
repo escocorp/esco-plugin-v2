@@ -1,13 +1,10 @@
-package plugin.utils;
+package plugin.votes;
 
 import arc.struct.ObjectIntMap;
-import arc.util.Strings;
 import arc.util.Timer;
 import mindustry.Vars;
-import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
-import mindustry.net.Packets;
 import net.dv8tion.jda.api.EmbedBuilder;
 import plugin.PVars;
 

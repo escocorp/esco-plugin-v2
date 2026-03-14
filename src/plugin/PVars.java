@@ -3,15 +3,14 @@ package plugin;
 import arc.struct.IntMap;
 import arc.struct.ObjectMap;
 import arc.util.CommandHandler;
-import arc.util.Time;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mindustry.gen.Player;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import plugin.commands.CustomHandler;
 import plugin.utils.Gamemode;
-import plugin.utils.VoteMap;
-import plugin.utils.VotekickSession;
+import plugin.votes.VoteMap;
+import plugin.votes.VotekickSession;
 
 import java.util.Random;
 
