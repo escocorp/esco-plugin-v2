@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import plugin.commands.CustomHandler;
 import plugin.utils.Gamemode;
 import plugin.votes.VoteMap;
+import plugin.votes.VoteWave;
 import plugin.votes.VotekickSession;
 
 import java.util.Random;
@@ -32,6 +33,7 @@ public class PVars {
 
     public static VotekickSession currentlyKicking;
     public static VoteMap mapVote;
+    public static VoteWave waveVote;
 
     public static CustomHandler clientCommands;
     public static CommandHandler discordCommands;

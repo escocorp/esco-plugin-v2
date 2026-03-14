@@ -33,7 +33,7 @@ public class VoteMap {
         votes -= lastVote;*/
 
         votes += d;
-        voted.put(player.uuid(), d);
+        //voted.put(player.uuid(), d);
         voted.put(Vars.netServer.admins.getInfo(player.uuid()).lastIP, d);
         if(d == 1)
             sendMessage("rtv.votey", player.coloredName(), votes, votesRequired());
