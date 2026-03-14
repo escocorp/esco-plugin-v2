@@ -8,4 +8,5 @@ public class ApiResponse {
     public String status;
     public String ip;
     public String isp;
+    public String message;
 }
