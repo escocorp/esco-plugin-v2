@@ -29,6 +29,7 @@ import java.util.*
 import java.util.function.Consumer
 
 import plugin.utils.*
+import plugin.votes.VoteWave
 import kotlin.math.roundToInt
 
 const val commandsPerPage = 10
@@ -166,6 +167,26 @@ fun register(handler: CustomHandler) {
         })
         p!!.sendMessage(sb.toString())
     }
+
+    handler.registerCommand("vnw", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
+        val i = if(a.isEmpty()) 1
+        else parseBool(a[0])
+
+        if(i == 0) {
+            Bundle.sendMessage("vote.unknownvote", p)
+            return@CommandRunner
+        }
+        if(PVars.waveVote == null) {
+            PVars.waveVote = VoteWave()
+            PVars.waveVote.vote(p, i)
+            return@CommandRunner
+        }
+        if(PVars.mapVote.voted.containsKey(p.ip())) {
+            Bundle.sendMessage("rtv.error.voted", p)
+            return@CommandRunner
+        }
+        PVars.waveVote.vote(p, i)
+    })
 
     handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String?>?, p: Player? ->
         val i: Int = if (a!!.isEmpty()) 1
