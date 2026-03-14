@@ -20,19 +20,25 @@ import java.util.zip.InflaterInputStream
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
-fun isAnon(ip: String?, callback: Cons<ApiResponse?>) {
+fun isAnon(ip: String?, callback: Cons<ApiResponse>) {
     Http.get(PVars.vpnApi + ip)
         .header("Authorization", "Basic $apiAuth")
         .error { th ->
             Log.err("Failed to check ip $ip", th)
         }
         .submit { resp ->
+            Log.debug("Received IPAPI response")
             try {
+                val apiResponse = PVars.objectMapper.readValue(
+                    resp!!.resultAsString,
+                    ApiResponse::class.java
+                )
+                if(!apiResponse.status.equals("success")) {
+                    Log.err("Failed to check ip $ip messsage ${apiResponse.message}")
+                    return@submit
+                }
                 callback.get(
-                    PVars.objectMapper.readValue(
-                        resp!!.resultAsString,
-                        ApiResponse::class.java
-                    )
+                    apiResponse
                 )
             } catch (e: Exception) {
                 Log.err("Failed to parse api response", e)
