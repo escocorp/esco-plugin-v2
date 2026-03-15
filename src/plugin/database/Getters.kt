@@ -7,6 +7,7 @@ import mindustry.gen.Player
 import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
+import plugin.database.Database.Serealizer
 import plugin.database.Database.StatementSetter
 import plugin.database.models.*
 import plugin.utils.Permission
@@ -23,6 +24,8 @@ import java.util.function.Consumer
 var adminsCache = ObjectMap<Player, Admin>()
 @JvmField
 var playerDataCache = ObjectMap<Player, PlayerData>()
+@JvmField
+var playerStatsCache = ObjectMap<String, PlayerStats>()
 
 // region Admin
 
@@ -386,6 +389,48 @@ fun getPlayerData(rs: ResultSet): PlayerData {
         arc.util.Log.err(e)
     }
     return PlayerData(rs.getInt("id"), rs.getString("uuid"), rs.getObject<Long?>("discord_id", Long::class.java), prefs)
+}
+
+// endregion
+
+// region PlayerStats
+
+fun getPlayerStats(player: Player): Optional<PlayerStats> {
+    val uuid = player.uuid()
+
+    val cached: PlayerStats? = playerStatsCache.get(uuid)
+    if (cached != null) return Optional.of(cached)
+
+    val opt = Database.executeQueryAsync(
+        "SELECT * from statistics WHERE player_id in (SELECT id FROM players WHERE uuid = ?)",
+        { stmt: PreparedStatement -> stmt.setString(1, uuid) },
+        { rs: ResultSet -> getPlayerStats(rs) }
+    )
+
+    opt.ifPresent(Consumer { stats: PlayerStats? -> playerStatsCache.put(uuid, stats) })
+
+    return opt
+}
+
+fun getPlayerStats(pid: Int): Optional<PlayerStats> {
+    return Database.executeQueryAsync(
+        "SELECT * from statistics WHERE player_id = ?",
+        { stmt: PreparedStatement -> stmt.setInt(1, pid) },
+        { rs: ResultSet -> getPlayerStats(rs) }
+    )
+}
+
+@Throws(SQLException::class)
+fun getPlayerStats(rs: ResultSet): PlayerStats {
+    return PlayerStats(
+        rs.getInt("id"),
+        rs.getInt("player_id"),
+        rs.getLong("playtime"),
+        rs.getInt("blocks_build"),
+        rs.getInt("blocks_broken"),
+        rs.getInt("balance"),
+        rs.getInt("waves_survived")
+    )
 }
 
 // endregion

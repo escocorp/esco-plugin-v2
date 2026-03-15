@@ -14,6 +14,7 @@ import static plugin.database.Database.executeQueryAsync;
 import static plugin.database.Database.executeUpdate;
 
 import static plugin.PVars.*;
+import static plugin.database.GettersKt.playerStatsCache;
 
 public class PlayerStats {
     public int id, playerId;
@@ -32,7 +33,6 @@ public class PlayerStats {
         this.wavesSurvived = wavesSurvived;
     }
 
-    public static ObjectMap<String, PlayerStats> cache = new ObjectMap<>();
     public static ObjectMap<String, Long> joinTime = new ObjectMap<>();
 
     public PlayerStats setLastGambling(Timekeeper time) {
@@ -50,24 +50,6 @@ public class PlayerStats {
             stmt.setInt(5, wavesSurvived);
             stmt.setInt(6, id);
                 });
-    }
-
-    public static Optional<PlayerStats> getPlayerStats(Player player) {
-        String uuid = player.uuid();
-
-        PlayerStats cached = cache.get(uuid);
-        if (cached != null)
-            return Optional.of(cached);
-
-        Optional<PlayerStats> opt = executeQueryAsync(
-                "SELECT * from statistics WHERE player_id in (SELECT id FROM players WHERE uuid = ?)",
-                stmt -> stmt.setString(1, uuid),
-                PlayerStats::getPlayerStats
-        );
-
-        opt.ifPresent(stats -> cache.put(uuid, stats));
-
-        return opt;
     }
 
     public PlayerStats adjBlocksBuild() {
@@ -124,32 +106,12 @@ public class PlayerStats {
     }
 
     public static void purge(Player player) {
-        PlayerStats stats = cache.get(player.uuid());
+        PlayerStats stats = playerStatsCache.get(player.uuid());
 
         if(stats != null) {
             stats.update(player, true);
         }
 
-        cache.remove(player.uuid());
-    }
-
-    public static Optional<PlayerStats> getPlayerStats(int pid) {
-        return executeQueryAsync(
-                "SELECT * from statistics WHERE player_id = ?",
-                stmt->stmt.setInt(1, pid),
-                PlayerStats::getPlayerStats
-        );
-    }
-
-    public static PlayerStats getPlayerStats(ResultSet rs) throws SQLException {
-        return new PlayerStats(
-                rs.getInt("id"),
-                rs.getInt("player_id"),
-                rs.getLong("playtime"),
-                rs.getInt("blocks_build"),
-                rs.getInt("blocks_broken"),
-                rs.getInt("balance"),
-                rs.getInt("waves_survived")
-        );
+        playerStatsCache.remove(player.uuid());
     }
 }
