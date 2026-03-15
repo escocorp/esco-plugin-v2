@@ -19,6 +19,7 @@ import static arc.util.Log.*;
 import plugin.Bundle;
 import plugin.ai.DumbAI;
 import static plugin.PVars.gamemode;
+import static plugin.utils.LokiLoggerKt.addLog;
 
 public class Patches {
     protected static String[] tags = {"&lc&fb[DEBUG]&fr", "&lb&fb[INFO]&fr", "&ly&fb[WARN]&fr", "&lr&fb[ERROR]", ""};
@@ -73,6 +74,7 @@ public class Patches {
 
             String result = bold + lightBlack + "[" + dateTime.format(LocalDateTime.now()) + "] " + reset + format(tags[level1.ordinal()] + " " + text + "&fr");
             System.out.println(result);
+            addLog(level1.name(), text);
 
             if(Administration.Config.logging.bool()){
                 logToFile("[" + dateTime.format(LocalDateTime.now()) + "] " + formatColors(tags[level1.ordinal()] + " " + text + "&fr", false));

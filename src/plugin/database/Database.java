@@ -26,8 +26,8 @@ public class Database {
             if(!dbPassword.equals("empty") && !dbPassword.isEmpty())
                 config.setPassword(dbPassword);
 
-            config.setMaximumPoolSize(2);
-            config.setMinimumIdle(1);
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(3);
             config.setIdleTimeout(30000);
             config.setConnectionTimeout(5000);
 
