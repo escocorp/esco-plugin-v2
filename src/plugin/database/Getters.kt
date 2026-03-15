@@ -382,14 +382,22 @@ fun getPlayerId(player: Player): Optional<Int> {
 
 @Throws(SQLException::class)
 fun getPlayerData(rs: ResultSet): PlayerData {
-    var prefs: PlayerPrefs?
-    try {
-        prefs = PVars.objectMapper.readValue(rs.getString("prefs"), PlayerPrefs::class.java)
+    val prefs = try {
+        PVars.objectMapper.readValue(rs.getString("prefs"), PlayerPrefs::class.java)
     } catch (e: Exception) {
-        prefs = PlayerPrefs()
         arc.util.Log.err(e)
+        PlayerPrefs()
     }
-    return PlayerData(rs.getInt("id"), rs.getString("uuid"), rs.getObject<Long?>("discord_id", Long::class.java), prefs)
+
+    val discordIdRaw = rs.getLong("discord_id")
+    val discordId: Long? = if (rs.wasNull()) null else discordIdRaw
+
+    return PlayerData(
+        rs.getInt("id"),
+        rs.getString("uuid"),
+        discordId,
+        prefs
+    )
 }
 
 // endregion
