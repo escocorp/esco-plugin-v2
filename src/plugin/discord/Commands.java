@@ -24,6 +24,7 @@ import java.util.Comparator;
 import static plugin.PVars.linkCodes;
 import static plugin.PVars.needRestart;
 import static plugin.database.Database.dataSource;
+import static plugin.database.GettersKt.getPlayerData;
 import static plugin.discord.BotKt.sendLog;
 
 public class Commands {
@@ -50,7 +51,7 @@ public class Commands {
             EmbedBuilder embed = new EmbedBuilder();
 
             Groups.player.each((p) -> {
-                PlayerData.getPlayerData(p).ifPresent(pd -> sb.append("[").append(pd.id).append("] "));
+                getPlayerData(p).ifPresent(pd -> sb.append("[").append(pd.id).append("] "));
                 sb.append(p.plainName()).append("\n");
             });
 
@@ -74,7 +75,7 @@ public class Commands {
             }
             Player player = linkCodes.get(arg[0]);
             linkCodes.remove(arg[0]);
-            PlayerData.getPlayerData(player).ifPresent(p -> {
+            getPlayerData(player).ifPresent(p -> {
                 if (p.updateDiscordId(ctx.author.getIdLong()))
                     ctx.reply("Success!");
                 else
