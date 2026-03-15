@@ -43,7 +43,7 @@ public class PEvents {
         Events.on(EventType.PlayerConnect.class, (e) -> { // pre-connect
             Player player = e.player;
 
-            Optional<PlayerData> pdataOpt = PlayerData.getOrCreatePlayerData(player);
+            Optional<PlayerData> pdataOpt = getOrCreatePlayerData(player);
             if (pdataOpt.isEmpty()) {
                 player.kick("[scarlet]Failed to create player!", 0);
                 return;
@@ -219,7 +219,7 @@ public class PEvents {
                     if (e.breaking) {
                         s.adjBlocksBroken();
                         if (s.blocksBroken >= 300 && s.blocksBuild < 50) {
-                            Ban.ban(player, player, "AutoBan: Possible Griefer", parseTime("31d"));
+                            ban(player, player, "AutoBan: Possible Griefer", parseTime("31d"));
                             player.kick("Possible Griefer", 0);
                         }
                     } else
@@ -289,7 +289,7 @@ public class PEvents {
             if (e.winner != Team.derelict)
                 Groups.player.each(p -> {
                     if (p.team() == e.winner)
-                        PlayerStats.getPlayerStats(p).ifPresent(PlayerStats::adjWins);
+                        getPlayerStats(p).ifPresent(PlayerStats::adjWins);
                 });
         });
 

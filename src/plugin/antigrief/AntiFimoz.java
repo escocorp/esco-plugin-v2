@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static plugin.database.models.Log.putLog;
+import static plugin.database.GettersKt.putLog;
 
 public class AntiFimoz {
     public static Set<String> fimozikMessages = new HashSet<>();

@@ -22,8 +22,7 @@ import static plugin.Bundle.label;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.discordLink;
 import static plugin.PVars.gamemode;
-import static plugin.database.models.Ban.ban;
-import static plugin.database.models.PlayerData.getPlayerData;
+import static plugin.database.GettersKt.*;
 import static plugin.utils.Gamemode.pvp;
 import static plugin.utils.UtilsKt.parseTime;
 
@@ -225,7 +224,7 @@ public class Menus {
             });
         }
         menu.add("DeepSearch", (pl2) -> {
-            Call.infoMessage(pl2.con, String.join("\n", PlayerData.deepSearchNames(other).toArray(new String[0])));
+            Call.infoMessage(pl2.con, String.join("\n", deepSearchNames(other).toArray(new String[0])));
         });
         menu.add("[red]Close")
                 .show(p);

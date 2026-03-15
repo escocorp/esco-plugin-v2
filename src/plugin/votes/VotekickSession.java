@@ -17,9 +17,7 @@ import static mindustry.core.NetServer.voteDuration;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.currentlyKicking;
 import static plugin.PVars.votekicksChannel;
-import static plugin.database.models.Ban.ban;
-import static plugin.database.models.Ban.getBan;
-import static plugin.database.models.PlayerData.getPlayerId;
+import static plugin.database.GettersKt.*;
 
 public class VotekickSession {
     public Player target, started;
