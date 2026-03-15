@@ -17,6 +17,7 @@ import static arc.util.Log.*;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
 import static plugin.database.models.Server.getOrCreateServer;
+import static plugin.utils.LokiLoggerKt.pushLogs;
 
 public class Loader {
     private static final ExecutorService logsExecutor = Executors.newSingleThreadExecutor();
@@ -56,6 +57,7 @@ public class Loader {
                 });
             });
         }, 0, 6*60);*/
+        if(lokiLoggingEnabled) Timer.schedule(LokiLoggerKt::pushLogs, 0, 5*60);
     }
 
     public static void loadServerId() {

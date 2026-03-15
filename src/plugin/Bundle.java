@@ -13,7 +13,7 @@ import mindustry.gen.Player;
 import java.text.MessageFormat;
 
 import static java.text.MessageFormat.format;
-import static plugin.PVars.bundleApi;
+import static plugin.PVars.*;
 
 public class Bundle {
     public static final Seq<String> locales = Seq.with("en", "ru");
@@ -34,7 +34,7 @@ public class Bundle {
 
     private static void loadLocale(String locale) {
         Http.get(bundleApi+locale)
-                .header("Authorization", "Basic $apiAuth")
+                .header("Authorization", "Basic "+apiAuth)
                 .error(err->Log.err("Failed to load bundle locale '@'", locale, err))
                 .submit(resp -> {
                     String content = resp.getResultAsString();
