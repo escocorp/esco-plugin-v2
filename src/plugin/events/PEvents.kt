@@ -54,7 +54,9 @@ fun loadEvents() {
                 }
                 //AntiFimoz.apply(resp.isp, player);
                 //if(player.con.isConnected())
-                apply(player, resp.isp, pd)
+                app.post {
+			apply(player, resp.isp, pd)
+		}
             }
 
             val banOpt = getBan(player)

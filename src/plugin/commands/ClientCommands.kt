@@ -252,9 +252,13 @@ fun register(handler: CustomHandler) {
             p.sendMessage("Account already linked!")
             return@CommandRunner
         }
-        val code = getRandomString(5)
+        var code: String? = PVars.linkCodes.findKey(p, false)
 
-        PVars.linkCodes.put(code, p)
+        if(code == null) {
+            code = getRandomString(6)
+            PVars.linkCodes.put(code, p)
+        }
+
         Bundle.infoMessage("discord.link", p, PVars.gamemode.botPrefix, code, PVars.discordLink)
     })
 

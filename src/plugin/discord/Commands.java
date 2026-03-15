@@ -14,6 +14,7 @@ import mindustry.maps.Map;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.utils.FileUpload;
+import plugin.KVars;
 import plugin.database.models.PlayerData;
 import plugin.utils.MapPreview;
 import plugin.utils.Permission;
