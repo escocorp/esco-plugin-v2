@@ -1,8 +1,6 @@
 package plugin.utils;
 
 import arc.files.Fi;
-import arc.graphics.Color;
-import arc.graphics.Pixmap;
 import arc.struct.StringMap;
 import arc.util.Log;
 import arc.util.io.CounterInputStream;
@@ -16,7 +14,6 @@ import mindustry.maps.Map;
 import mindustry.type.Item;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.OreBlock;
-import mindustry.world.blocks.storage.CoreBlock;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.InflaterInputStream;
 
-import static mindustry.Vars.*;
-import static mindustry.Vars.content;
 import static mindustry.io.MapIO.colorFor;
 
 public class MapPreview {
@@ -54,7 +49,7 @@ public class MapPreview {
                     if (tile.build.config() instanceof Item) {
                         Item item = (Item) tile.build.config();
                         //pixmap.set(x, pixmap.height - 1 - y, item.color.rgba());
-                        image.setRGB(x, tiles.height - 1 -y, convert(item.color.rgba()));
+                        image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                         item = null;
                     } else {
                         // pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team()));
@@ -110,8 +105,8 @@ public class MapPreview {
                     }
                 };
                 version.readRegion("content", stream, counter, version::readContentHeader);
-                if(version.version >= 11) version.readRegion("content", stream, counter, version::skipContentPatches);
-                version.readRegion("preview_map", stream, counter, in -> version.readMap(in, new WorldContext(){
+                if (version.version >= 11) version.readRegion("content", stream, counter, version::skipContentPatches);
+                version.readRegion("preview_map", stream, counter, in -> version.readMap(in, new WorldContext() {
                                     public void resize(int widthx, int heightx) {
                                     }
 
@@ -144,8 +139,8 @@ public class MapPreview {
                                     }
 
                                     public Tile tile(int index) {
-                                        tile.x = (short)(index % width);
-                                        tile.y = (short)(index / width);
+                                        tile.x = (short) (index % width);
+                                        tile.y = (short) (index / width);
                                         return tile;
                                     }
 

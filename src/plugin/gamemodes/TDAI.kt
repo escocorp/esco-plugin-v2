@@ -3,7 +3,6 @@ package plugin.gamemodes
 import arc.struct.Seq
 import mindustry.Vars
 import mindustry.ai.Pathfinder
-import mindustry.ai.types.GroundAI
 import mindustry.entities.units.AIController
 import mindustry.world.Tile
 import mindustry.world.blocks.storage.CoreBlock
@@ -33,7 +32,7 @@ class TDAI : AIController() {
         //if it hasn't moved the stuck range in twice the time it should have taken, it's stuck
         val stuckThreshold = max(1f, stuckRange * 2f / unit.type.speed)
 
-        if(unit.within(coreBuild, 80f)) {
+        if (unit.within(coreBuild, 80f)) {
             coreBuild.damage(unit.health() / 2)
             unit.kill()
             return

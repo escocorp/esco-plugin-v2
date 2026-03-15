@@ -22,7 +22,7 @@ class CustomHandler {
         registerPseudoCommands()
         Vars.netServer.invalidHandler = InvalidCommandHandler { player: Player, response: CommandResponse ->
             //val command = response.command
-            Log.debug("Type "+response.type)
+            Log.debug("Type " + response.type)
             if (response.type == CommandHandler.ResponseType.manyArguments) {
                 //return "[scarlet]Too many arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
                 return@InvalidCommandHandler Bundle.get(
@@ -44,7 +44,8 @@ class CustomHandler {
                 val closest: CommandHandler.Command? = getClosest(response.runCommand, player)
 
                 if (closest != null) {
-                    return@InvalidCommandHandler Bundle.get("commands.didyoumean", player.locale).replace("{0}", closest.text)
+                    return@InvalidCommandHandler Bundle.get("commands.didyoumean", player.locale)
+                        .replace("{0}", closest.text)
                 } else {
                     return@InvalidCommandHandler Bundle.get("commands.unknown", player.locale)
                 }

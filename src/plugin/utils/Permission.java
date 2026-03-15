@@ -26,33 +26,33 @@ public enum Permission {
 
     public static Seq<Permission> parsePerms(String[] perms) {
         Seq<Permission> rperms = new Seq<>();
-        for(String pname :perms)
+        for (String pname : perms)
             rperms.add(parsePerm(pname));
         return rperms;
     }
 
     public static Permission parsePerm(String name) {
-        for(Permission p : values())
-            if(p.name().contains(name)) return p;
+        for (Permission p : values())
+            if (p.name().contains(name)) return p;
         return none;
     }
 
     public static Seq<Permission> getPerms(Player p) {
-        if(cache.containsKey(p))
+        if (cache.containsKey(p))
             return cache.get(p);
 
         Optional<Seq<Permission>> r = Database.executeQueryAsync(
                 "SELECT ar.permissions\n" +
-                "        FROM players p\n" +
-                "        LEFT JOIN admins a ON a.player_id = p.id\n" +
-                "        LEFT JOIN admin_ranks ar ON ar.id = a.rank_id\n" +
-                "        WHERE p.uuid = ?",
-                stmt->stmt.setString(1, p.uuid()),
+                        "        FROM players p\n" +
+                        "        LEFT JOIN admins a ON a.player_id = p.id\n" +
+                        "        LEFT JOIN admin_ranks ar ON ar.id = a.rank_id\n" +
+                        "        WHERE p.uuid = ?",
+                stmt -> stmt.setString(1, p.uuid()),
                 Permission::getPerms
         );
 
         Seq<Permission> seq = r.orElseGet(() -> Seq.with(none));
-        if(!seq.contains(none))
+        if (!seq.contains(none))
             seq.add(none);
         cache.put(p, seq);
 
@@ -66,12 +66,12 @@ public enum Permission {
                         "        LEFT JOIN admins a ON a.player_id = p.id\n" +
                         "        LEFT JOIN admin_ranks ar ON ar.id = a.rank_id\n" +
                         "        WHERE p.discord_id = ?",
-                stmt->stmt.setLong(1, discordId),
+                stmt -> stmt.setLong(1, discordId),
                 Permission::getPerms
         );
 
         Seq<Permission> seq = r.orElseGet(() -> Seq.with(none));
-        if(!seq.contains(none))
+        if (!seq.contains(none))
             seq.add(none);
 
         return seq;
@@ -81,7 +81,7 @@ public enum Permission {
         Array sqlArray = rs.getArray("permissions");
         String[] perms;
 
-        if(sqlArray != null) {
+        if (sqlArray != null) {
             perms = (String[]) sqlArray.getArray();
         } else {
             perms = new String[]{"none"};
@@ -92,7 +92,7 @@ public enum Permission {
 
     public static String seqToString(Seq<Permission> s) {
         StringBuilder sb = new StringBuilder();
-        s.each(p->sb.append(p.name()+" "));
+        s.each(p -> sb.append(p.name() + " "));
         return sb.toString();
     }
 }

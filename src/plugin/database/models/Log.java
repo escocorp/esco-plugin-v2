@@ -1,18 +1,10 @@
 package plugin.database.models;
 
-import arc.util.Strings;
-import mindustry.net.Administration;
-import mindustry.net.Administration.ActionType.*;
-import mindustry.world.Tile;
 import plugin.PVars;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
-import static mindustry.net.Administration.ActionType.breakBlock;
-import static plugin.PVars.logsBuffer;
 import static plugin.database.Database.executeUpdate;
 
 public class Log {
@@ -22,6 +14,7 @@ public class Log {
     public Instant timestamp;
 
     protected boolean fromDb = false;
+
     // created from db
     public Log(int id, int serverId, Integer playerId, String type, String message, Instant timestamp) {
         this.id = id;
@@ -31,6 +24,7 @@ public class Log {
         this.message = message;
         this.timestamp = timestamp;
     }
+
     // created from action
     public Log(Integer playerId, String type, String message) {
         this.id = -1;
@@ -42,13 +36,13 @@ public class Log {
     }
 
     public boolean write() {
-        if(fromDb) return false;
+        if (fromDb) return false;
         this.fromDb = true;
         return executeUpdate(
                 """
                         INSERT INTO logs (type, message, timestamp, server_id, player_id) VALUES (?, ?, ?, ?, ?)
                         """,
-                stmt->{
+                stmt -> {
                     stmt.setString(1, type);
                     stmt.setString(2, message);
                     stmt.setTimestamp(3, Timestamp.from(timestamp));

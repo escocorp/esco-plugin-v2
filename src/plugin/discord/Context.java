@@ -3,14 +3,12 @@ package plugin.discord;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import plugin.utils.Permission;
 
 import java.util.List;
 
-import static plugin.utils.Permission.editMaps;
 import static plugin.utils.Permission.getPermsByDiscordId;
 
 public class Context {
@@ -28,8 +26,8 @@ public class Context {
 
     public boolean hasPerm(Permission perm) {
         boolean has = getPermsByDiscordId(author.getIdLong()).contains(perm);
-        if(!has) {
-            reply("No access! You need "+perm.name());
+        if (!has) {
+            reply("No access! You need " + perm.name());
         }
         return has;
     }

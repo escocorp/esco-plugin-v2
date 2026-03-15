@@ -3,7 +3,6 @@ package plugin.utils;
 import arc.util.Timer;
 import mindustry.gen.Groups;
 import mindustry.net.Administration;
-// import plugin.antigrief.AntiFimoz;
 import plugin.database.models.Log;
 import plugin.database.models.Server;
 import plugin.gamemodes.TDGamemodeKt;
@@ -13,11 +12,11 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static arc.util.Log.*;
+import static arc.util.Log.err;
+import static arc.util.Log.info;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
 import static plugin.database.models.Server.getOrCreateServer;
-import static plugin.utils.LokiLoggerKt.pushLogs;
 
 public class Loader {
     private static final ExecutorService logsExecutor = Executors.newSingleThreadExecutor();
@@ -30,7 +29,7 @@ public class Loader {
     }
 
     public static void loadGamemode() {
-        if(gamemode == Gamemode.tdefense)
+        if (gamemode == Gamemode.tdefense)
             TDGamemodeKt.load();
     }
 
@@ -39,14 +38,14 @@ public class Loader {
             if(!Groups.player.isEmpty())
                 sendMessage("advertise.admins", discordLink); // we need admins bla-bla-bla...
         }, 15*60, 30*60);*/
-        Timer.schedule(()->{
-            if(!Groups.player.isEmpty())
+        Timer.schedule(() -> {
+            if (!Groups.player.isEmpty())
                 sendMessage("advertise.discord", discordLink);
-        }, 15*60, 15*60);
-        Timer.schedule(()->{
-            if(!Groups.player.isEmpty())
+        }, 15 * 60, 15 * 60);
+        Timer.schedule(() -> {
+            if (!Groups.player.isEmpty())
                 sendMessage("advertise.reports", discordLink);
-        }, 15*60, 35*60);
+        }, 15 * 60, 35 * 60);
         /*
         Timer.schedule(()->{
             Groups.player.each(p->{
@@ -57,12 +56,12 @@ public class Loader {
                 });
             });
         }, 0, 6*60);*/
-        if(lokiLoggingEnabled) Timer.schedule(LokiLoggerKt::pushLogs, 0, 5*60);
+        if (lokiLoggingEnabled) Timer.schedule(LokiLoggerKt::pushLogs, 0, 5 * 60);
     }
 
     public static void loadServerId() {
         Optional<Server> serverOpt = getOrCreateServer();
-        if(serverOpt.isPresent())
+        if (serverOpt.isPresent())
             serverId = serverOpt.get().id;
         else
             err("WTF, cannot create/get server record. Server is unstable");

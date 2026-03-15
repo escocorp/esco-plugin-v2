@@ -60,23 +60,23 @@ public class TextMenu {
     }
 
     public static void load() {
-        Events.on(EventType.PlayerLeave.class, e->{
-           menus.each((id, menu)->{
-               if(menu.player == e.player) menus.remove(id);
-           });
+        Events.on(EventType.PlayerLeave.class, e -> {
+            menus.each((id, menu) -> {
+                if (menu.player == e.player) menus.remove(id);
+            });
         });
-        
-        Events.on(EventType.TextInputEvent.class, (e)->{
+
+        Events.on(EventType.TextInputEvent.class, (e) -> {
             int id = e.textInputId;
             Player player = e.player;
             String text = e.text;
 
             TextMenu menu = menus.get(id);
-            if(menu == null) {
+            if (menu == null) {
                 player.sendMessage("[scarlet]Unknown input!");
                 return;
             }
-            if(menu.player != player) {
+            if (menu.player != player) {
                 player.sendMessage("[scarlet]Unknown input!");
                 return;
             }
