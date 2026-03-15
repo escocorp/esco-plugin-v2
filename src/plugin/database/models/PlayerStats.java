@@ -1,19 +1,12 @@
 package plugin.database.models;
 
 import arc.struct.ObjectMap;
-import arc.struct.StringMap;
 import arc.util.Time;
 import arc.util.Timekeeper;
 import mindustry.gen.Player;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Optional;
-
-import static plugin.database.Database.executeQueryAsync;
+import static plugin.PVars.gamemode;
 import static plugin.database.Database.executeUpdate;
-
-import static plugin.PVars.*;
 import static plugin.database.GettersKt.playerStatsCache;
 
 public class PlayerStats {
@@ -42,19 +35,19 @@ public class PlayerStats {
 
     public boolean write() {
         return executeUpdate("UPDATE statistics SET playtime = ?, blocks_build = ?, blocks_broken = ?, balance = ?, waves_survived = ? WHERE id = ?",
-                stmt->{
-            stmt.setLong(1, playtime);
-            stmt.setInt(2, blocksBuild);
-            stmt.setInt(3, blocksBroken);
-            stmt.setInt(4, balance);
-            stmt.setInt(5, wavesSurvived);
-            stmt.setInt(6, id);
+                stmt -> {
+                    stmt.setLong(1, playtime);
+                    stmt.setInt(2, blocksBuild);
+                    stmt.setInt(3, blocksBroken);
+                    stmt.setInt(4, balance);
+                    stmt.setInt(5, wavesSurvived);
+                    stmt.setInt(6, id);
                 });
     }
 
     public PlayerStats adjBlocksBuild() {
         this.blocksBuild += 1;
-        if(blocksBuild % 50 == 0)
+        if (blocksBuild % 50 == 0)
             adjBalance(gamemode.blockCost);
         return this;
     }
@@ -97,7 +90,7 @@ public class PlayerStats {
         playtime += (Time.millis() - time) / 1000; // to sec
 
         joinTime.remove(player.uuid());
-        if(!purge)
+        if (!purge)
             setJoinTime(player);
         else
             write();
@@ -108,7 +101,7 @@ public class PlayerStats {
     public static void purge(Player player) {
         PlayerStats stats = playerStatsCache.get(player.uuid());
 
-        if(stats != null) {
+        if (stats != null) {
             stats.update(player, true);
         }
 

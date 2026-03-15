@@ -1,22 +1,14 @@
 package plugin.database.models;
 
-import arc.struct.ObjectMap;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mindustry.gen.Player;
 import org.postgresql.util.PGobject;
-import plugin.PVars;
-import plugin.database.Database;
-import mindustry.gen.Groups;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 
 import static arc.util.Log.err;
-import static plugin.PVars.*;
-import static plugin.database.Database.*;
-import static plugin.utils.UtilsKt.getUDPAddress;
+import static plugin.PVars.objectMapper;
+import static plugin.PVars.serverId;
+import static plugin.database.Database.executeQueryAsync;
+import static plugin.database.Database.executeUpdate;
 
 public class PlayerData {
     public int id;
@@ -40,16 +32,16 @@ public class PlayerData {
 
     public boolean updateDiscordId(Long dsid) {
         boolean updated = executeUpdate(
-        """
-                UPDATE players SET discord_id = ?
-                WHERE id = ?
-                """,
-                stmt->{
+                """
+                        UPDATE players SET discord_id = ?
+                        WHERE id = ?
+                        """,
+                stmt -> {
                     stmt.setLong(1, dsid);
                     stmt.setInt(2, id);
                 }
         );
-        if(updated)
+        if (updated)
             this.discordId = dsid;
         return updated;
     }
@@ -77,14 +69,14 @@ public class PlayerData {
     public Optional<String> getUsid() {
         return executeQueryAsync(
                 """
-                SELECT usid FROM usid_list
-                WHERE player_id = ? AND server = ?
-                """,
-                stmt->{
+                        SELECT usid FROM usid_list
+                        WHERE player_id = ? AND server = ?
+                        """,
+                stmt -> {
                     stmt.setInt(1, id);
                     stmt.setInt(2, serverId);
                 },
-                rs->rs.getString("usid")
+                rs -> rs.getString("usid")
         );
     }
 }
