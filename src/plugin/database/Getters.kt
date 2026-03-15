@@ -7,7 +7,6 @@ import mindustry.gen.Player
 import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
-import plugin.database.Database.Serealizer
 import plugin.database.Database.StatementSetter
 import plugin.database.models.*
 import plugin.utils.Permission
@@ -22,8 +21,10 @@ import java.util.function.Consumer
 
 @JvmField
 var adminsCache = ObjectMap<Player, Admin>()
+
 @JvmField
 var playerDataCache = ObjectMap<Player, PlayerData>()
+
 @JvmField
 var playerStatsCache = ObjectMap<String, PlayerStats>()
 

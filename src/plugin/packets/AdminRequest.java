@@ -4,23 +4,17 @@ import arc.Events;
 import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
-import mindustry.core.NetClient;
 import mindustry.game.EventType;
 import mindustry.game.Team;
 import mindustry.gen.AdminRequestCallPacket;
-import mindustry.gen.Call;
-import mindustry.net.Administration;
-import mindustry.net.NetConnection;
 import mindustry.gen.Player;
+import mindustry.net.NetConnection;
 import mindustry.net.Packets;
 import plugin.Bundle;
 import plugin.menus.Menus;
 import plugin.utils.Permission;
 
-import static mindustry.Vars.netServer;
 import static plugin.utils.Permission.getPerms;
-import static plugin.database.models.Ban.ban;
-import static plugin.database.models.PlayerData.getPlayerData;
 
 public class AdminRequest {
     public static void handle(NetConnection con, AdminRequestCallPacket packet) {
@@ -29,7 +23,7 @@ public class AdminRequest {
         Packets.AdminAction action = packet.action;
         Object params = packet.params;
 
-        if(other == null) {
+        if (other == null) {
             return;
         }
 
@@ -39,7 +33,7 @@ public class AdminRequest {
 
         switch (action) {
             case wave -> {
-                if(!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
@@ -48,21 +42,21 @@ public class AdminRequest {
             }
             case ban -> {
                 // ban(other, player, "Touch grass", parseTime("10"));
-                if(!perms.contains(Permission.punish)) {
+                if (!perms.contains(Permission.punish)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
                 player.sendMessage("use /ban");
             }
             case kick -> {
-                if(!perms.contains(Permission.punish)) {
+                if (!perms.contains(Permission.punish)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
-                other.kick(Bundle.get("admin.kicked")+" "+player.coloredName());
+                other.kick(Bundle.get("admin.kicked") + " " + player.coloredName());
             }
             case trace -> {
-                if(!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
@@ -83,13 +77,13 @@ public class AdminRequest {
                 Menus.showTrace(player, other, perms);
             }
             case switchTeam -> {
-                if(!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
-                if(params instanceof Team team) {
+                if (params instanceof Team team) {
                     other.team(team);
-                    other.sendMessage(Bundle.get("team.changed")+" "+team.coloredName());
+                    other.sendMessage(Bundle.get("team.changed") + " " + team.coloredName());
                 }
             }
         }
