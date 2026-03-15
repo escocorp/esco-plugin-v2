@@ -32,7 +32,7 @@ import java.util.Optional;
 
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
-import static plugin.database.GettersKt.adminsCache;
+import static plugin.database.GettersKt.*;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.Log.putLog;
 import static plugin.database.models.PlayerData.getPlayerId;
@@ -43,7 +43,6 @@ import static plugin.utils.Gamemode.*;
 import static plugin.utils.Permission.getPerms;
 import static plugin.utils.Permission.seqToString;
 import static plugin.utils.UtilsKt.*;
-import static plugin.database.GettersKt.getAdmin;
 import static plugin.database.models.Ban.getBan;
 import static plugin.database.models.PlayerData.getPlayerData;
 
@@ -342,11 +341,11 @@ public class PEvents {
 
     public static void purgeData(Player p) {
         Permission.cache.remove(p);
-        PlayerData.cache.remove(p);
+        playerDataCache.remove(p);
         adminsCache.remove(p);
         PlayerStats.purge(p);
         historyPlayers.remove(p);
-	vanishedPlayers.remove(p);
+	    vanishedPlayers.remove(p);
 
         if(linkCodes.containsValue(p, false))
             linkCodes.forEach(e->{
