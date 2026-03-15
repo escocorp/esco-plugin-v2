@@ -34,60 +34,14 @@ import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
 import static plugin.database.GettersKt.*;
 import static plugin.discord.BotKt.*;
+import static plugin.events.PEventsKt.loadEvents;
 import static plugin.utils.Gamemode.*;
 import static plugin.utils.Permission.seqToString;
 import static plugin.utils.UtilsKt.*;
 
 public class PEvents {
     public static void load() {
-        Events.on(EventType.PlayerConnect.class, (e) -> { // pre-connect
-            Player player = e.player;
-
-            Optional<PlayerData> pdataOpt = getOrCreatePlayerData(player);
-            if (pdataOpt.isEmpty()) {
-                player.kick("[scarlet]Failed to create player!", 0);
-                return;
-            }
-            PlayerData pd = pdataOpt.get();
-            pd.getUsid().ifPresent(u -> {
-                if (!u.equals(player.usid())) {
-                    putLog(pd.id, "system", "Possible account thief");
-                    player.kick("Failed to get player data.\nUsid in database is different from current!\nPlease contact us.\nDiscord: " + discordLink, 0);
-                    sendLog("Possible account thief! Usid: " + player.usid() + " Database: " + u);
-                }
-            });
-
-            isAnon(player.ip(), (resp) -> {
-                if (resp.anon && pd.discordId == null) {
-                    putLog(pd.id, "system", "Detected using vpn or proxy.");
-                    player.kick("You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + discordLink);
-                }
-                //AntiFimoz.apply(resp.isp, player);
-                //if(player.con.isConnected())
-                GraylistKt.apply(player, resp.isp, pd);
-            });
-
-            Optional<Ban> banOpt = getBan(player);
-            if (banOpt.isPresent()) {
-                Ban ban = banOpt.get();
-                ban.kickPlayer(player);
-                putLog(pd.id, "system", "Ban " + ban.id + " hit!");
-                sendLog("New ban hit!\nReason: " + ban.reason + "\n" + "ID: " + ban.id + "\nNickname: " + player.plainName().replace("@", ""));
-                return;
-            }
-
-            getAdmin(player).ifPresent(a -> {
-                if (a.perms.contains(Permission.admin) && !a.hidden)
-                    player.admin(true);
-                if (a.perms.size > 1)
-                    player.sendMessage("Your permissions " + seqToString(a.perms));
-            });
-
-            if (mapVote != null)
-                mapVote.checkPass();
-
-            // putLog(pd.id, "system", "All checks finished");
-        });
+        loadEvents();
 
         Events.on(EventType.PlayerJoin.class, (e) -> { // full connect
             Player player = e.player;
