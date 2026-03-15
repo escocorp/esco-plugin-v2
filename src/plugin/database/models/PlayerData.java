@@ -1,16 +1,25 @@
 package plugin.database.models;
 
+import arc.struct.ObjectMap;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mindustry.gen.Player;
 import org.postgresql.util.PGobject;
+import plugin.PVars;
+import plugin.database.Database;
+import mindustry.gen.Groups;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import static arc.util.Log.err;
-import static plugin.PVars.objectMapper;
-import static plugin.PVars.serverId;
-import static plugin.database.Database.executeQueryAsync;
-import static plugin.database.Database.executeUpdate;
+import static plugin.PVars.*;
+import static plugin.database.Database.*;
+import static plugin.utils.UtilsKt.getUDPAddress;
 
 public class PlayerData {
+    public static ObjectMap<Player, PlayerData> cache = new ObjectMap<>();
     public int id;
     public String uuid;
     public Long discordId;
@@ -23,25 +32,65 @@ public class PlayerData {
         return this;
     }
 
-    public PlayerData(int id, String uuid, Long discordId, PlayerPrefs prefs) {
+    PlayerData(int id, String uuid, Long discordId, PlayerPrefs prefs) {
         this.id = id;
         this.uuid = uuid;
         this.discordId = discordId;
         this.prefs = prefs;
     }
 
+    public static List<String> deepSearchNames(Player player) {
+        return executeQueryList(
+                """
+                SELECT DISTINCT p.last_name
+                FROM players p
+                LEFT JOIN usid_list u ON u.player_id = p.id
+                LEFT JOIN connections c ON c.player_id = p.id
+                WHERE p.last_ip = ?
+                   OR u.usid = ?
+                   OR c.address = ?
+                """,
+                stmt -> {
+                    stmt.setString(1, player.ip());
+                    stmt.setString(2, player.usid());
+                    stmt.setString(3, player.ip());
+                },
+                rs -> rs.getString("last_name")
+        );
+    }
+
+    public static List<PlayerData> deepSearch(Player player) {
+        return executeQueryList(
+                """
+                SELECT DISTINCT p.*
+                FROM players p
+                LEFT JOIN usid_list u ON u.player_id = p.id
+                LEFT JOIN connections c ON c.player_id = p.id
+                WHERE p.last_ip = ?
+                   OR u.usid = ?
+                   OR c.address = ?
+                """,
+                stmt -> {
+                    stmt.setString(1, player.ip());
+                    stmt.setString(2, player.usid());
+                    stmt.setString(3, player.ip());
+                },
+                PlayerData::getPlayerData
+        );
+    }
+
     public boolean updateDiscordId(Long dsid) {
         boolean updated = executeUpdate(
-                """
-                        UPDATE players SET discord_id = ?
-                        WHERE id = ?
-                        """,
-                stmt -> {
+        """
+                UPDATE players SET discord_id = ?
+                WHERE id = ?
+                """,
+                stmt->{
                     stmt.setLong(1, dsid);
                     stmt.setInt(2, id);
                 }
         );
-        if (updated)
+        if(updated)
             this.discordId = dsid;
         return updated;
     }
@@ -69,14 +118,121 @@ public class PlayerData {
     public Optional<String> getUsid() {
         return executeQueryAsync(
                 """
-                        SELECT usid FROM usid_list
-                        WHERE player_id = ? AND server = ?
-                        """,
-                stmt -> {
+                SELECT usid FROM usid_list
+                WHERE player_id = ? AND server = ?
+                """,
+                stmt->{
                     stmt.setInt(1, id);
                     stmt.setInt(2, serverId);
                 },
-                rs -> rs.getString("usid")
+                rs->rs.getString("usid")
         );
+    }
+
+    public static Optional<Player> getPlayerById(int id) {
+        Optional<PlayerData> pdOpt = getPlayerData(id);
+        Player p = null;
+        if(pdOpt.isPresent()) {
+            PlayerData pd = pdOpt.get();
+            p = Groups.player.find(player->player.uuid().equals(pd.uuid));
+        }
+        return Optional.ofNullable(p);
+    }
+
+    public static Optional<PlayerData> getOrCreatePlayerData(Player p) {
+        if(cache.containsKey(p)) {
+            return Optional.of(cache.get(p));
+        }
+
+        Optional<PlayerData> pd = Database.executeQueryAsync(
+                """
+                        WITH update_players AS (
+                            INSERT INTO players (uuid, last_name, last_ip, locale, color)
+                            VALUES (?, ?, ?, ?, ?)
+                            ON CONFLICT (uuid) DO UPDATE SET
+                                last_name = EXCLUDED.last_name,
+                                last_ip   = EXCLUDED.last_ip,
+                                color     = EXCLUDED.color,
+                                locale    = EXCLUDED.locale,
+                                last_seen = NOW()
+                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs
+                        ),
+                        insert_usid AS (
+                            INSERT INTO usid_list (player_id, usid, server)
+                            SELECT id, ?, ?
+                            FROM update_players
+                            ON CONFLICT (usid, server) DO NOTHING
+                        ),
+                        insert_connection AS (
+                            INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
+                            SELECT last_name, last_ip, ?, ?, id
+                            FROM update_players
+                        ),
+                        insert_stats AS (
+                            INSERT INTO statistics (player_id)
+                            SELECT id
+                            FROM update_players
+                            ON CONFLICT (player_id) DO NOTHING
+                        )
+                        SELECT *
+                        FROM update_players;
+                        """,
+                stmt->{
+                    stmt.setString(1, p.uuid());
+                    stmt.setString(2, p.name());
+                    stmt.setString(3, p.ip());
+                    stmt.setString(4, p.locale);
+                    stmt.setString(5, p.color.toString());
+                    stmt.setString(6, p.usid());
+                    stmt.setInt(7, serverId);
+                    stmt.setString(8, getUDPAddress(p));
+                    stmt.setInt(9, serverId);
+                },
+                PlayerData::getPlayerData
+        );
+        if(!cache.containsKey(p) && pd.isPresent())
+            cache.put(p, pd.get());
+        return pd;
+    }
+
+    public static Optional<PlayerData> getPlayerData(int id) {
+        return Database.executeQueryAsync(
+                "SELECT * FROM players WHERE id = ?",
+                stmt->stmt.setInt(1, id),
+                PlayerData::getPlayerData
+        );
+    }
+
+    public static Optional<PlayerData> getPlayerData(Player player) {
+        if(cache.containsKey(player))
+            return Optional.of(cache.get(player));
+
+        return Database.executeQueryAsync(
+                "SELECT * FROM players WHERE uuid = ?",
+                stmt->stmt.setString(1, player.uuid()),
+                PlayerData::getPlayerData
+        );
+    }
+
+    public static Optional<Integer> getPlayerId(Player player) {
+        if(cache.containsKey(player))
+            return Optional.of(cache.get(player).id);
+
+        return Database.executeQueryAsync(
+                "SELECT id FROM players WHERE uuid = ?",
+                stmt->stmt.setString(1, player.uuid()),
+                rs->rs.getInt("id")
+        );
+    }
+
+    public static PlayerData getPlayerData(ResultSet rs) throws SQLException {
+        PlayerPrefs prefs;
+        try {
+            prefs = objectMapper.readValue(rs.getString("prefs"), PlayerPrefs.class);
+        } catch (Exception e) {
+            prefs = new PlayerPrefs();
+            err(e);
+        }
+        return new PlayerData(rs.getInt("id"), rs.getString("uuid"), rs.getObject("discord_id", Long.class), prefs);
     }
 }

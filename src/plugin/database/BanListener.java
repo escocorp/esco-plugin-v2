@@ -14,34 +14,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static plugin.Bundle.sendMessage;
-import static plugin.database.GettersKt.getBan;
-import static plugin.database.GettersKt.getPlayerById;
-import static plugin.discord.BotKt.sendLog;
 import static plugin.utils.UtilsKt.formatTime;
+import static plugin.discord.BotKt.*;
 
 public class BanListener {
     private static int failedTimes = 0;
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public static void load() {
-        executor.submit(() -> {
-            try (Connection con = Database.dataSource.getConnection()) {
+        executor.submit(()->{
+            try(Connection con = Database.dataSource.getConnection()) {
                 PGConnection pgCon = con.unwrap(PGConnection.class);
-                try (Statement st = con.createStatement()) {
+                try(Statement st = con.createStatement()) {
                     st.execute("LISTEN new_ban");
                 }
 
-                while (true) {
+                while(true) {
                     PGNotification[] notifications = pgCon.getNotifications();
 
-                    if (notifications != null)
-                        for (PGNotification notify : notifications) {
+                    if(notifications != null)
+                        for(PGNotification notify : notifications) {
                             String payload = notify.getParameter();
-                            if (!Strings.canParseInt(payload)) continue;
+                            if(!Strings.canParseInt(payload)) continue;
                             int i = Strings.parseInt(payload);
-                            getBan(i).ifPresent(ban ->
-                                    getPlayerById(ban.playerId).ifPresent(p -> {
-                                        sendMessage("advertise.banned", ban.playerId, p.coloredName(), ban.unbanTime == null ? "never" : formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000), ban.reason);
+                            Ban.getBan(i).ifPresent(ban->
+                                    PlayerData.getPlayerById(ban.playerId).ifPresent(p-> {
+                                        sendMessage("advertise.banned", ban.playerId, p.coloredName(), ban.unbanTime == null ? "never" :formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000), ban.reason);
                                         ban.kickPlayer(p);
                                     })
                             );
@@ -52,7 +50,7 @@ public class BanListener {
             } catch (Exception e) {
                 Log.err(e);
                 sendLog(e.getMessage());
-                if (failedTimes < 5) {
+                if(failedTimes < 5) {
                     load();
                     failedTimes += 1;
                 }

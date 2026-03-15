@@ -25,7 +25,7 @@ public class Menu {
     }
 
     public Menu add(String text, Cons<Player> handler) {
-        if (rows.isEmpty()) {
+        if(rows.isEmpty()) {
             rows.add(new Seq<String>());
         }
 
@@ -37,8 +37,7 @@ public class Menu {
     }
 
     public Menu add(String text) {
-        return add(text, (p) -> {
-        });
+        return add(text, (p)->{});
     }
 
     public Menu show(Player player) {
@@ -61,10 +60,10 @@ public class Menu {
     String[][] buildRows() {
         String[][] rowsReturn = new String[rows.size][];
 
-        for (int i = 0; i < rows.size; i++) {
+        for(int i = 0;i<rows.size;i++) {
             Seq<String> row = rows.get(i);
             rowsReturn[i] = new String[row.size];
-            for (int o = 0; o < row.size; o++) {
+            for(int o = 0;o<row.size;o++) {
                 rowsReturn[i][o] = row.get(o);
             }
         }
@@ -73,26 +72,26 @@ public class Menu {
     }
 
     public static void load() {
-        Events.on(EventType.PlayerLeave.class, e -> {
-            menus.each((id, menu) -> {
-                if (menu.player == e.player) menus.remove(id);
-            });
+        Events.on(EventType.PlayerLeave.class, e->{
+           menus.each((id, menu)->{
+               if(menu.player == e.player) menus.remove(id);
+           });
         });
 
-        Events.on(EventType.MenuOptionChooseEvent.class, (e) -> {
+        Events.on(EventType.MenuOptionChooseEvent.class, (e)->{
             Player player = e.player;
             Menu menu = menus.get(e.menuId);
-            if (menu == null || menu.player != player) {
+            if(menu == null || menu.player != player) {
                 player.sendMessage("[scarlet]Unknown menu.");
                 return;
             }
 
             int option = e.option;
-            if (option == -1) {
+            if(option == -1) {
                 player.sendMessage("[red]Closed.");
                 return;
             }
-            if (option > menu.handlers.size) {
+            if(option > menu.handlers.size) {
                 player.sendMessage("[scarlet]Unknown option.");
                 return;
             }

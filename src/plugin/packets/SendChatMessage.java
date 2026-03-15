@@ -14,6 +14,8 @@ import mindustry.net.Packets;
 import mindustry.net.ValidateException;
 
 import static mindustry.Vars.*;
+import static mindustry.Vars.headless;
+import static mindustry.Vars.netServer;
 import static mindustry.gen.Call.sendMessage;
 
 public class SendChatMessage {
@@ -22,19 +24,18 @@ public class SendChatMessage {
         String message = packet.message;
 
         //do not receive chat messages from clients that are too young or not registered
-        if (net.server() && player != null && player.con != null && (Time.timeSinceMillis(player.con.connectTime) < 500 || !player.con.hasConnected || !player.isAdded()))
-            return;
+        if(net.server() && player != null && player.con != null && (Time.timeSinceMillis(player.con.connectTime) < 500 || !player.con.hasConnected || !player.isAdded())) return;
 
         //detect and kick for foul play
-        if (player != null && player.con != null && !player.con.chatRate.allow(2000, Administration.Config.chatSpamLimit.num())) {
+        if(player != null && player.con != null && !player.con.chatRate.allow(2000, Administration.Config.chatSpamLimit.num())){
             player.con.kick(Packets.KickReason.kick);
             netServer.admins.blacklistDos(player.con.address);
             return;
         }
 
-        if (message == null) return;
+        if(message == null) return;
 
-        if (message.length() > maxTextLength) {
+        if(message.length() > maxTextLength){
             throw new ValidateException(player, "Player has sent a message above the text limit.");
         }
 
@@ -43,7 +44,7 @@ public class SendChatMessage {
         Events.fire(new EventType.PlayerChatEvent(player, message));
 
         //log commands before they are handled
-        if (message.startsWith(netServer.clientCommands.getPrefix()) && Administration.Config.logCommands.bool()) {
+        if(message.startsWith(netServer.clientCommands.getPrefix()) && Administration.Config.logCommands.bool()){
             //log with brackets
             Log.info("<&fi@: @&fr>", "&lk" + player.plainName(), "&lw" + message);
         }
@@ -51,15 +52,15 @@ public class SendChatMessage {
         //check if it's a command
         CommandHandler.CommandResponse response = netServer.clientCommands.handleMessage(message, player);
         Log.debug("@ @", message, response.type);
-        if (response.type == CommandHandler.ResponseType.noCommand) { //no command to handle
+        if(response.type == CommandHandler.ResponseType.noCommand){ //no command to handle
             message = netServer.admins.filterMessage(player, message);
             //suppress chat message if it's filtered out
-            if (message == null) {
+            if(message == null){
                 return;
             }
 
             //special case; graphical server needs to see its message
-            if (!headless) {
+            if(!headless){
                 sendMessage(netServer.chatFormatter.format(player, message), message, player);
             }
 
@@ -69,12 +70,12 @@ public class SendChatMessage {
             //invoke event for all clients but also locally
             //this is required so other clients get the correct name even if they don't know who's sending it yet
             Call.sendMessage(netServer.chatFormatter.format(player, message), message, player);
-        } else {
+        }else{
 
             //a command was sent, now get the output
-            if (response.type != CommandHandler.ResponseType.valid) {
+            if(response.type != CommandHandler.ResponseType.valid){
                 String text = netServer.invalidHandler.handle(player, response);
-                if (text != null) {
+                if(text != null){
                     player.sendMessage(text);
                 }
             }

@@ -26,7 +26,7 @@ public class Server {
                         DO UPDATE SET name = EXCLUDED.name
                         RETURNING id, name
                         """,
-                stmt -> stmt.setString(1, gamemode.simpleName),
+                stmt->stmt.setString(1, gamemode.simpleName),
                 Server::getServer
         );
     }

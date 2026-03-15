@@ -1,13 +1,19 @@
 package plugin.database.models;
 
 import arc.struct.ObjectMap;
+import arc.struct.StringMap;
 import arc.util.Time;
 import arc.util.Timekeeper;
 import mindustry.gen.Player;
 
-import static plugin.PVars.gamemode;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Optional;
+
+import static plugin.database.Database.executeQueryAsync;
 import static plugin.database.Database.executeUpdate;
-import static plugin.database.GettersKt.playerStatsCache;
+
+import static plugin.PVars.*;
 
 public class PlayerStats {
     public int id, playerId;
@@ -26,6 +32,7 @@ public class PlayerStats {
         this.wavesSurvived = wavesSurvived;
     }
 
+    public static ObjectMap<String, PlayerStats> cache = new ObjectMap<>();
     public static ObjectMap<String, Long> joinTime = new ObjectMap<>();
 
     public PlayerStats setLastGambling(Timekeeper time) {
@@ -35,19 +42,37 @@ public class PlayerStats {
 
     public boolean write() {
         return executeUpdate("UPDATE statistics SET playtime = ?, blocks_build = ?, blocks_broken = ?, balance = ?, waves_survived = ? WHERE id = ?",
-                stmt -> {
-                    stmt.setLong(1, playtime);
-                    stmt.setInt(2, blocksBuild);
-                    stmt.setInt(3, blocksBroken);
-                    stmt.setInt(4, balance);
-                    stmt.setInt(5, wavesSurvived);
-                    stmt.setInt(6, id);
+                stmt->{
+            stmt.setLong(1, playtime);
+            stmt.setInt(2, blocksBuild);
+            stmt.setInt(3, blocksBroken);
+            stmt.setInt(4, balance);
+            stmt.setInt(5, wavesSurvived);
+            stmt.setInt(6, id);
                 });
+    }
+
+    public static Optional<PlayerStats> getPlayerStats(Player player) {
+        String uuid = player.uuid();
+
+        PlayerStats cached = cache.get(uuid);
+        if (cached != null)
+            return Optional.of(cached);
+
+        Optional<PlayerStats> opt = executeQueryAsync(
+                "SELECT * from statistics WHERE player_id in (SELECT id FROM players WHERE uuid = ?)",
+                stmt -> stmt.setString(1, uuid),
+                PlayerStats::getPlayerStats
+        );
+
+        opt.ifPresent(stats -> cache.put(uuid, stats));
+
+        return opt;
     }
 
     public PlayerStats adjBlocksBuild() {
         this.blocksBuild += 1;
-        if (blocksBuild % 50 == 0)
+        if(blocksBuild % 50 == 0)
             adjBalance(gamemode.blockCost);
         return this;
     }
@@ -90,7 +115,7 @@ public class PlayerStats {
         playtime += (Time.millis() - time) / 1000; // to sec
 
         joinTime.remove(player.uuid());
-        if (!purge)
+        if(!purge)
             setJoinTime(player);
         else
             write();
@@ -99,12 +124,32 @@ public class PlayerStats {
     }
 
     public static void purge(Player player) {
-        PlayerStats stats = playerStatsCache.get(player.uuid());
+        PlayerStats stats = cache.get(player.uuid());
 
-        if (stats != null) {
+        if(stats != null) {
             stats.update(player, true);
         }
 
-        playerStatsCache.remove(player.uuid());
+        cache.remove(player.uuid());
+    }
+
+    public static Optional<PlayerStats> getPlayerStats(int pid) {
+        return executeQueryAsync(
+                "SELECT * from statistics WHERE player_id = ?",
+                stmt->stmt.setInt(1, pid),
+                PlayerStats::getPlayerStats
+        );
+    }
+
+    public static PlayerStats getPlayerStats(ResultSet rs) throws SQLException {
+        return new PlayerStats(
+                rs.getInt("id"),
+                rs.getInt("player_id"),
+                rs.getLong("playtime"),
+                rs.getInt("blocks_build"),
+                rs.getInt("blocks_broken"),
+                rs.getInt("balance"),
+                rs.getInt("waves_survived")
+        );
     }
 }

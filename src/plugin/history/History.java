@@ -2,6 +2,9 @@ package plugin.history;
 
 import arc.math.geom.Point2;
 import arc.struct.LongMap;
+import arc.struct.ObjectMap;
+import arc.struct.Seq;
+import arc.util.Strings;
 import mindustry.net.Administration;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
@@ -17,13 +20,13 @@ public class History {
         // Point2 pos2 = Point2.unpack(pos);
         int x = Point2.x(pos), y = Point2.y(pos); // int int
 
-        sb.append("[" + x + "] " + "[" + y + "]");
+        sb.append("["+x+"] "+"["+y+"]");
 
 
         HistoryStack stack = history.get(pos); // long
         //stack.stack.each(s->{sb.append("\n").append(s.getMessage());});
-        if (stack != null)
-            for (int i = 0; i < stack.size(); i++) {
+        if(stack != null)
+            for(int i = 0; i < stack.size(); i++) {
                 sb.append("\n").append(stack.stack.get(i).getMessage());
             }
 
@@ -37,7 +40,7 @@ public class History {
                              Block block,
                              UnitType unit) {
 
-        if (tile == null) return;
+        if(tile == null) return;
 
         HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit);
 
@@ -47,12 +50,12 @@ public class History {
 
             HistoryStack stack = history.get(pos);
 
-            if (stack == null) {
+            if(stack == null){
                 stack = new HistoryStack();
                 history.put(pos, stack);
             }
 
-            if (stack.size() >= 6) {
+            if(stack.size() >= 6){
                 stack.removeFirst();
             }
 

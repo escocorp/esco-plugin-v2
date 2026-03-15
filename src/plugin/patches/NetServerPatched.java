@@ -105,7 +105,7 @@ public class NetServerPatched extends NetServer {
 
     @Override
     public void update() {
-        if (!headless && !(Boolean) get(F.closing) && net.server() && state.isMenu()) {
+        if(!headless && !(Boolean)get(F.closing) && net.server() && state.isMenu()){
             set(F.closing, true);
             ui.loadfrag.show("@server.closing");
             Time.runTask(5f, () -> {
@@ -115,14 +115,14 @@ public class NetServerPatched extends NetServer {
             });
         }
 
-        if (state.isGame() && net.server()) {
-            if (state.rules.pvp && state.rules.pvpAutoPause) {
+        if(state.isGame() && net.server()){
+            if(state.rules.pvp && state.rules.pvpAutoPause){
                 boolean waiting = isWaitingForPlayers(), paused = state.isPaused();
-                if (waiting != paused) {
-                    if (waiting) {
+                if(waiting != paused){
+                    if(waiting){
                         set(F.pvpAutoPaused, true);
                         state.set(GameState.State.paused);
-                    } else if ((Boolean) get(F.pvpAutoPaused)) {
+                    } else if((Boolean)get(F.pvpAutoPaused)){
                         state.set(GameState.State.playing);
                         set(F.pvpAutoPaused, false);
                     }
@@ -150,7 +150,7 @@ public class NetServerPatched extends NetServer {
                 connection.syncTime = Time.millis();
 
                 try {
-                    if (vanishedPlayers.isEmpty())
+                    if(vanishedPlayers.isEmpty())
                         super.writeEntitySnapshot(player);
                     else
                         writeEntitySnapshot(player);
@@ -160,23 +160,23 @@ public class NetServerPatched extends NetServer {
             });
 
             if (Groups.player.size() > 0 && Core.settings.getBool("blocksync")) {
-                Interval timer = (Interval) get(F.timer);
-                int timerBlockSync = (Integer) get(F.timerBlockSync);
-                float blockSyncTime = (Float) get(F.blockSyncTime);
-                if (timer.get(timerBlockSync, blockSyncTime)) {
+                Interval timer = (Interval)get(F.timer);
+                int timerBlockSync = (Integer)get(F.timerBlockSync);
+                float blockSyncTime = (Float)get(F.blockSyncTime);
+                if(timer.get(timerBlockSync, blockSyncTime)) {
                     writeBlockSnapshots();
                 }
             }
 
             if (Groups.player.size() > 0) {
-                IntSet buildHealthChanged = (IntSet) get(F.buildHealthChanged);
-                if (buildHealthChanged.size > 0) {
-                    Interval timer = (Interval) get(F.timer);
-                    int timerHealthSync = (Integer) get(F.timerHealthSync);
-                    float healthSyncTime = (Float) get(F.healthSyncTime);
-                    if (timer.get(timerHealthSync, healthSyncTime)) {
+                IntSet buildHealthChanged = (IntSet)get(F.buildHealthChanged);
+                if(buildHealthChanged.size > 0) {
+                    Interval timer = (Interval)get(F.timer);
+                    int timerHealthSync = (Integer)get(F.timerHealthSync);
+                    float healthSyncTime = (Float)get(F.healthSyncTime);
+                    if(timer.get(timerHealthSync, healthSyncTime)) {
 
-                        IntSeq healthSeq = (IntSeq) get(F.healthSeq);
+                        IntSeq healthSeq = (IntSeq)get(F.healthSeq);
                         healthSeq.clear();
 
                         var iter = buildHealthChanged.iterator();
@@ -188,7 +188,7 @@ public class NetServerPatched extends NetServer {
                                 healthSeq.add(next, Float.floatToRawIntBits(build.health));
                             }
 
-                            int maxSnapshotSize = (Integer) get(F.maxSnapshotSize);
+                            int maxSnapshotSize = (Integer)get(F.maxSnapshotSize);
                             if (healthSeq.size * 4 >= maxSnapshotSize) {
                                 Call.buildHealthUpdate(healthSeq);
                                 healthSeq.clear();
@@ -211,24 +211,24 @@ public class NetServerPatched extends NetServer {
 
     @Override
     public void writeEntitySnapshot(Player player) throws IOException {
-        byte tps = (byte) Math.min(Core.graphics.getFramesPerSecond(), 255);
+        byte tps = (byte)Math.min(Core.graphics.getFramesPerSecond(), 255);
 
-        ReusableByteOutStream syncStream = (ReusableByteOutStream) get(F.syncStream);
-        DataOutputStream dataStream = (DataOutputStream) get(F.dataStream);
-        Writes dataWrites = (Writes) get(F.dataWrites);
-        Writes dataStreamWrites = (Writes) get(F.dataStreamWrites);
-        IntSeq hiddenIds = (IntSeq) get(F.hiddenIds);
-        int maxSnapshotSize = (Integer) get(F.maxSnapshotSize);
+        ReusableByteOutStream syncStream = (ReusableByteOutStream)get(F.syncStream);
+        DataOutputStream dataStream = (DataOutputStream)get(F.dataStream);
+        Writes dataWrites = (Writes)get(F.dataWrites);
+        Writes dataStreamWrites = (Writes)get(F.dataStreamWrites);
+        IntSeq hiddenIds = (IntSeq)get(F.hiddenIds);
+        int maxSnapshotSize = (Integer)get(F.maxSnapshotSize);
 
         syncStream.reset();
 
-        int activeTeams = (byte) state.teams.present.count(t -> t.cores.size > 0);
+        int activeTeams = (byte)state.teams.present.count(t -> t.cores.size > 0);
 
         dataStream.writeByte(activeTeams);
         dataWrites.output = dataStream;
 
-        for (Teams.TeamData data : state.teams.present) {
-            if (data.cores.size > 0) {
+        for(Teams.TeamData data : state.teams.present){
+            if(data.cores.size > 0){
                 dataStream.writeByte(data.team.id);
                 data.cores.first().items.write(dataWrites);
             }
@@ -243,11 +243,11 @@ public class NetServerPatched extends NetServer {
         hiddenIds.clear();
 
         int sent = 0;
-        for (Syncc entity : Groups.sync) {
-            if (entity.isSyncHidden(player)) {
+        for(Syncc entity : Groups.sync){
+            if(entity.isSyncHidden(player)){
                 hiddenIds.add(entity.id());
                 continue;
-            } else if (entity instanceof Player p && player != p && vanishedPlayers.contains(p)) {
+            } else if(entity instanceof Player p && player != p && vanishedPlayers.contains(p)) {
                 hiddenIds.add(entity.id());
                 continue;
             }
@@ -259,20 +259,20 @@ public class NetServerPatched extends NetServer {
 
             sent++;
 
-            if (syncStream.size() > maxSnapshotSize) {
+            if(syncStream.size() > maxSnapshotSize){
                 dataStream.close();
-                Call.entitySnapshot(player.con, (short) sent, syncStream.toByteArray());
+                Call.entitySnapshot(player.con, (short)sent, syncStream.toByteArray());
                 sent = 0;
                 syncStream.reset();
             }
         }
 
-        if (sent > 0) {
+        if(sent > 0){
             dataStream.close();
-            Call.entitySnapshot(player.con, (short) sent, syncStream.toByteArray());
+            Call.entitySnapshot(player.con, (short)sent, syncStream.toByteArray());
         }
 
-        if (hiddenIds.size > 0) {
+        if(hiddenIds.size > 0){
             Call.hiddenSnapshot(player.con, hiddenIds);
         }
 

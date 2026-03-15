@@ -33,7 +33,7 @@ fun isAnon(ip: String?, callback: Cons<ApiResponse>) {
                     resp!!.resultAsString,
                     ApiResponse::class.java
                 )
-                if (!apiResponse.status.equals("success")) {
+                if(!apiResponse.status.equals("success")) {
                     Log.err("Failed to check ip $ip messsage ${apiResponse.message}")
                     return@submit
                 }
@@ -111,7 +111,7 @@ fun formatTime(time: Long): String {
 }
 
 fun parseTime(time: String?): Long {
-    time ?: return 0
+    time?: return 0
     var time = time
     if (time.isEmpty() || !Character.isDigit(time[0])) return -1
     val timeMod = time[time.length - 1].lowercaseChar() // last char

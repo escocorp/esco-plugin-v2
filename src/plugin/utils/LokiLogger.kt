@@ -2,7 +2,14 @@ package plugin.utils
 
 import arc.util.Http
 import arc.util.Log
-import plugin.PVars.*
+import plugin.PVars.apiAuth
+import plugin.PVars.gamemode
+import plugin.PVars.lokiApi
+
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 data class LogEntry(
     val level: String,

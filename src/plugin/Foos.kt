@@ -1,14 +1,17 @@
 package plugin
 
-import arc.util.Log
+import arc.util.CommandHandler
 import arc.util.Reflect
 import arc.util.serialization.Jval
 import mindustry.Vars
 import mindustry.gen.Call
 import mindustry.gen.Player
 import mindustry.net.Administration.Config
+
 import plugin.PVars.clientCommands
 import plugin.commands.CustomHandler
+
+import arc.util.*
 
 class Foos {
     companion object {
@@ -62,12 +65,12 @@ class Foos {
                         if (getAccessLevel(player).hasSufficientLevel(command.requiredLevel))
                             add(command.name, command.args)
                     }*/
-                    if (clientCommands != null)
-                    /*clientCommands.commands.each{ command: CustomHandler.CommandData ->
-                        add(command.name, command.args)
-                    }*/
+                    if(clientCommands != null)
+                        /*clientCommands.commands.each{ command: CustomHandler.CommandData ->
+                            add(command.name, command.args)
+                        }*/
                         clientCommands.commands.each { command: CustomHandler.CommandData? ->
-                            if (command != null) add(command.name, command.args)
+                            if(command != null) add(command.name, command.args)
                         }
                     // yep, commands with spec. permissions included in public command list, lol.
                 })

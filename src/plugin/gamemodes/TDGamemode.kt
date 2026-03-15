@@ -14,27 +14,25 @@ import mindustry.content.UnitTypes.*
 import mindustry.game.EventType.*
 import mindustry.gen.Call
 import mindustry.net.Administration
-import mindustry.net.Administration.*
+import mindustry.net.Administration.ActionFilter
+import mindustry.net.Administration.ActionType
+import mindustry.net.Administration.PlayerAction
 import mindustry.type.Item
 import mindustry.type.UnitType
 import mindustry.world.blocks.environment.Floor
 import kotlin.math.roundToInt
+import mindustry.gen.Groups
 
 val items = ObjectMap<UnitType, Seq<Item>?>()
 
 fun loadRes() {
     // region ground attack
     items.putAll(
-        dagger,
-        with(copper, lead, graphite),
-        mace,
-        with(copper, lead, graphite, silicon, sand, titanium),
-        fortress,
-        with(copper, lead, silicon, graphite, metaglass, sand, thorium, phaseFabric, plastanium),
-        scepter,
-        with(copper, lead, titanium, silicon, graphite, sand, metaglass, thorium, surgeAlloy, phaseFabric, plastanium),
-        reign,
-        with(copper, lead, titanium, metaglass, sand, thorium, surgeAlloy, silicon, graphite, plastanium, phaseFabric)
+        dagger, with(copper, lead, graphite),
+        mace, with(copper, lead, graphite, silicon, sand, titanium),
+        fortress, with(copper, lead, silicon, graphite, metaglass, sand, thorium, phaseFabric, plastanium),
+        scepter, with(copper, lead, titanium, silicon, graphite, sand, metaglass, thorium, surgeAlloy, phaseFabric, plastanium),
+        reign, with(copper, lead, titanium, metaglass, sand, thorium, surgeAlloy, silicon, graphite, plastanium, phaseFabric)
     )
 
     // endregion
@@ -52,29 +50,11 @@ fun loadRes() {
 
     // region ground legs
     items.putAll(
-        crawler,
-        with(coal, lead, copper),
-        atrax,
-        with(coal, graphite, silicon, lead, copper),
-        spiroct,
-        with(coal, graphite, silicon, lead, copper, titanium, metaglass, plastanium),
-        arkyid,
-        with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand, plastanium, phaseFabric),
-        toxopid,
-        with(
-            coal,
-            graphite,
-            silicon,
-            lead,
-            copper,
-            thorium,
-            titanium,
-            metaglass,
-            sand,
-            surgeAlloy,
-            plastanium,
-            phaseFabric
-        )
+        crawler, with(coal, lead, copper),
+        atrax, with(coal, graphite, silicon, lead, copper),
+        spiroct, with(coal, graphite, silicon, lead, copper, titanium, metaglass, plastanium),
+        arkyid, with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand, plastanium, phaseFabric),
+        toxopid, with(coal, graphite, silicon, lead, copper, thorium, titanium, metaglass, sand, surgeAlloy, plastanium, phaseFabric)
     )
 
     // endregion
@@ -97,28 +77,17 @@ fun loadRes() {
 
     // region naval support(+heal)
     items.putAll(
-        retusa,
-        with(silicon, metaglass, titanium, lead, copper),
-        oxynoe,
-        with(silicon, metaglass, titanium, graphite, lead, copper),
-        cyerce,
-        with(silicon, metaglass, titanium, graphite, lead, copper, plastanium),
-        aegires,
-        with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric),
-        navanax,
-        with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric)
+        retusa, with(silicon, metaglass, titanium, lead, copper),
+        oxynoe, with(silicon, metaglass, titanium, graphite, lead, copper),
+        cyerce, with(silicon, metaglass, titanium, graphite, lead, copper, plastanium),
+        aegires, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric),
+        navanax, with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric)
     )
     // endregion
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
-var actions: Seq<Administration.ActionType> = with(
-    ActionType.breakBlock, /*ActionType.buildSelect,*/
-    ActionType.pickupBlock,
-    ActionType.placeBlock,
-    ActionType.dropPayload
-)
-
+var actions : Seq<Administration.ActionType> = with(ActionType.breakBlock, /*ActionType.buildSelect,*/ ActionType.pickupBlock, ActionType.placeBlock, ActionType.dropPayload)
 //var healthMod = 1f
 var resMod = 1f
 const val baseRes = 40
@@ -128,10 +97,7 @@ fun load() {
     loadRes()
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
         Vars.netServer.admins.addActionFilter(ActionFilter { action: PlayerAction? ->
-            if (action != null && action.tile != null && actions.contains(action.type) && (action.block !== Blocks.shockMine || action.tile.block() !== Blocks.shockMine) && floors.contains(
-                    action.tile.floor()
-                )
-            ) {
+            if (action != null && action.tile != null && actions.contains(action.type) && (action.block !== Blocks.shockMine || action.tile.block() !== Blocks.shockMine) && floors.contains(action.tile.floor())) {
                 return@ActionFilter false
             }
             true
@@ -152,7 +118,7 @@ fun load() {
         Call.label(sb.toString(), 1.5f, unit.x, unit.y)
     })
     Events.on(UnitSpawnEvent::class.java) { e: UnitSpawnEvent? ->
-        if (e!!.unit.team() != Vars.state.rules.defaultTeam) {
+        if(e!!.unit.team() != Vars.state.rules.defaultTeam) {
             Timer.schedule({
                 //e.unit.healthMultiplier(healthMod)
                 //e.unit.heal()

@@ -26,7 +26,7 @@ class TDGroundAI : GroundAI() {
         val core: Building? = unit.closestEnemyCore()
         var moved = false
 
-        if (core != null && unit.within(core, 80f)) {
+        if(core != null && unit.within(core, 80f)) {
             core.damage(unit.health() / 2)
             unit.kill()
             return
@@ -63,7 +63,7 @@ class TDGroundAI : GroundAI() {
                 if (stuckTime - Time.delta < stuckThreshold && stuckTime >= stuckThreshold) {
                     val radius = unit.hitSize * Vars.unitCollisionRadiusScale * 2f
                     Units.nearby(unit.team, unit.x, unit.y, radius, Cons { other: Unit? ->
-                        other ?: return@Cons
+                        other?: return@Cons
                         if (other !== unit && other.controller() is TDGroundAI && other.within(
                                 unit.x,
                                 unit.y,

@@ -32,8 +32,8 @@ public enum Gamemode {
     }
 
     public static Gamemode parseGamemode(String name) {
-        for (Gamemode g : values())
-            if (g.name().equals(name)) return g;
+        for(Gamemode g : values())
+            if(g.name().equals(name)) return g;
         return idk;
     }
 }
