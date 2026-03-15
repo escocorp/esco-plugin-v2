@@ -16,10 +16,11 @@ import mindustry.gen.Unit;
 import mindustry.logic.GlobalVars;
 import mindustry.type.UnitType;
 
-import static mindustry.Vars.*;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import static mindustry.Vars.state;
+import static mindustry.Vars.universe;
 
 public class ClientCrasher {
     public static Seq<Unit> units = new Seq<>();
@@ -28,21 +29,21 @@ public class ClientCrasher {
 
     public static void load() {
         Rand rand = new Rand();
-        Vars.content.units().each(u->{
-            if(u.hidden) {
-                Unit boss = u.create(Math.random()>0.6 ? Team.crux : Team.sharded);
-                boss.x = rand.nextInt(512*8);
-                boss.y = rand.nextInt(512*8);
+        Vars.content.units().each(u -> {
+            if (u.hidden) {
+                Unit boss = u.create(Math.random() > 0.6 ? Team.crux : Team.sharded);
+                boss.x = rand.nextInt(512 * 8);
+                boss.y = rand.nextInt(512 * 8);
                 finalBosses.add(boss);
             } else {
                 types.add(u);
             }
         });
 
-        for(int i = 0; i < 1000;i++) {
-            Unit u = types.get(rand.nextInt(types.size)).create(Math.random()>0.6 ? Team.crux : Team.sharded);
-            u.x = rand.nextInt(512*8);
-            u.y = rand.nextInt(512*8);
+        for (int i = 0; i < 1000; i++) {
+            Unit u = types.get(rand.nextInt(types.size)).create(Math.random() > 0.6 ? Team.crux : Team.sharded);
+            u.x = rand.nextInt(512 * 8);
+            u.y = rand.nextInt(512 * 8);
             units.add(u);
         }
     }
@@ -57,16 +58,16 @@ public class ClientCrasher {
     private static final int maxSnapshotSize = 800;
 
     public static void crash(Player player) throws IOException {
-        byte tps = (byte)Math.min(Core.graphics.getFramesPerSecond(), 255);
+        byte tps = (byte) Math.min(Core.graphics.getFramesPerSecond(), 255);
         syncStream.reset();
-        int activeTeams = (byte)state.teams.present.count(t -> t.cores.size > 0);
+        int activeTeams = (byte) state.teams.present.count(t -> t.cores.size > 0);
 
         dataStream.writeByte(activeTeams);
         dataWrites.output = dataStream;
 
         //block data isn't important, just send the items for each team, they're synced across cores
-        for(Teams.TeamData data : state.teams.present){
-            if(data.cores.size > 0){
+        for (Teams.TeamData data : state.teams.present) {
+            if (data.cores.size > 0) {
                 dataStream.writeByte(data.team.id);
                 data.cores.first().items.write(dataWrites);
             }
@@ -83,7 +84,7 @@ public class ClientCrasher {
         hiddenIds.clear();
         int sent = 0;
 
-        for(int i = 0;i<units.size;i++) {
+        for (int i = 0; i < units.size; i++) {
             Syncc entity = units.get(i);
 
             dataStream.writeInt(entity.id()); //write id
@@ -93,21 +94,21 @@ public class ClientCrasher {
 
             sent++;
 
-            if(syncStream.size() > maxSnapshotSize){
+            if (syncStream.size() > maxSnapshotSize) {
                 dataStream.close();
-                Call.entitySnapshot(player.con, (short)sent, syncStream.toByteArray());
+                Call.entitySnapshot(player.con, (short) sent, syncStream.toByteArray());
                 sent = 0;
                 syncStream.reset();
             }
         }
 
-        if(sent > 0){
+        if (sent > 0) {
             dataStream.close();
 
-            Call.entitySnapshot(player.con, (short)sent, syncStream.toByteArray());
+            Call.entitySnapshot(player.con, (short) sent, syncStream.toByteArray());
         }
 
-        if(hiddenIds.size > 0){
+        if (hiddenIds.size > 0) {
             Call.hiddenSnapshot(player.con, hiddenIds);
         }
 
@@ -115,16 +116,16 @@ public class ClientCrasher {
     }
 
     public static void sendFinalBoss(Player player) throws IOException {
-        byte tps = (byte)Math.min(Core.graphics.getFramesPerSecond(), 255);
+        byte tps = (byte) Math.min(Core.graphics.getFramesPerSecond(), 255);
         syncStream.reset();
-        int activeTeams = (byte)state.teams.present.count(t -> t.cores.size > 0);
+        int activeTeams = (byte) state.teams.present.count(t -> t.cores.size > 0);
 
         dataStream.writeByte(activeTeams);
         dataWrites.output = dataStream;
 
         //block data isn't important, just send the items for each team, they're synced across cores
-        for(Teams.TeamData data : state.teams.present){
-            if(data.cores.size > 0){
+        for (Teams.TeamData data : state.teams.present) {
+            if (data.cores.size > 0) {
                 dataStream.writeByte(data.team.id);
                 data.cores.first().items.write(dataWrites);
             }
@@ -141,7 +142,7 @@ public class ClientCrasher {
         hiddenIds.clear();
         int sent = 0;
 
-        for(int i = 0;i<finalBosses.size;i++) {
+        for (int i = 0; i < finalBosses.size; i++) {
             Syncc entity = finalBosses.get(i);
 
             dataStream.writeInt(entity.id()); //write id
@@ -151,21 +152,21 @@ public class ClientCrasher {
 
             sent++;
 
-            if(syncStream.size() > maxSnapshotSize){
+            if (syncStream.size() > maxSnapshotSize) {
                 dataStream.close();
-                Call.entitySnapshot(player.con, (short)sent, syncStream.toByteArray());
+                Call.entitySnapshot(player.con, (short) sent, syncStream.toByteArray());
                 sent = 0;
                 syncStream.reset();
             }
         }
 
-        if(sent > 0){
+        if (sent > 0) {
             dataStream.close();
 
-            Call.entitySnapshot(player.con, (short)sent, syncStream.toByteArray());
+            Call.entitySnapshot(player.con, (short) sent, syncStream.toByteArray());
         }
 
-        if(hiddenIds.size > 0){
+        if (hiddenIds.size > 0) {
             Call.hiddenSnapshot(player.con, hiddenIds);
         }
 

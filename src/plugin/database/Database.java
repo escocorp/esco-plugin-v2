@@ -8,9 +8,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static plugin.PVars.*;
 
@@ -23,7 +23,7 @@ public class Database {
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl("jdbc:postgresql://" + dbHost + ":" + dbPort + "/" + db);
             config.setUsername(dbUser);
-            if(!dbPassword.equals("empty") && !dbPassword.isEmpty())
+            if (!dbPassword.equals("empty") && !dbPassword.isEmpty())
                 config.setPassword(dbPassword);
 
             config.setMaximumPoolSize(10);
@@ -56,6 +56,7 @@ public class Database {
             return Optional.empty();
         }
     }
+
     public static boolean executeUpdate(String sql, StatementSetter<PreparedStatement> statementSetter) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -70,6 +71,7 @@ public class Database {
             return false;
         }
     }
+
     public static <T> List<T> executeQueryList(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
         List<T> results = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
@@ -93,7 +95,7 @@ public class Database {
     public interface StatementSetter<T> {
         void accept(T t) throws SQLException;
     }
-    
+
     @FunctionalInterface
     public interface Serealizer<T, R> {
         R apply(T t) throws SQLException;

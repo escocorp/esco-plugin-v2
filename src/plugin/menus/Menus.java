@@ -16,15 +16,13 @@ import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
 import plugin.utils.Permission;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static plugin.Bundle.label;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.discordLink;
 import static plugin.PVars.gamemode;
-import static plugin.database.models.Ban.ban;
-import static plugin.database.models.PlayerData.getPlayerData;
+import static plugin.database.GettersKt.*;
 import static plugin.utils.Gamemode.pvp;
 import static plugin.utils.UtilsKt.parseTime;
 
@@ -58,8 +56,8 @@ public class Menus {
                 .add("[blue]\uE80DDiscord",
                         (pl) -> Call.openURI(pl.con, discordLink)
                 )
-                .add(Bundle.get("menus.dontshow", p.locale), (pl)->{
-                    getPlayerData(pl).ifPresent(data->{
+                .add(Bundle.get("menus.dontshow", p.locale), (pl) -> {
+                    getPlayerData(pl).ifPresent(data -> {
                         data.prefs.setShowWelcomeMenu(false);
                         data.updatePrefs();
                     });
@@ -67,19 +65,19 @@ public class Menus {
                 .show(p);
     }
 
-    public static void slot(Player p, PlayerStats stats, int bet){
+    public static void slot(Player p, PlayerStats stats, int bet) {
 
-        if(bet <= 0){
+        if (bet <= 0) {
             sendMessage("slots.smollbet", p);
             return;
         }
 
-        if(bet>600) {
+        if (bet > 600) {
             sendMessage("args.lessthan", p, "<bet>", 600);
             return;
         }
 
-        if(stats.balance < bet){
+        if (stats.balance < bet) {
             sendMessage("menu.shop.nomoney", p);
             return;
         }
@@ -88,49 +86,57 @@ public class Menus {
     }
 
     private static void showSlot(Player p, PlayerStats stats, int bet) {
-        if(bet > stats.balance) {
+        if (bet > stats.balance) {
             sendMessage("menu.shop.nomoney", p);
             return;
         }
 
-        if(stats.balance > 30000) {
+        if (stats.balance > 30000) {
             p.sendMessage("[scarlet]You have too much money");
             return;
         }
 
-        if(stats.lastGambling != null && !stats.lastGambling.get()) {
+        if (stats.lastGambling != null && !stats.lastGambling.get()) {
             p.sendMessage("[scarlet]Not so fast!");
             return;
         }
 
-        String s1 = slotsSymbols[Mathf.random(slotsSymbols.length-1)];
-        String s2 = slotsSymbols[Mathf.random(slotsSymbols.length-1)];
-        String s3 = slotsSymbols[Mathf.random(slotsSymbols.length-1)];
+        String s1 = slotsSymbols[Mathf.random(slotsSymbols.length - 1)];
+        String s2 = slotsSymbols[Mathf.random(slotsSymbols.length - 1)];
+        String s3 = slotsSymbols[Mathf.random(slotsSymbols.length - 1)];
 
         float multiplier = 0f;
 
-        if(s1.equals(s2) && s2.equals(s3)){
-            switch(s1){
-                case "\uF82D": multiplier = 5f; break;
-                case "\uF82C": multiplier = 4f; break; // surge
-                case "\uF82F": multiplier = 3f; break; // sili
-                case "\uF837": multiplier = 2f; break; // lead
-                default: multiplier = 1.5f;
+        if (s1.equals(s2) && s2.equals(s3)) {
+            switch (s1) {
+                case "\uF82D":
+                    multiplier = 5f;
+                    break;
+                case "\uF82C":
+                    multiplier = 4f;
+                    break; // surge
+                case "\uF82F":
+                    multiplier = 3f;
+                    break; // sili
+                case "\uF837":
+                    multiplier = 2f;
+                    break; // lead
+                default:
+                    multiplier = 1.5f;
             }
-        }
-        else if(s1.equals(s2) || s2.equals(s3) || s1.equals(s3)){
+        } else if (s1.equals(s2) || s2.equals(s3) || s1.equals(s3)) {
             multiplier = 1.2f;
         }
 
         int win = Math.round((bet * multiplier));
 
-        if(stats.lastGambling == null) {
+        if (stats.lastGambling == null) {
             stats.setLastGambling(new Timekeeper(0.5f));
         } else {
             stats.lastGambling.reset();
         }
 
-        if(win > 0){
+        if (win > 0) {
             stats.adjBalance(win);
         } else {
             stats.subBalance(bet);
@@ -144,22 +150,22 @@ public class Menus {
         }
          */
 
-        new Menu("Slot", "Bet: "+bet+"\nBalance: "+stats.balance+"\n" + (win>0 ? Bundle.get("menus.slots.win", p.locale, win) : Bundle.get("menus.slots.fail", p.locale,bet)))
-                .add("["+s1+"]")
-                .add("["+s2+"]")
-                .add("["+s3+"]").row()
-                .add("[green]Lets go gambling!", (pl)->showSlot(pl, stats, bet))
+        new Menu("Slot", "Bet: " + bet + "\nBalance: " + stats.balance + "\n" + (win > 0 ? Bundle.get("menus.slots.win", p.locale, win) : Bundle.get("menus.slots.fail", p.locale, bet)))
+                .add("[" + s1 + "]")
+                .add("[" + s2 + "]")
+                .add("[" + s3 + "]").row()
+                .add("[green]Lets go gambling!", (pl) -> showSlot(pl, stats, bet))
                 .add("-")
                 .add(Bundle.get("menus.close", p.locale))
                 .show(p);
     }
 
     public static void showShop(PlayerStats stats, Player p) {
-        Menu menu = new Menu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]"+stats.balance);
+        Menu menu = new Menu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance);
 
         AtomicInteger i = new AtomicInteger();
-        unitCosts.forEach((en)->{
-            if(i.get() >= 4) {
+        unitCosts.forEach((en) -> {
+            if (i.get() >= 4) {
                 menu.row();
                 i.set(0);
             }
@@ -167,21 +173,21 @@ public class Menus {
             UnitType type = en.key;
             int cost = gamemode == pvp ? en.value * 3 : en.value;
 
-            menu.add(type.emoji()+"\n[green]$[lightgray]"+cost, pl->{
-                if(cost > stats.balance) {
+            menu.add(type.emoji() + "\n[green]$[lightgray]" + cost, pl -> {
+                if (cost > stats.balance) {
                     sendMessage("menu.shop.nomoney", pl);
                     return;
                 }
-               type.spawn(pl.team(), pl.x, pl.y);
-               stats.subBalance(cost);
-               //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
+                type.spawn(pl.team(), pl.x, pl.y);
+                stats.subBalance(cost);
+                //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
                 label("menu.shop.unitbuy", 1, pl.x, pl.y, pl.coloredName(), type.emoji(), cost);
             });
         });
         menu.row();
-        if(gamemode != pvp)
-            menu.add(Bundle.get("menu.shop.healcores", p.locale)+"\n[green]$[lightgray]2500", pl->{
-                if(2500 > stats.balance) {
+        if (gamemode != pvp)
+            menu.add(Bundle.get("menu.shop.healcores", p.locale) + "\n[green]$[lightgray]2500", pl -> {
+                if (2500 > stats.balance) {
                     sendMessage("menu.shop.nomoney", pl);
                     return;
                 }
@@ -197,50 +203,50 @@ public class Menus {
     public static void showTrace(Player p, Player other, Seq<Permission> perms) {
         Menu menu = new Menu("Info", "");
         Administration.PlayerInfo stats = Vars.netServer.admins.getInfo(other.uuid());
-        menu.add("[green]Name\n"+other.coloredName(), (pl)->{
+        menu.add("[green]Name\n" + other.coloredName(), (pl) -> {
             Call.infoMessage(pl.con, stats.names.toString("\n"));
         }).row();
         var pdOpt = getPlayerData(other);
-        pdOpt.ifPresent(d->{
-            menu.add("ID\n"+d.id).row();
+        pdOpt.ifPresent(d -> {
+            menu.add("ID\n" + d.id).row();
         });
-        menu.add("Locale\n"+other.locale).row()
-                .add("[green]IP\n"+other.ip(), (pl)->{
+        menu.add("Locale\n" + other.locale).row()
+                .add("[green]IP\n" + other.ip(), (pl) -> {
                     Call.infoMessage(pl.con, stats.ips.toString("\n"));
                 }).row()
-                .add("Mobile\n"+other.con.mobile).row()
-                .add("Custom Client\n"+other.con.modclient).row()
-                .add("Times Joined\n"+stats.timesJoined).row()
-                .add("Times Kicked\n"+stats.timesKicked).row();
-        if(perms.contains(Permission.punish) && pdOpt.isPresent()) {
-            menu.add("[scarlet]Ban", (pl2)->{
+                .add("Mobile\n" + other.con.mobile).row()
+                .add("Custom Client\n" + other.con.modclient).row()
+                .add("Times Joined\n" + stats.timesJoined).row()
+                .add("Times Kicked\n" + stats.timesKicked).row();
+        if (perms.contains(Permission.punish) && pdOpt.isPresent()) {
+            menu.add("[scarlet]Ban", (pl2) -> {
                 showBanMenu(pl2, pdOpt.get().id);
             });
         }
-        menu.add("DeepSearch", (pl2)->{
-            Call.infoMessage(pl2.con, String.join("\n", PlayerData.deepSearchNames(other).toArray(new String[0])));
+        menu.add("DeepSearch", (pl2) -> {
+            Call.infoMessage(pl2.con, String.join("\n", deepSearchNames(other).toArray(new String[0])));
         });
         menu.add("[red]Close")
                 .show(p);
     }
 
     private static void showBanMenu(Player p, int playerId) {
-        new TextMenu((pl, reason)->{
-            if(reason.isEmpty()) {
+        new TextMenu((pl, reason) -> {
+            if (reason.isEmpty()) {
                 pl.sendMessage("[scarlet]Reason is empty!");
                 return;
             }
-            new TextMenu((pl2, time)->{
-                if(time.isEmpty()) {
+            new TextMenu((pl2, time) -> {
+                if (time.isEmpty()) {
                     pl2.sendMessage("[scarlet]Time is empty! 1h 1d 1m 1y perm etc");
                     return;
                 }
                 long timeL = parseTime(time);
-                if(timeL == -1 && !time.contains("perm")) {
+                if (timeL == -1 && !time.contains("perm")) {
                     pl2.sendMessage("[scarlet]Unknown! 1h 1d 1m 1y perm etc");
                     return;
                 }
-                if(ban(playerId, pl2, reason, timeL)) {
+                if (ban(playerId, pl2, reason, timeL)) {
                     pl2.sendMessage("[green]Player banned.");
                 } else {
                     pl2.sendMessage("[scarlet]Failed to ban player.");
@@ -249,5 +255,6 @@ public class Menus {
         }).setTitle("Reason").setMessage("Write reason here").show(p);
     }
 
-    private static void empty(Player p) {}
+    private static void empty(Player p) {
+    }
 }

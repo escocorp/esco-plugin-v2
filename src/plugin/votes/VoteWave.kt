@@ -17,7 +17,7 @@ class VoteWave {
 
     constructor() {
         task = Timer.schedule({
-            if(!checkPass()) {
+            if (!checkPass()) {
                 Bundle.sendMessage("vnw.failed")
                 cancel()
             }
@@ -28,7 +28,7 @@ class VoteWave {
         votes += d
         voted.put(player.ip(), d)
 
-        if(d == 1)
+        if (d == 1)
             Bundle.sendMessage("vnw.votedy", player.coloredName())
         else
             Bundle.sendMessage("vnw.votedn", player.coloredName())
@@ -37,7 +37,7 @@ class VoteWave {
     }
 
     fun checkPass(): Boolean {
-        if(votes >= votesRequired()) {
+        if (votes >= votesRequired()) {
             Vars.logic.runWave()
             cancel()
 

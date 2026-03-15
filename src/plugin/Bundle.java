@@ -5,7 +5,6 @@ import arc.struct.Seq;
 import arc.struct.StringMap;
 import arc.util.Http;
 import arc.util.Log;
-
 import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
@@ -13,7 +12,8 @@ import mindustry.gen.Player;
 import java.text.MessageFormat;
 
 import static java.text.MessageFormat.format;
-import static plugin.PVars.*;
+import static plugin.PVars.apiAuth;
+import static plugin.PVars.bundleApi;
 
 public class Bundle {
     public static final Seq<String> locales = Seq.with("en", "ru");
@@ -33,9 +33,9 @@ public class Bundle {
     }
 
     private static void loadLocale(String locale) {
-        Http.get(bundleApi+locale)
-                .header("Authorization", "Basic "+apiAuth)
-                .error(err->Log.err("Failed to load bundle locale '@'", locale, err))
+        Http.get(bundleApi + locale)
+                .header("Authorization", "Basic " + apiAuth)
+                .error(err -> Log.err("Failed to load bundle locale '@'", locale, err))
                 .submit(resp -> {
                     String content = resp.getResultAsString();
 
@@ -97,7 +97,7 @@ public class Bundle {
     }
 
     public static String get(String key, String locale) {
-        if(localesAliases.containsKey(locale))
+        if (localesAliases.containsKey(locale))
             locale = localesAliases.get(locale);
 
         String value = getInternal(key, locale);
@@ -133,11 +133,11 @@ public class Bundle {
     }
 
     public static void sendMessage(String req) {
-        Groups.player.each(p->p.sendMessage(get(req, p.locale)));
+        Groups.player.each(p -> p.sendMessage(get(req, p.locale)));
     }
 
     public static void sendMessage(String req, Object... params) {
-        Groups.player.each(p->p.sendMessage(format(get(req, p.locale), params)));
+        Groups.player.each(p -> p.sendMessage(format(get(req, p.locale), params)));
     }
 
     public static void sendMessage(String req, Player player, Object... params) {
@@ -157,6 +157,6 @@ public class Bundle {
     }
 
     public static void label(String req, float dur, float x, float y, Object... params) {
-        Groups.player.each(p->Call.label(p.con, MessageFormat.format(Bundle.get(req, p.locale), params), dur, x, y));
+        Groups.player.each(p -> Call.label(p.con, MessageFormat.format(Bundle.get(req, p.locale), params), dur, x, y));
     }
 }
