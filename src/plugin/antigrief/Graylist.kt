@@ -6,13 +6,14 @@ import plugin.PVars
 import plugin.database.Database
 import plugin.database.models.Log
 import plugin.database.models.PlayerData
+import plugin.database.putLog
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 fun apply(p: Player, isp: String?, pd: PlayerData) {
     if (!(isGraylisted(isp) && pd.discordId == null)) return
     p.kick(Bundle.get("kick.graylisted", p.locale, PVars.discordLink), 0)
-    Log.putLog(pd.id, "graylist", "Player graylisted by IP " + p.ip())
+    putLog(pd.id, "graylist", "Player graylisted by IP " + p.ip())
 }
 
 fun isGraylisted(isp: String?): Boolean {
