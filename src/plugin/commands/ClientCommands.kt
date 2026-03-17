@@ -177,7 +177,7 @@ fun register(handler: CustomHandler) {
             PVars.waveVote.vote(p, i)
             return@CommandRunner
         }
-        if (PVars.mapVote.voted.containsKey(p.ip())) {
+        if (PVars.waveVote.voted.containsKey(p.ip())) {
             Bundle.sendMessage("rtv.error.voted", p)
             return@CommandRunner
         }

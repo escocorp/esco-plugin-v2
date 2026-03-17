@@ -29,9 +29,9 @@ class VoteWave {
         voted.put(player.ip(), d)
 
         if (d == 1)
-            Bundle.sendMessage("vnw.votedy", player.coloredName())
+            Bundle.sendMessage("vnw.votedy", player.coloredName(), votes, votesRequired())
         else
-            Bundle.sendMessage("vnw.votedn", player.coloredName())
+            Bundle.sendMessage("vnw.votedn", player.coloredName(), votes, votesRequired())
 
         checkPass()
     }
