@@ -6,6 +6,7 @@ import arc.struct.Seq;
 import arc.util.CommandHandler;
 import arc.util.CommandHandler.Command;
 import arc.util.Strings;
+import arc.util.Timer;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import mindustry.Vars;
 import mindustry.gen.Groups;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.utils.FileUpload;
 import plugin.KVars;
 import plugin.database.models.PlayerData;
+import plugin.utils.Loader;
 import plugin.utils.MapPreview;
 import plugin.utils.Permission;
 
@@ -30,7 +32,7 @@ import static plugin.discord.BotKt.sendLog;
 
 public class Commands {
     public static void register(CommandHandler handler) {
-        handler.<Context>register("help", "Help command", (a, ctx) -> {
+        handler.<Context>register("help", "What a dog doing?", (a, ctx) -> {
             Seq<Command> commandsList = handler.getCommandList().sort(Comparator.comparing(commandx -> commandx.text));
             StringBuilder commands = new StringBuilder();
 
@@ -123,7 +125,7 @@ public class Commands {
                 ctx.reply("No custom maps on server");
                 return;
             }
-            Map map = mapsList.find(m -> m.name().equals(args[0]));
+            Map map = mapsList.find(m -> m.name().contains(args[0]));
             if (map == null) {
                 ctx.reply("No map found");
                 return;
@@ -141,10 +143,41 @@ public class Commands {
             //msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
             msg.queue();
         });
+
+        handler.<Context>register("delmap", "<name...>", "", (args, ctx)->{
+            if(!ctx.hasPerm(Permission.editMaps)) return;
+            Seq<Map> mapsList = Vars.maps.customMaps();
+            if (mapsList.isEmpty()) {
+                ctx.reply("No custom maps on server");
+                return;
+            }
+            Map map = mapsList.find(m -> m.name().contains(args[0]));
+            if (map == null) {
+                ctx.reply("No map found");
+                return;
+            }
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(Color.red)
+                    .setTitle("Deleted "+map.name())
+                    .setFooter(map.width + "x" + map.height)
+                    .setAuthor(map.author());
+            // .setDescription(map.description())
+            //.setImage("attachment://minimap.png");
+
+            var msg = ctx.channel.sendMessageEmbeds(embed.build());
+            msg.addFiles(FileUpload.fromData(map.file.file(), map.file.name()));
+            //msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
+            map.file.delete();
+            msg.queue();
+        });
+
         handler.<Context>register("restart", "SS", (a, ctx) -> {
             if (!ctx.hasPerm(Permission.editServer)) return;
             sendLog("Restart scheduled by <@" + ctx.message.getAuthor().getId() + ">");
             ctx.message.addReaction(Emoji.fromUnicode("✅")).queue();
+            if(Groups.player.isEmpty()) {
+                Timer.schedule(Loader::exit, 1);
+            }
             needRestart = true;
         });
         handler.<Context>register("debug", "SS", (a, ctx) -> {
