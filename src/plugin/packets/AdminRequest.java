@@ -49,7 +49,7 @@ public class AdminRequest {
                 player.sendMessage("use /ban");
             }
             case kick -> {
-                if (!perms.contains(Permission.punish)) {
+                if (!perms.contains(Permission.admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
