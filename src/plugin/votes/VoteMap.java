@@ -8,6 +8,7 @@ import mindustry.game.EventType;
 import mindustry.game.Team;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
+import mindustry.maps.Map;
 
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.mapVote;
@@ -17,9 +18,21 @@ public class VoteMap {
     public ObjectIntMap<String> voted = new ObjectIntMap<>();
     public Timer.Task task;
     public int votes;
+    public Map map;
 
-    public VoteMap(Player init) {
+    /*public VoteMap(Player init) {
         this.initiator = init;
+        this.task = Timer.schedule(() -> {
+            if (!checkPass()) {
+                sendMessage("rtv.failed", votes, votesRequired());
+                cancel();
+            }
+        }, 2 * 60);
+    }*/
+
+    public VoteMap(Player init, Map map) {
+        this.initiator = init;
+        this.map = map;
         this.task = Timer.schedule(() -> {
             if (!checkPass()) {
                 sendMessage("rtv.failed", votes, votesRequired());
@@ -35,15 +48,24 @@ public class VoteMap {
         votes += d;
         //voted.put(player.uuid(), d);
         voted.put(Vars.netServer.admins.getInfo(player.uuid()).lastIP, d);
-        if (d == 1)
-            sendMessage("rtv.votey", player.coloredName(), votes, votesRequired());
-        else
-            sendMessage("rtv.voten", player.coloredName(), votes, votesRequired());
+        if(map == null) {
+            if (d == 1)
+                sendMessage("rtv.votey", player.coloredName(), votes, votesRequired());
+            else
+                sendMessage("rtv.voten", player.coloredName(), votes, votesRequired());
+        } else {
+            if (d == 1)
+                sendMessage("rtv.voteymap", player.coloredName(), votes, votesRequired(), map.name());
+            else
+                sendMessage("rtv.votenmap", player.coloredName(), votes, votesRequired(), map.name());
+        }
         checkPass();
     }
 
     public boolean checkPass() {
         if (votes >= votesRequired()) {
+            if(map != null)
+                Vars.maps.setNextMapOverride(map);
             Events.fire(new EventType.GameOverEvent(Team.derelict));
             sendMessage("rtv.pass");
 

@@ -17,6 +17,7 @@ import java.io.DataInputStream
 import java.io.IOException
 import java.util.*
 import java.util.zip.InflaterInputStream
+import mindustry.maps.Map
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
@@ -179,4 +180,12 @@ fun getUDPAddress(player: Player): String {
 
 fun Player.hasPerms(perm: Permission): Boolean {
     return getPerms(this).contains(perm)
+}
+
+fun findMap(name: String): Map? {
+    val maps = Vars.maps.customMaps();
+    for(map in maps)
+        if(map.name().equals(name, ignoreCase = true))
+            return map
+    return null
 }
