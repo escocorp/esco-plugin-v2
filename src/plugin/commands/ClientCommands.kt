@@ -31,6 +31,8 @@ import java.util.*
 import java.util.function.Consumer
 import kotlin.math.roundToInt
 
+import mindustry.maps.Map
+
 import plugin.KVars.globalScope
 
 const val commandsPerPage = 10
@@ -193,7 +195,11 @@ fun register(handler: CustomHandler) {
         PVars.waveVote.vote(p, i)
     })
 
-    handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
+    handler.registerCommand("rtv", "[y/n] [map...]", CommandRunner { a: Array<String>, p: Player ->
+        var map: Map? = null
+        if(a.size == 2 && PVars.mapVote == null) {
+            map = findMap(a[1])
+        }
         val i: Int = if (a.isEmpty()) 1
         else parseBool(a[0])
         if (i == 0) {
@@ -201,7 +207,7 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         if (PVars.mapVote == null) {
-            PVars.mapVote = VoteMap(p)
+            PVars.mapVote = VoteMap(p, map)
             PVars.mapVote.vote(p, i)
             return@CommandRunner
         }
