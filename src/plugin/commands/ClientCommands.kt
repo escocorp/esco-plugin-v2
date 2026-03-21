@@ -199,6 +199,10 @@ fun register(handler: CustomHandler) {
         var map: Map? = null
         if(a.size == 2 && PVars.mapVote == null) {
             map = findMap(a[1])
+            if(map == null) {
+                p.sendMessage("[scarlet]Not found")
+                return@CommandRunner
+            }
         }
         val i: Int = if (a.isEmpty()) 1
         else parseBool(a[0])
