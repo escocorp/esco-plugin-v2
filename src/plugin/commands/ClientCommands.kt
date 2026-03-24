@@ -466,7 +466,7 @@ fun register(handler: CustomHandler) {
                         Bundle.sendMessage("votekick.onlyyourteam", player)
                     } else {
                         val vtime =
-                            cooldowns.get(player.uuid()) { Timekeeper.ofSeconds(voteCooldown) }
+                            cooldowns.get(player.uuid()) { Timekeeper.ofSeconds(voteCooldown.toFloat()) }
 
                         if (!vtime.get()) {
                             // player.sendMessage("[scarlet]You must wait " + voteCooldown/60 + " minutes between votekicks.");
