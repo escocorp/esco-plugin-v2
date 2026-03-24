@@ -169,9 +169,9 @@ public class PEvents {
                 getPlayerStats(player).ifPresent(s -> {
                     if (e.breaking) {
                         s.adjBlocksBroken();
-                        if (s.blocksBroken >= 200 && s.blocksBuild < 100) {
-                            ban(player, player, "AutoBan: Possible Griefer", parseTime("31d"));
-                            player.kick("Possible Griefer", 0);
+                        if (s.blocksBroken >= 300 && s.blocksBuild < 15) {
+                            ban(player, player, "AutoBan: Possible Griefer", parseTime("3d"));
+                            player.kick("AutoBan: Possible Griefer", 0);
                         }
                     } else
                         s.adjBlocksBuild();
