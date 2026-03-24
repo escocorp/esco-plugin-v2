@@ -128,7 +128,7 @@ fun load() {
     loadRes()
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
         Vars.netServer.admins.addActionFilter(ActionFilter { action: PlayerAction? ->
-            if (action != null && action.tile != null && actions.contains(action.type) && (action.block !== Blocks.shockMine || action.tile.block() !== Blocks.shockMine) && floors.contains(
+            if (action != null && action.tile != null && actions.contains(action.type) && (action.block != Blocks.shockMine && action.tile.block() != Blocks.shockMine) && floors.contains(
                     action.tile.floor()
                 )
             ) {
