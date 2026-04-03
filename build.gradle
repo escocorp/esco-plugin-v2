@@ -58,7 +58,22 @@ dependencies{
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2"
 }
 
+def versionGitDir = layout.buildDirectory.dir('version-git')
+
+tasks.register('writeVersionFile') {
+    outputs.dir(versionGitDir)
+    doLast {
+        def dir = versionGitDir.get().asFile
+        dir.mkdirs()
+        def versionFile = new File(dir, 'version')
+        def proc = ['git', 'rev-parse', '--short', 'HEAD'].execute(null, rootDir)
+        proc.waitFor()
+        versionFile.text = proc.exitValue() == 0 ? proc.text.trim() : 'unknown'
+    }
+}
+
 jar{
+    dependsOn tasks.named('writeVersionFile')
     archiveFileName = "${project.archivesBaseName}.jar"
     from{
         configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
@@ -67,6 +82,9 @@ jar{
     from(rootDir){
         include "plugin.json"
         include "block_colors.png"
+    }
+    from(versionGitDir) {
+        include 'version'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
