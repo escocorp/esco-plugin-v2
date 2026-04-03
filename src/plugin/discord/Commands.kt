@@ -17,16 +17,20 @@ import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.utils.FileUpload
 import plugin.PVars
+import plugin.PVars.globalExecutor
+import plugin.PVars.version
 import plugin.database.Database
 import plugin.database.getPlayerData
 import plugin.database.models.PlayerData
 import plugin.utils.Loader
 import plugin.utils.MapPreview
 import plugin.utils.Permission
+import plugin.utils.download
 import java.awt.Color
 import java.io.File
 import java.util.function.Consumer
 import java.util.function.Function
+import kotlin.io.path.Path
 import kotlin.math.min
 
 fun register(handler: CommandHandler) {
@@ -209,16 +213,24 @@ fun register(handler: CommandHandler) {
         }
         PVars.needRestart = true
     }
-    handler.register<Context>("debug", "SS") { _: Array<String>, ctx: Context ->
+    handler.register("debug", "SS") { _: Array<String>, ctx: Context ->
         if (!ctx.hasPerm(Permission.editServer)) return@register
         val pool = Database.dataSource.hikariPoolMXBean
-        ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}\nVersion: ${Core.app.version}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}")
+        ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}\nVersion: ${Core.app.version}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version")
     }
 
-    handler.register("update", "<ver>", "SS") { _: Array<String>, ctx: Context ->
+    handler.register("update", "<ver>", "SS") { arr: Array<String>, ctx: Context ->
         if (!ctx.hasPerm(
                 Permission.editServer
             )
         ) return@register
+        globalExecutor.submit { ->
+            try {
+                download("https://builds.larzed.icu/${arr[0]}/plugin.jar", Path(Vars.modDirectory.path()))
+                ctx.reply("Successful!")
+            } catch (e: IllegalArgumentException) {
+                ctx.reply("ohno ${e.message}")
+            }
+        }
     }
 }

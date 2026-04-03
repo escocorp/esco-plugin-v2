@@ -12,6 +12,7 @@ import mindustry.gen.Player
 import mindustry.maps.Map
 import plugin.PVars
 import plugin.PVars.apiAuth
+import plugin.PVars.httpClient
 import plugin.utils.Permission.getPerms
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
@@ -72,11 +73,8 @@ fun isAnon(ip: String?, callback: Cons<ApiResponse>) {
 }
 
 fun download(url: String, dest: Path) {
-    val client = HttpClient.newBuilder()
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build()
     val req = HttpRequest.newBuilder(URI.create(url)).GET().build()
-    val resp = client.send(req, HttpResponse.BodyHandlers.ofFile(dest))
+    val resp = httpClient.send(req, HttpResponse.BodyHandlers.ofFile(dest))
     require(resp.statusCode() in 200..299) { "HTTP ${resp.statusCode()}" }
 }
 
