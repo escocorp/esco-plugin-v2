@@ -78,6 +78,13 @@ fun download(url: String, dest: Path) {
     require(resp.statusCode() in 200..299) { "HTTP ${resp.statusCode()}" }
 }
 
+fun httpGetString(url: String): String {
+    val req = HttpRequest.newBuilder(URI.create(url)).GET().build()
+    val resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString())
+    require(resp.statusCode() in 200..299) { "HTTP ${resp.statusCode()}" }
+    return resp.body().trim()
+}
+
 fun parseBool(bool: String): Int {
     return when (bool.lowercase(Locale.getDefault())) {
         "y", "yes", "д", "да", "+", "t", "true" -> 1
