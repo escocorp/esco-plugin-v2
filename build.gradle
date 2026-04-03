@@ -61,6 +61,18 @@ dependencies{
 def versionGitDir = layout.buildDirectory.dir('version-git')
 
 tasks.register('writeVersionFile') {
+    def gitDir = file("${rootDir}/.git")
+    if (gitDir.exists()) {
+        inputs.file("${gitDir}/HEAD")
+        def packed = file("${gitDir}/packed-refs")
+        if (packed.exists()) {
+            inputs.file(packed)
+        }
+        def refs = file("${gitDir}/refs")
+        if (refs.exists()) {
+            inputs.dir(refs)
+        }
+    }
     outputs.dir(versionGitDir)
     doLast {
         def dir = versionGitDir.get().asFile

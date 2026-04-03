@@ -30,7 +30,8 @@ import java.awt.Color
 import java.io.File
 import java.util.function.Consumer
 import java.util.function.Function
-import kotlin.io.path.Path
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import kotlin.math.min
 
 fun register(handler: CommandHandler) {
@@ -224,12 +225,23 @@ fun register(handler: CommandHandler) {
                 Permission.editServer
             )
         ) return@register
-        globalExecutor.submit { ->
+        globalExecutor.submit {
             try {
-		Vars.mods.getMod("plugin").file.delete()
-                download("https://builds.larzed.icu/${arr[0]}/plugin.jar", Path(Vars.modDirectory.path()))
+                val modFi = Vars.mods.getMod("plugin").file
+                val tmpFi = modFi.parent().child(modFi.name() + ".part")
+                download(
+                    "https://builds.larzed.icu/${arr[0]}/plugin.jar",
+                    tmpFi.file().toPath()
+                )
+                modFi.delete()
+                Files.move(
+                    tmpFi.file().toPath(),
+                    modFi.file().toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+                )
                 ctx.reply("Successful!")
-            } catch (e: IllegalArgumentException) {
+            } catch (e: Exception) {
+                Log.err("Discord update failed", e)
                 ctx.reply("ohno ${e.message}")
             }
         }
