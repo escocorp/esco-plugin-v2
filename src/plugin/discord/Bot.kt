@@ -38,7 +38,7 @@ fun load() {
         }
 
         PVars.discordCommands = CommandHandler(PVars.gamemode.botPrefix)
-        PVars.globalCommands = CommandHandler("gc.")
+        PVars.globalCommands = CommandHandler("gc!")
         register(PVars.discordCommands)
         registerGlobal(PVars.globalCommands)
 
