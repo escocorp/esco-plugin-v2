@@ -6,6 +6,10 @@
 
 Output jar should be in `build/libs`.
 
+### Deploying
+
+`./autodeploy.sh`
+
 ### Installing
 
 Simply place the output jar from the step above in your server's `config/mods` directory and restart the server.
