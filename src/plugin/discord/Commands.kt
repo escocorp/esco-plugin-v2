@@ -26,6 +26,7 @@ import plugin.utils.Loader
 import plugin.utils.MapPreview
 import plugin.utils.Permission
 import plugin.utils.download
+import plugin.utils.httpGetString
 import java.awt.Color
 import java.io.File
 import java.util.function.Consumer
@@ -33,6 +34,9 @@ import java.util.function.Function
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import kotlin.math.min
+
+private const val BUILDS_BASE_URL = "https://builds.larzed.icu"
+private const val BUILDS_LATEST_TXT_URL = "$BUILDS_BASE_URL/latest.txt"
 
 fun register(handler: CommandHandler) {
     handler.register("help", "What a dog doing?") { _: Array<String>, ctx: Context ->
@@ -220,17 +224,22 @@ fun register(handler: CommandHandler) {
         ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}\nVersion: ${Core.app.version}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version")
     }
 
-    handler.register("update", "<ver>", "SS") { arr: Array<String>, ctx: Context ->
+    handler.register("update", "[ver]", "SS") { arr: Array<String>, ctx: Context ->
         if (!ctx.hasPerm(
                 Permission.editServer
             )
         ) return@register
         globalExecutor.submit {
             try {
+                val ver = arr.firstOrNull()?.takeIf { it.isNotBlank() }?.trim()
+                    ?: httpGetString(BUILDS_LATEST_TXT_URL)
+                if(version.equals(ver)) {
+                    ctx.reply("No new updates! But ok.")
+                }
                 val modFi = Vars.mods.getMod("plugin").file
                 val tmpFi = modFi.parent().child(modFi.name() + ".part")
                 download(
-                    "https://builds.larzed.icu/${arr[0]}/plugin.jar",
+                    "$BUILDS_BASE_URL/$ver/plugin.jar",
                     tmpFi.file().toPath()
                 )
                 modFi.delete()
@@ -239,7 +248,7 @@ fun register(handler: CommandHandler) {
                     modFi.file().toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
-                ctx.reply("Successful!")
+                ctx.reply("Successful!\n$version -> $ver")
             } catch (e: Exception) {
                 Log.err("Discord update failed", e)
                 ctx.reply("ohno ${e.message}")
