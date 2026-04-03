@@ -52,7 +52,7 @@ public class MessageListener extends ListenerAdapter {
                 reply(message, MessageFormat.format("Too many arguments!\nUsage **{0}{1}** {2}", gamemode.botPrefix, response.command.text, response.command.paramText));
             }
         }
-        if(globalCommands != null && content.startsWith("gc.")) {
+        if(globalCommands != null && content.startsWith("gc!")) {
             Context ctx = new Context(message, channel, author);
             if(!ctx.hasPerm(Permission.editServer)) return;
             globalCommands.handleMessage(content, ctx);
