@@ -15,7 +15,10 @@ import plugin.votes.VoteMap;
 import plugin.votes.VoteWave;
 import plugin.votes.VotekickSession;
 
+import java.net.http.HttpClient;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PVars {
     public static int serverId;
@@ -51,6 +54,12 @@ public class PVars {
     public static IntMap<String> SSUsers = new IntMap<>(8);
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static final ExecutorService globalExecutor = Executors.newSingleThreadExecutor();
+
+    public static HttpClient httpClient = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
 
     //public static long startTime = Time.millis();
 }
