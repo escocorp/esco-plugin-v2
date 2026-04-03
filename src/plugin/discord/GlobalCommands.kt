@@ -1,5 +1,8 @@
 package plugin.discord
 
+import mindustry.gen.Groups
+import arc.util.Timer
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import arc.util.CommandHandler
 import arc.util.Log
 import mindustry.Vars
@@ -8,6 +11,8 @@ import plugin.KVars.buildsLatestTxtUrl
 import plugin.PVars.gamemode
 import plugin.PVars.globalExecutor
 import plugin.PVars.version
+import plugin.PVars
+import plugin.utils.*
 import plugin.utils.download
 import plugin.utils.httpGetString
 import java.nio.file.Files
@@ -44,5 +49,13 @@ fun registerGlobal(handler: CommandHandler) {
                 ctx.replyServer("ohno ${e.message}")
             }
         }
+    }
+    handler.register("restart", "SS") { _: Array<String>, ctx: Context ->
+        sendLog("Restart scheduled by <@" + ctx.message.author.id + ">")
+        ctx.message.addReaction(Emoji.fromUnicode("✅")).queue()
+        if (Groups.player.isEmpty) {
+            Timer.schedule({ Loader.exit() }, 1f)
+        }
+        PVars.needRestart = true
     }
 }
