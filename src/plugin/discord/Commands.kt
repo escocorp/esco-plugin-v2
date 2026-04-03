@@ -226,6 +226,7 @@ fun register(handler: CommandHandler) {
         ) return@register
         globalExecutor.submit { ->
             try {
+		Vars.mods.getMod("plugin").file.delete()
                 download("https://builds.larzed.icu/${arr[0]}/plugin.jar", Path(Vars.modDirectory.path()))
                 ctx.reply("Successful!")
             } catch (e: IllegalArgumentException) {
