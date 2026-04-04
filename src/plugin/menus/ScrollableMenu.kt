@@ -6,7 +6,7 @@ import mindustry.gen.Player
 class ScrollableMenu(
     private val title: String,
     private val message: String,
-    private val itemsPerPage: Int = 6
+    private val itemsPerPage: Int = 9
 ) {
 
     private val items = Seq<String>()
