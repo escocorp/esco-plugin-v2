@@ -40,6 +40,9 @@ class ScrollableMenu(
 
         for (i in start until end) {
             val index = i
+	    if((index + 1) % 3 == 0) {
+		menu.row();
+	    }
             menu.add(items[i]) { p ->
                 handlers[index](p)
             }
@@ -47,16 +50,16 @@ class ScrollableMenu(
 
         menu.row()
 
-        menu.add("<-") { p ->
+        menu.add("[lightgray]<-") { p ->
             val newPage = (page - 1).coerceAtLeast(0)
             showPage(p, newPage)
         }
 
-        menu.add("cancel") { p ->
+        menu.add("[red]Cancel") { p ->
             p.sendMessage("[red]Cancelled.")
         }
 
-        menu.add("->") { p ->
+        menu.add("[lightgray]->") { p ->
             val newPage = (page + 1).coerceAtMost(totalPages - 1)
             showPage(p, newPage)
         }
