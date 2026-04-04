@@ -3,7 +3,7 @@ package plugin.menus
 import arc.struct.Seq
 import mindustry.gen.Player
 
-class PagedMenu(
+class ScrollableMenu(
     private val title: String,
     private val message: String,
     private val itemsPerPage: Int = 6
@@ -12,9 +12,14 @@ class PagedMenu(
     private val items = Seq<String>()
     private val handlers = Seq<(Player) -> Unit>()
 
-    fun add(text: String, handler: (Player) -> Unit): PagedMenu {
+    fun add(text: String, handler: (Player) -> Unit): ScrollableMenu {
         items.add(text)
         handlers.add(handler)
+        return this
+    }
+
+    fun add(text: String): ScrollableMenu {
+        add(text) {} // empty handler
         return this
     }
 

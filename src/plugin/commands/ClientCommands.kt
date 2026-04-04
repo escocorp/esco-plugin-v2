@@ -32,11 +32,22 @@ import plugin.votes.VotekickSession
 import java.util.*
 import java.util.function.Consumer
 import kotlin.math.roundToInt
+import plugin.menus.*
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
+    handler.registerCommand("testmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
+        val menu = ScrollableMenu(p.coloredName(), "Hi!")
+        for(i in 0..15) {
+            menu.add("Button $i") { pl2: Player ->
+                pl2.sendMessage("You choose $i")
+            }
+        }
+        menu.show(p)
+    })
+
     handler.registerCommand("maps", "", CommandRunner { _: Array<String>, p: Player ->
         Vars.maps.customMaps().each { m: Map ->
             p.sendMessage("${m.name()} : ${m.author()}")
