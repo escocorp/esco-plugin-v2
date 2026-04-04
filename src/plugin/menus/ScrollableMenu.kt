@@ -40,12 +40,14 @@ class ScrollableMenu(
 
         for (i in start until end) {
             val index = i
-	    if((index + 1) % 3 == 0) {
-		menu.row();
-	    }
+
             menu.add(items[i]) { p ->
                 handlers[index](p)
             }
+	    
+	    if((i - start + 1) % 3 == 0) {
+		menu.row();
+	    }
         }
 
         menu.row()
