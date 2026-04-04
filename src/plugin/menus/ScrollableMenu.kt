@@ -1,0 +1,61 @@
+package plugin.menus
+
+import arc.struct.Seq
+import mindustry.gen.Player
+
+class PagedMenu(
+    private val title: String,
+    private val message: String,
+    private val itemsPerPage: Int = 6
+) {
+
+    private val items = Seq<String>()
+    private val handlers = Seq<(Player) -> Unit>()
+
+    fun add(text: String, handler: (Player) -> Unit): PagedMenu {
+        items.add(text)
+        handlers.add(handler)
+        return this
+    }
+
+    fun show(player: Player) {
+        showPage(player, 0)
+    }
+
+    private fun showPage(player: Player, page: Int) {
+        val totalPages = kotlin.math.ceil(items.size / itemsPerPage.toDouble()).toInt().coerceAtLeast(1)
+
+        val menu = Menu(
+            title,
+            "$message\n[gray]Page ${page + 1}/$totalPages"
+        )
+
+        val start = page * itemsPerPage
+        val end = minOf(start + itemsPerPage, items.size)
+
+        for (i in start until end) {
+            val index = i
+            menu.add(items[i]) { p ->
+                handlers[index](p)
+            }
+        }
+
+        menu.row()
+
+        menu.add("<-") { p ->
+            val newPage = (page - 1).coerceAtLeast(0)
+            showPage(p, newPage)
+        }
+
+        menu.add("cancel") { p ->
+            p.sendMessage("[red]Cancelled.")
+        }
+
+        menu.add("->") { p ->
+            val newPage = (page + 1).coerceAtMost(totalPages - 1)
+            showPage(p, newPage)
+        }
+
+        menu.show(player)
+    }
+}
