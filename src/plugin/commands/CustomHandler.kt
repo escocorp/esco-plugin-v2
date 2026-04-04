@@ -132,5 +132,12 @@ class CustomHandler {
         commands.add(CommandData(name, args, perm))
     }
 
-    class CommandData internal constructor(var name: String, var args: String, var permission: Permission?)
+    class CommandData internal constructor(var name: String, var args: String, var permission: Permission?) {
+        fun getDesc(p: Player): String {
+            val req = "commands." + this.name + ".description"
+            var desc = Bundle.get(req, p.locale)
+            if (desc == req) desc = Bundle.get("commands.nodesc", p.locale)
+            return desc
+        }
+    }
 }
