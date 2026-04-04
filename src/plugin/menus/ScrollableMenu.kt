@@ -6,7 +6,8 @@ import mindustry.gen.Player
 class ScrollableMenu(
     private val title: String,
     private val message: String = "",
-    private val itemsPerPage: Int = 9
+    private val itemsPerPage: Int = 9,
+    private val rowPerItems: Int = 3
 ) {
 
     private val items = Seq<String>()
@@ -32,7 +33,7 @@ class ScrollableMenu(
 
         val menu = Menu(
             title,
-            "$message\n[gray]Page ${page + 1}/$totalPages"
+            if(message.isEmpty()) "[gray]Page ${page + 1}/$totalPages" else "$message\n[gray]Page ${page + 1}/$totalPages"
         )
 
         val start = page * itemsPerPage
@@ -44,7 +45,7 @@ class ScrollableMenu(
                 handlers[i](p)
             }
 	    
-	        if((i - start + 1) % 3 == 0) {
+	        if((i - start + 1) % rowPerItems == 0) {
 	    	    menu.row();
 	        }
         }

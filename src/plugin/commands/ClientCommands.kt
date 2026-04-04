@@ -124,7 +124,7 @@ fun register(handler: CustomHandler) {
         Call.worldDataBegin(player.con)
         Vars.netServer.sendWorldData(player)
     })
-    handler.registerCommand("help", "[page]", CommandRunner { args: Array<String>, player: Player ->
+    handler.registerCommand("mhelp", "[page]", CommandRunner { args: Array<String>, player: Player ->
         if (args.isNotEmpty() && !Strings.canParseInt(args[0])) {
             player.sendMessage("[scarlet]\"page\" must be a integer.")
             return@CommandRunner
@@ -149,17 +149,13 @@ fun register(handler: CustomHandler) {
                 availableCommands = 0
             }
 
-            val req = "commands." + c.name + ".description"
-            var desc = Bundle.get(req, player.locale)
-            if (desc == req) desc = Bundle.get("commands.nodesc", player.locale)
-
             availableCommands++
             result.append("[orange]/")
                 .append(c.name)
                 .append(" [white]")
                 .append(c.args)
                 .append(" - ")
-                .append(desc)
+                .append(c.getDesc(player))
                 .append("\n")
         }
 
@@ -171,6 +167,17 @@ fun register(handler: CustomHandler) {
         }
         val resp = "[orange]-- Commands Page " + (page + 1) + "/" + pages.size + " --\n\n" + pages.get(page)
         player.sendMessage(resp)
+    })
+
+    handler.registerCommand("help", "", CommandRunner { _: Array<String>, player: Player ->
+        val perms = Permission.getPerms(player)
+        val menu = ScrollableMenu("help", rowPerItems = 2)
+        for (i in 0..<handler.commands.size) {
+            val c = handler.commands.get(i) ?: continue
+            if (!perms.contains(c.permission)) continue
+            menu.add("${c.name}${if(c.args.isEmpty()) "" else "\n${c.args}"}")
+        }
+        menu.show(player)
     })
     handler.registerCommand("test", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
         p.sendMessage("[green]Ok!")
