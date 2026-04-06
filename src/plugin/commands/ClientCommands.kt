@@ -236,7 +236,7 @@ fun register(handler: CustomHandler) {
         else parseBool(a[0])
 
         if (PVars.mapVote == null) {
-            val menu = ScrollableMenu("Choose map").add("[orange]Random") { pl: Player ->
+            val menu = ScrollableMenu("Choose map", rowPerItems = 2).add("[orange]Random") { pl: Player ->
                 if (PVars.mapVote == null) {
                     PVars.mapVote = VoteMap(pl, null)
                     PVars.mapVote.vote(pl, i)
