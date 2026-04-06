@@ -187,6 +187,7 @@ public class PEvents {
                         if (s.blocksBroken >= 350 && s.blocksBuild < 15 && s.playtime < 600) {
                             ban(player, player, "AutoBan: Possible Griefer", parseTime("3d"));
                             player.kick("AutoBan: Possible Griefer", 0);
+                            player.con.close();
                         }
                     } else
                         s.adjBlocksBuild();
