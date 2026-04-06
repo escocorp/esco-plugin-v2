@@ -41,10 +41,20 @@ CREATE TABLE bans (
     id SERIAL PRIMARY KEY,
     active BOOLEAN default true,
     player_id INTEGER REFERENCES players(id) NOT NULL,
-    reason VARCHAR(128) DEFAULT 'No reason provided',
+    reason VARCHAR(128) DEFAULT 'No reason provided' NOT NULL,
     admin_id INTEGER REFERENCES players(id) NOT NULL,
     ban_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     unban_time TIMESTAMP default null
+);
+
+CREATE TABLE mutes (
+    id SERIAL PRIMARY KEY,
+    active BOOLEAN default true,
+    player_id INTEGER REFERENCES players(id) NOT NULL,
+    reason VARCHAR(128) DEFAULT 'No reason provided' NOT NULL,
+    admin_id INTEGER REFERENCES players(id) NOT NULL,
+    mute_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    unmute_time TIMESTAMP NOT NULL
 );
 
 CREATE TABLE logs (
