@@ -39,6 +39,7 @@ object Loader {
         PVars.version = getResource("version")!!.readString()
 
         loadMenus()
+	Log.debug("Loader: OK!")
     }
 
     @JvmStatic
