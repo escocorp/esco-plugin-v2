@@ -9,10 +9,10 @@ import plugin.Bundle
 import plugin.PVars
 import plugin.discord.sendLog
 import plugin.discord.sendServerMessage
-import plugin.gamemodes.load
 import plugin.history.History
 import plugin.patches.Patches
 import plugin.utils.Loader
+import plugin.gamemodes.TDGamemode
 
 fun register(handler: CommandHandler) {
     handler.register("reload-bundle", "reload bundle") { _: Array<String?>? ->
@@ -49,7 +49,7 @@ fun register(handler: CommandHandler) {
 
     handler.register("loadgm", "<name>", "") { a: Array<String?>? ->
         when (a!![0]) {
-            "tdf" -> load()
+            "tdf" -> TDGamemode.load()
             else -> Log.err("Unknown gamemode!")
         }
     }

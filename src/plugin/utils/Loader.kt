@@ -18,6 +18,7 @@ import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
 import kotlin.system.exitProcess
+import plugin.gamemodes.TDGamemode
 
 object Loader {
 
@@ -51,7 +52,9 @@ object Loader {
     }
 
     fun loadGamemode() {
-        if (PVars.gamemode == Gamemode.tdefense) load()
+        if (PVars.gamemode == Gamemode.tdefense) {
+		TDGamemode.load()
+	}
     }
 
     fun loadTimers() {

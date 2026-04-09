@@ -20,6 +20,8 @@ import mindustry.type.UnitType
 import mindustry.world.blocks.environment.Floor
 import kotlin.math.roundToInt
 
+object TDGamemode {
+
 val items = ObjectMap<UnitType, Seq<Item>?>()
 
 fun loadRes() {
@@ -204,4 +206,6 @@ private fun reload() {
         Vars.state.rules = rules;
         Call.setRules(rules)
     }, 1f)
+}
+
 }
