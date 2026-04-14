@@ -465,7 +465,7 @@ fun getMute(pid: Int): Optional<Mute> {
         return Optional.of(cached)
 
     val mute = Database.executeQueryAsync(
-        "SELECT * FROM mutes WHERE player_id = ? AND active = TRUE AND umute_time > NOW()",
+        "SELECT * FROM mutes WHERE player_id = ? AND active = TRUE AND unmute_time > NOW()",
         { stmt: PreparedStatement -> stmt.setInt(1, pid) },
         { rs: ResultSet -> getMute(rs) }
     )
