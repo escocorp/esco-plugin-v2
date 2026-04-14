@@ -11,7 +11,7 @@ REMOTE_PATH="/www/builds/$COMMIT"
 
 ssh host "mkdir -p $REMOTE_PATH"
 
-scp build/libs/plugin.jar host:$REMOTE_PATH/plugin.jar
+scp build/libs/esco-plugin-v2.jar host:$REMOTE_PATH/plugin.jar
 
 ssh host "echo $COMMIT > /www/builds/latest.txt"
 
