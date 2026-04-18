@@ -2,6 +2,7 @@ package plugin.commands
 
 import arc.Core
 import arc.Events
+import arc.func.Cons
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
@@ -33,11 +34,27 @@ import java.util.*
 import java.util.function.Consumer
 import kotlin.math.roundToInt
 import plugin.menus.*
+import arc.util.Timer
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
+    handler.registerCommand("runwave", "<count>", Permission.admin, CommandRunner { arg: Array<String>, p: Player ->
+        if(!Strings.canParseInt(arg[0])) {
+            Bundle.sendMessage("args.mustbeint", p, "<count>")
+            return@CommandRunner
+        }
+        val count = Strings.parseInt(arg[0])
+        if(count > 10) {
+            Bundle.sendMessage("args.lessthan", p, "<count>")
+            return@CommandRunner
+        }
+        for (i in 1..count) {
+            Timer.schedule({
+            }, 0.1f+(i/10))
+        }
+    })
     handler.registerCommand("name", "<name...>", CommandRunner { arg: Array<String>, p: Player ->
         val name = arg[0].trim()
         if(name.length > 100 || Strings.stripColors(name).length > 40) {
