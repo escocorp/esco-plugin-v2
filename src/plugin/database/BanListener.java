@@ -50,10 +50,10 @@ public class BanListener {
             } catch (Exception e) {
                 Log.err(e);
                 sendLog(e.getMessage());
-                if (failedTimes < 5) {
+                //if (failedTimes < 5) {
                     load();
                     failedTimes += 1;
-                }
+                //}
             }
         });
     }
