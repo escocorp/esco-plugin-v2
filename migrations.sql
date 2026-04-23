@@ -89,3 +89,15 @@ CREATE TABLE connections (
     server_id INTEGER REFERENCES servers(id) NOT NULL,
     player_id INTEGER REFERENCES players(id) NOT NULL
 );
+
+CREATE TABLE maps (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(30) UNIQUE
+);
+
+CREATE TABLE rounds (
+    id SERIAL PRIMARY KEY,
+    map_id INTEGER references maps(id),
+    win BOOLEAN NOT NULL,
+    playtime INT DEFAULT 0 NOT NULL
+);
