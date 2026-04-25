@@ -132,7 +132,15 @@ fun loadRes() {
     )
     // endregion
 
-    
+    // region erekir - flying
+    items.putAll(
+        elude, with(graphite, silicon),
+        avert, with(silicon, tungsten),
+        obviate, with(thorium, silicon),
+        quell, with(graphite, silicon, beryllium),
+        disrupt, with(silicon, tungsten, carbide)
+    )
+    // endregion
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
