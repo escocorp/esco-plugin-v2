@@ -90,14 +90,22 @@ CREATE TABLE connections (
     player_id INTEGER REFERENCES players(id) NOT NULL
 );
 
+-- avg is calculated in real time
+-- SELECT
+--     name,
+--     (min_wave + max_wave) / 2.0      AS avg_wave,
+--     (min_playtime + max_playtime) / 2.0 AS avg_playtime
+-- FROM maps;
 CREATE TABLE maps (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30) UNIQUE
-);
-
-CREATE TABLE rounds (
-    id SERIAL PRIMARY KEY,
-    map_id INTEGER references maps(id),
-    win BOOLEAN NOT NULL,
-    playtime INT DEFAULT 0 NOT NULL
+    name VARCHAR(30) NOT NULL,
+    server INTEGER references servers(ID) NOT NULL,
+    min_wave INTEGER NOT NULL,
+    max_wave INTEGER NOT NULL,
+    min_playtime INTEGER NOT NULL,
+    max_playtime INTEGER NOT NULL,
+    wins INTEGER NOT NULL,
+    loses INTEGER NOT NULL,
+    skips INTEGER NOT NULL,
+    UNIQUE(name, server)
 );
