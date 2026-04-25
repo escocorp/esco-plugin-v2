@@ -128,10 +128,11 @@ fun loadRes() {
         cleroi, with(silicon, tungsten),
         anthicus, with(thorium, silicon),
         tecta, with(tungsten, beryllium, silicon),
+        collaris, with(thorium, carbide)
     )
     // endregion
 
-
+    
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
