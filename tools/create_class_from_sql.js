@@ -113,7 +113,14 @@ ${fields.map(f => `        ${f.getter}`).join(",\n")}
 }
 `.trim();
 
-    const full = classCode + "\n\n" + mapperCode + "\n";
+    const generatedAt = new Date().toISOString();
+
+    const full =
+        `// Auto-generated on ${generatedAt}\n\n` +
+        classCode +
+        "\n\n" +
+        mapperCode +
+        "\n";
 
     fs.writeFileSync(
         path.join(OUT_DIR, `${className}.kt`),
