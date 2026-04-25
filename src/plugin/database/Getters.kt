@@ -8,6 +8,7 @@ import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
 import plugin.database.Database.StatementSetter
+import plugin.database.Database.executeQueryAsync
 import plugin.database.Database.executeUpdate
 import plugin.database.models.*
 import plugin.utils.Permission
@@ -520,11 +521,37 @@ fun getMapStats(rs: ResultSet): MapStats {
         rs.getString("name"),
         rs.getInt("server"),
         rs.getInt("min_wave"),
+        rs.getInt("avg_wave"), // calculated in real time
         rs.getInt("max_wave"),
         rs.getInt("min_playtime"),
+        rs.getInt("avg_playtime"), // calculated in real time
         rs.getInt("max_playtime"),
         rs.getInt("wins"),
         rs.getInt("loses"),
         rs.getInt("skips")
+    )
+}
+
+fun getMapStats(id: Int): Optional<MapStats> {
+    return executeQueryAsync(
+        """
+        SELECT
+            id,
+            name,
+            server,
+            min_wave,
+            (min_wave + max_wave) / 2 AS avg_wave,
+            max_wave,
+            min_playtime,
+            (min_playtime + max_playtime) / 2 AS avg_playtime,
+            max_playtime,
+            wins,
+            loses,
+            skips
+        FROM maps
+        WHERE id = ?
+        """.trimIndent(),
+        { stmt -> stmt.setInt(1, id) },
+        { rs -> getMapStats(rs) }
     )
 }
