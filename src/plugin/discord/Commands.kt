@@ -9,6 +9,7 @@ import arc.util.Log
 import arc.util.Strings
 import arc.util.Timer
 import mindustry.Vars
+import mindustry.core.Version
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.maps.Map
@@ -220,7 +221,7 @@ fun register(handler: CommandHandler) {
     handler.register("debug", "SS") { _: Array<String>, ctx: Context ->
         if (!ctx.hasPerm(Permission.editServer)) return@register
         val pool = Database.dataSource.hikariPoolMXBean
-        ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}\nVersion: ${Core.app.version}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version")
+        ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}\nVersion: ${Version.build}\nJava Version: ${Runtime.version()}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version")
     }
 
     handler.register("update", "[ver]", "SS") { arr: Array<String>, ctx: Context ->

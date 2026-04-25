@@ -92,8 +92,8 @@ public class VotekickSession {
                                 Started by: [{0}] {1}
                                 Target: [{2}] {3}
                                 Votes: {4}
-                                Reason {5}
-                                Server {6}
+                                Reason: {5}
+                                Server: {6}
                                 """,
                         stId, started.plainName(),
                         tId, target.plainName(),
