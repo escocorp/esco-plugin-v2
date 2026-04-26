@@ -28,14 +28,14 @@ function toCamel(str) {
 function kotlinType(column, raw) {
     raw = raw.toUpperCase();
 
-    if (raw.includes("SERIAL")) return "Int";
+    if (raw.includes("SERIAL")) return "Int /*By SERIAL*/";
     if (raw.includes("INTEGER")) return "Int";
-    if (raw.includes("BIGINT")) return "Long?";
+    if (raw.includes("BIGINT")) return "Long? /*By BIGINT*/";
     if (raw.includes("BOOLEAN")) return "Boolean";
     if (raw.includes("TIMESTAMP")) return "Instant?";
-    if (raw.includes("JSONB")) return "String";
-    if (raw.includes("TEXT[]")) return "List<String>";
-    if (raw.includes("VARCHAR")) return "String";
+    if (raw.includes("JSONB")) return "String /* !By JSONB! */";
+    if (raw.includes("TEXT[]")) return "List<String> /*Based on TEXT[]*/";
+    if (raw.includes("VARCHAR")) return "String /*By VARCHAR*/";
     if (raw.includes("TEXT")) return "String";
 
     return "String";
