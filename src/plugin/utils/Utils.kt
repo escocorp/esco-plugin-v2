@@ -1,15 +1,20 @@
 package plugin.utils
 
+import arc.Events
 import arc.files.Fi
 import arc.func.Cons
+import arc.func.Prov
 import arc.net.Connection
+import arc.struct.Seq
 import arc.util.Http
 import arc.util.Log
 import arc.util.Reflect
 import arc.util.Strings
+import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.gen.Player
 import mindustry.maps.Map
+import plugin.KVars.eventsScope
 import plugin.PVars
 import plugin.PVars.apiAuth
 import plugin.PVars.httpClient
@@ -18,7 +23,6 @@ import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.IOException
 import java.net.URI
-import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
@@ -207,4 +211,12 @@ fun findMap(name: String): Map? {
         if (map.name().contains(name))
             return map
     return null
+}
+
+fun <T> onAsync(type: Class<T>, listener: Cons<T>) {
+    Events.on(type) { e: T ->
+        eventsScope.launch {
+            listener.get(e)
+        }
+    }
 }

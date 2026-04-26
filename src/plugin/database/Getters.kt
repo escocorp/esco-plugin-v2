@@ -7,6 +7,7 @@ import mindustry.gen.Player
 import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
+import plugin.PVars.serverId
 import plugin.database.Database.StatementSetter
 import plugin.database.Database.executeQueryAsync
 import plugin.database.Database.executeUpdate
@@ -555,3 +556,69 @@ fun getMapStats(id: Int): Optional<MapStats> {
         { rs -> getMapStats(rs) }
     )
 }
+
+fun createOrGetMapStats(name: String): Optional<MapStats> {
+    return executeQueryAsync(
+        """
+        INSERT INTO maps (name, server)
+        VALUES (?, ?)
+        ON CONFLICT DO NOTHING
+        RETURNING
+            id,
+            name,
+            server,
+            min_wave,
+            (min_wave + max_wave) / 2 AS avg_wave,
+            max_wave,
+            min_playtime,
+            (min_playtime + max_playtime) / 2 AS avg_playtime,
+            max_playtime,
+            wins,
+            loses,
+            skips
+        """.trimIndent(),
+        { stmt ->
+            stmt.setString(1, name)
+            stmt.setInt(2, serverId)
+        },
+        { rs -> getMapStats(rs) }
+    )
+}
+
+fun updateMapStats(
+    name: String,
+    minWave: Int,
+    maxWave: Int,
+    minPlaytime: Int,
+    maxPlaytime: Int,
+    wins: Int,
+    loses: Int,
+    skips: Int
+): Boolean {
+    return executeUpdate(
+        """
+        UPDATE maps SET
+            min_wave = ?,
+            max_wave = ?,
+            min_playtime = ?,
+            max_playtime = ?,
+            wins = ?,
+            loses = ?,
+            skips = ?
+        WHERE name = ? AND server = ?
+        """.trimIndent(),
+        { stmt ->
+            stmt.setInt(1, minWave)
+            stmt.setInt(2, maxWave)
+            stmt.setInt(3, minPlaytime)
+            stmt.setInt(4, maxPlaytime)
+            stmt.setInt(5, wins)
+            stmt.setInt(6, loses)
+            stmt.setInt(7, skips)
+            stmt.setString(8, name)
+            stmt.setInt(9, serverId)
+        }
+    )
+}
+
+// endregion
