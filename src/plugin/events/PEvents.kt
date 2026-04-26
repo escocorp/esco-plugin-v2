@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.PlayerConnect
+import mindustry.game.Team
 import plugin.KVars
 import plugin.KVars.eventsScope
 import plugin.KVars.mapStats
@@ -101,14 +102,14 @@ fun loadEvents() {
             eventsScope.launch {
                 createOrGetMapStats(Vars.state.map.plainName()).ifPresent { stats ->
                     app.post {
-                        KVars.mapStats = stats
+                        mapStats = stats
                     }
                 }
             }
         }, 1f)
     }
 
-    onAsync(EventType.GameOverEvent::class.java) { _: EventType.GameOverEvent ->
+    onAsync(EventType.GameOverEvent::class.java) { e: EventType.GameOverEvent ->
         val stats = mapStats ?: return@onAsync
 
         val wave = Vars.state.wave
@@ -123,8 +124,16 @@ fun loadEvents() {
 
         val maxPlaytime = maxOf(stats.maxPlaytime, playtime)
 
-        val wins = stats.wins + if (Vars.state.gameOver && Vars.state.rules.waves && Vars.state.enemies == 0) 1 else 0
-        val loses = stats.loses + if (Vars.state.gameOver && Vars.state.enemies > 0) 1 else 0
+        var wins = stats.wins
+        var loses = stats.loses
+        var skips = stats.skips
+        if(e.winner == Team.derelict) {
+            skips += 1
+        } else if(e.winner == Vars.state.rules.defaultTeam) {
+            wins += 1
+        } else {
+            loses += 1
+        }
 
         updateMapStats(
             stats.name,
@@ -134,7 +143,7 @@ fun loadEvents() {
             maxPlaytime,
             wins,
             loses,
-            stats.skips
+            skips
         )
         /*
         app.post {
