@@ -2,6 +2,7 @@ package plugin.database
 
 import arc.struct.ObjectMap
 import arc.util.Strings
+import arc.util.Time
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.net.Administration
@@ -36,6 +37,23 @@ var playerStatsCache = ObjectMap<String, PlayerStats>()
 @JvmField
 var mutesCache = ObjectMap<Int, Mute>()
 
+private val cacheMissLogCooldown = ObjectMap<String, Long>()
+private const val cacheMissLogCooldownMs = 60_000L
+
+private fun logExpectedCacheMiss(player: Player, cacheName: String) {
+    // During gameplay these caches should usually be warmed on connect.
+    val key = "$cacheName:${player.uuid()}"
+    val now = Time.millis()
+    val last = cacheMissLogCooldown.get(key, 0L)
+    if (now - last < cacheMissLogCooldownMs) return
+
+    cacheMissLogCooldown.put(key, now)
+    putLog(
+        "cache_miss",
+        "Expected warm cache miss in $cacheName for uuid=${player.uuid()} name=${player.plainName()} id=${player.id} connected=${player.con?.isConnected ?: false}"
+    )
+}
+
 // region Admin
 
 fun updateAdminHidden(pid: Int, hidden: Boolean): Boolean {
@@ -54,6 +72,7 @@ fun updateAdminHidden(pid: Int, hidden: Boolean): Boolean {
 
 fun getAdmin(player: Player): Optional<Admin> {
     if (adminsCache.containsKey(player)) return Optional.of(adminsCache.get(player))
+    logExpectedCacheMiss(player, "adminsCache")
 
     val a = Database.executeQueryAsync(
         """
@@ -370,6 +389,7 @@ fun getPlayerData(id: Int): Optional<PlayerData> {
 
 fun getPlayerData(player: Player): Optional<PlayerData> {
     if (playerDataCache.containsKey(player)) return Optional.of(playerDataCache.get(player))
+    logExpectedCacheMiss(player, "playerDataCache")
 
     return Database.executeQueryAsync(
         "SELECT * FROM players WHERE uuid = ?",
@@ -380,6 +400,7 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
 
 fun getPlayerId(player: Player): Optional<Int> {
     if (playerDataCache.containsKey(player)) return Optional.of<Int>(playerDataCache.get(player).id)
+    logExpectedCacheMiss(player, "playerDataCache(id)")
 
     return Database.executeQueryAsync(
         "SELECT id FROM players WHERE uuid = ?",
@@ -417,6 +438,7 @@ fun getPlayerStats(player: Player): Optional<PlayerStats> {
 
     val cached: PlayerStats? = playerStatsCache.get(uuid)
     if (cached != null) return Optional.of(cached)
+    logExpectedCacheMiss(player, "playerStatsCache")
 
     val opt = Database.executeQueryAsync(
         "SELECT * from statistics WHERE player_id in (SELECT id FROM players WHERE uuid = ?)",
