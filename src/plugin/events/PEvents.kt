@@ -2,20 +2,28 @@ package plugin.events
 
 import arc.Core.app
 import arc.Events
+import arc.util.Timer
 import kotlinx.coroutines.launch
+import mindustry.Vars
+import mindustry.game.EventType
 import mindustry.game.EventType.PlayerConnect
+import plugin.KVars
 import plugin.KVars.eventsScope
+import plugin.KVars.mapStats
 import plugin.PVars
 import plugin.antigrief.apply
+import plugin.database.createOrGetMapStats
 import plugin.database.getAdmin
 import plugin.database.getBan
 import plugin.database.getOrCreatePlayerData
 import plugin.database.models.Admin
 import plugin.database.putLog
+import plugin.database.updateMapStats
 import plugin.discord.sendLog
 import plugin.utils.ApiResponse
 import plugin.utils.Permission
 import plugin.utils.isAnon
+import plugin.utils.onAsync
 import java.util.function.Consumer
 
 fun loadEvents() {
@@ -85,5 +93,60 @@ fun loadEvents() {
             })
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
         }
+    }
+
+    Events.on(EventType.WorldLoadEvent::class.java) { _: EventType.WorldLoadEvent ->
+        Timer.schedule({
+            KVars.startTime = System.currentTimeMillis()
+            eventsScope.launch {
+                createOrGetMapStats(Vars.state.map.plainName()).ifPresent { stats ->
+                    app.post {
+                        KVars.mapStats = stats
+                    }
+                }
+            }
+        }, 1f)
+    }
+
+    onAsync(EventType.GameOverEvent::class.java) { _: EventType.GameOverEvent ->
+        val stats = mapStats ?: return@onAsync
+
+        val wave = Vars.state.wave
+        val playtime = ((System.currentTimeMillis() - KVars.startTime) / 1000L).toInt() // seconds
+
+        val minWave = minOf(stats.minWave, wave)
+        val maxWave = maxOf(stats.maxWave, wave)
+
+        val minPlaytime =
+            if (stats.minPlaytime <= 0) playtime
+            else minOf(stats.minPlaytime, playtime)
+
+        val maxPlaytime = maxOf(stats.maxPlaytime, playtime)
+
+        val wins = stats.wins + if (Vars.state.gameOver && Vars.state.rules.waves && Vars.state.enemies == 0) 1 else 0
+        val loses = stats.loses + if (Vars.state.gameOver && Vars.state.enemies > 0) 1 else 0
+
+        updateMapStats(
+            stats.name,
+            minWave,
+            maxWave,
+            minPlaytime,
+            maxPlaytime,
+            wins,
+            loses,
+            stats.skips
+        )
+        /*
+        app.post {
+            KVars.mapStats = stats.copy(
+                minWave = minWave,
+                maxWave = maxWave,
+                minPlaytime = minPlaytime,
+                maxPlaytime = maxPlaytime,
+                wins = wins,
+                loses = loses
+            )
+        }
+         */
     }
 }
