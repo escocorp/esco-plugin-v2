@@ -16,7 +16,7 @@ import static plugin.PVars.apiAuth;
 import static plugin.PVars.bundleApi;
 
 public class Bundle {
-    public static final Seq<String> locales = Seq.with("en", "ru");
+    public static final Seq<String> locales = Seq.with("en", "ru", "uk_UA");
     public static final ObjectMap<String, String> localesAliases = new ObjectMap<>();
 
     private static final ObjectMap<String, StringMap> bundles = new ObjectMap<>();
