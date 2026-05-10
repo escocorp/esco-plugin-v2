@@ -398,6 +398,17 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
     )
 }
 
+/**
+ * no cache
+ * */
+fun getPlayerData(uuid: String): Optional<PlayerData> {
+    return Database.executeQueryAsync(
+        "SELECT * FROM players WHERE uuid = ?",
+        { stmt: PreparedStatement -> stmt.setString(1, uuid) },
+        { rs: ResultSet -> getPlayerData(rs) }
+    )
+}
+
 fun getPlayerId(player: Player): Optional<Int> {
     if (playerDataCache.containsKey(player)) return Optional.of<Int>(playerDataCache.get(player).id)
     logExpectedCacheMiss(player, "playerDataCache(id)")
@@ -405,6 +416,16 @@ fun getPlayerId(player: Player): Optional<Int> {
     return Database.executeQueryAsync(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
+        { rs: ResultSet -> rs.getInt("id") }
+    )
+}
+/*
+* No caching!!!
+* */
+fun getPlayerId(uuid: String): Optional<Int> {
+    return Database.executeQueryAsync(
+        "SELECT id FROM players WHERE uuid = ?",
+        { stmt: PreparedStatement -> stmt.setString(1, uuid) },
         { rs: ResultSet -> rs.getInt("id") }
     )
 }
@@ -425,7 +446,8 @@ fun getPlayerData(rs: ResultSet): PlayerData {
         rs.getInt("id"),
         rs.getString("uuid"),
         discordId,
-        prefs
+        prefs,
+        rs.getString("last_name"),
     )
 }
 
