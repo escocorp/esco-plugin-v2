@@ -39,6 +39,7 @@ public class Config {
         PVars.votekicksChannelStr = getEnv("VOTEKICKS_ID");
         PVars.roundsChannelStr = getEnv("ROUNDS_ID");
         PVars.parrotChannelStr = getEnv("PARROT_ID");
+        PVars.nsfwChannelStr = getEnv("NSFW_ID");
     }
 
 

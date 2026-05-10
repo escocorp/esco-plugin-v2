@@ -12,7 +12,7 @@ import static plugin.database.Database.executeUpdate;
 
 public class PlayerData {
     public int id;
-    public String uuid;
+    public String uuid, lastName;
     public Long discordId;
     public PlayerPrefs prefs;
 
@@ -23,11 +23,12 @@ public class PlayerData {
         return this;
     }*/
 
-    public PlayerData(int id, String uuid, Long discordId, PlayerPrefs prefs) {
+    public PlayerData(int id, String uuid, Long discordId, PlayerPrefs prefs, String lastName) {
         this.id = id;
         this.uuid = uuid;
         this.discordId = discordId;
         this.prefs = prefs;
+        this.lastName = lastName;
     }
 
     public boolean updateDiscordId(Long dsid) {
