@@ -113,13 +113,17 @@ fun slot(p: Player, stats: PlayerStats, bet: Int) {
     showSlot(p, stats, bet)
 }
 
+fun randomSymbol(): String {
+    return slotsSymbols[Mathf.random(slotsSymbols.size - 1)]
+}
+
 fun showSlot(p: Player, stats: PlayerStats, bet: Int) {
     if (bet > stats.balance) {
         Bundle.sendMessage("menu.shop.nomoney", p)
         return
     }
 
-    if (stats.balance > 30000) {
+    if (stats.balance > 100000) {
         p.sendMessage("[scarlet]You have too much money")
         return
     }
@@ -129,9 +133,21 @@ fun showSlot(p: Player, stats: PlayerStats, bet: Int) {
         return
     }
 
-    val s1 = slotsSymbols[Mathf.random(slotsSymbols.size - 1)]
-    val s2 = slotsSymbols[Mathf.random(slotsSymbols.size - 1)]
-    val s3 = slotsSymbols[Mathf.random(slotsSymbols.size - 1)]
+    val loseFactor = (stats.balance / 30000f).coerceIn(0f, 1f)
+
+    val s1 = randomSymbol()
+    var s2 = randomSymbol()
+    var s3 = randomSymbol()
+
+    if (Mathf.chance((loseFactor * 75f).toDouble())) {
+        while (s2 == s1) {
+            s2 = randomSymbol()
+        }
+
+        while (s3 == s1 || s3 == s2) {
+            s3 = randomSymbol()
+        }
+    }
 
     var multiplier = 0f
 
@@ -163,11 +179,11 @@ fun showSlot(p: Player, stats: PlayerStats, bet: Int) {
 
     Menu(
         "Slot",
-        "Bet: " + bet + "\nBalance: " + stats.balance + "\n" + (if (win > 0) Bundle.get(
-            "menus.slots.win",
-            p.locale,
-            win
-        ) else Bundle.get("menus.slots.fail", p.locale, bet))
+        "Bet: " + bet + "\nBalance: " + stats.balance + "\n" +
+                (if (win > 0)
+                    Bundle.get("menus.slots.win", p.locale, win)
+                else
+                    Bundle.get("menus.slots.fail", p.locale, bet))
     )
         .add("[$s1]")
         .add("[$s2]")
