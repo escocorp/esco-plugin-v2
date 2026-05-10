@@ -28,13 +28,16 @@ import static mindustry.io.MapIO.colorFor;
 import static plugin.utils.UtilsKt.parseImage;
 
 public class MapPreview {
+
     public static void loadColors() {
         try {
             Fi colors = UtilsKt.getResource("block_colors.png");
             BufferedImage image = ImageIO.read(colors.read());
             Vars.content
                     .blocks()
-                    .each(block -> block.mapColor.argb8888(block instanceof OreBlock ? block.itemDrop.color.argb8888() : image.getRGB(block.id, 0)).a(1.0F));
+                    .each(block -> block.mapColor.argb8888(
+                            block instanceof OreBlock ? block.itemDrop.color.argb8888() : image.getRGB(block.id, 0))
+                            .a(1.0F));
         } catch (Exception e) {
             Log.err(e);
         }
@@ -50,20 +53,25 @@ public class MapPreview {
                     if (tile.build.config() instanceof Item item) {
                         image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                         item = null;
-                    } else if(tile.build.block.name.contains("conveyor")) {
-                        Item item = tile.build.items.first();
-                        if(item == null) {
-                            image.setRGB(x, tiles.height - 1 - y, convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
-                            continue;
+                    } else if (tile.build.block.name.contains("conveyor")) {
+                        if (tile.build != null && tile.build.items != null && !tile.build.items.empty()) {
+                            Item item = tile.build.items.first();
+                            image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
+                        } else {
+                            image.setRGB(x, tiles.height - 1 - y,
+                                    convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
                         }
-                        image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                     } else {
-                        // pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team()));
-                        image.setRGB(x, tiles.height - 1 - y, convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
+                        // pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(),
+                        // tile.overlay(), tile.team()));
+                        image.setRGB(x, tiles.height - 1 - y,
+                                convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
                     }
                 } else {
-                    //pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team()));
-                    image.setRGB(x, tiles.height - 1 - y, convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
+                    // pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(),
+                    // tile.overlay(), tile.team()));
+                    image.setRGB(x, tiles.height - 1 - y,
+                            convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
                 }
             }
         }
@@ -111,65 +119,65 @@ public class MapPreview {
                     }
                 };
                 version.readRegion("content", stream, counter, version::readContentHeader);
-                if (version.version >= 11) version.readRegion("content", stream, counter, version::skipContentPatches);
+                if (version.version >= 11) {
+                    version.readRegion("content", stream, counter, version::skipContentPatches);
+                }
                 version.readRegion("preview_map", stream, counter, in -> version.readMap(in, new WorldContext() {
-                                    public void resize(int widthx, int heightx) {
-                                    }
+                    public void resize(int widthx, int heightx) {
+                    }
 
-                                    public boolean isGenerating() {
-                                        return false;
-                                    }
+                    public boolean isGenerating() {
+                        return false;
+                    }
 
-                                    public void begin() {
-                                        Vars.world.setGenerating(true);
-                                    }
+                    public void begin() {
+                        Vars.world.setGenerating(true);
+                    }
 
-                                    public void end() {
-                                        Vars.world.setGenerating(false);
-                                    }
+                    public void end() {
+                        Vars.world.setGenerating(false);
+                    }
 
-                                    public void onReadBuilding() {
-                                        if (tile.build != null) {
-                                            int size = tile.block().size;
-                                            int offsetX = -(size - 1) / 2;
-                                            int offsetY = -(size - 1) / 2;
+                    public void onReadBuilding() {
+                        if (tile.build != null) {
+                            int size = tile.block().size;
+                            int offsetX = -(size - 1) / 2;
+                            int offsetY = -(size - 1) / 2;
 
-                                            for (int dx = 0; dx < size; dx++) {
-                                                for (int dy = 0; dy < size; dy++) {
-                                                    int drawx = tile.x + dx + offsetX;
-                                                    int drawy = tile.y + dy + offsetY;
-                                                    walls.setRGB(drawx, floors.getHeight() - 1 - drawy, tile.team().color.argb8888());
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    public Tile tile(int index) {
-                                        tile.x = (short) (index % width);
-                                        tile.y = (short) (index / width);
-                                        return tile;
-                                    }
-
-                                    public Tile create(int x, int y, int floorID, int overlayID, int wallID) {
-                                        if (overlayID != 0) {
-                                            floors.setRGB(
-                                                    x,
-                                                    floors.getHeight() - 1 - y,
-                                                    convert(MapIO.colorFor(Blocks.air, Blocks.air, Vars.content.block(overlayID), Team.derelict))
-                                            );
-                                        } else {
-                                            floors.setRGB(
-                                                    x,
-                                                    floors.getHeight() - 1 - y,
-                                                    convert(MapIO.colorFor(Blocks.air, Vars.content.block(floorID), Blocks.air, Team.derelict))
-                                            );
-                                        }
-
-                                        return tile;
-                                    }
+                            for (int dx = 0; dx < size; dx++) {
+                                for (int dy = 0; dy < size; dy++) {
+                                    int drawx = tile.x + dx + offsetX;
+                                    int drawy = tile.y + dy + offsetY;
+                                    walls.setRGB(drawx, floors.getHeight() - 1 - drawy, tile.team().color.argb8888());
                                 }
-                        )
-                );
+                            }
+                        }
+                    }
+
+                    public Tile tile(int index) {
+                        tile.x = (short) (index % width);
+                        tile.y = (short) (index / width);
+                        return tile;
+                    }
+
+                    public Tile create(int x, int y, int floorID, int overlayID, int wallID) {
+                        if (overlayID != 0) {
+                            floors.setRGB(
+                                    x,
+                                    floors.getHeight() - 1 - y,
+                                    convert(MapIO.colorFor(Blocks.air, Blocks.air, Vars.content.block(overlayID),
+                                            Team.derelict)));
+                        } else {
+                            floors.setRGB(
+                                    x,
+                                    floors.getHeight() - 1 - y,
+                                    convert(MapIO.colorFor(Blocks.air, Vars.content.block(floorID), Blocks.air,
+                                            Team.derelict)));
+                        }
+
+                        return tile;
+                    }
+                }));
                 fgraphics.drawImage(walls, 0, 0, null);
                 fgraphics.dispose();
                 var12 = floors;
