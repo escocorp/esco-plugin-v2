@@ -11,8 +11,10 @@ import mindustry.game.Team;
 import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.net.Administration;
+import mindustry.world.blocks.storage.CoreBlock;
 import plugin.Bundle;
 import plugin.ai.DumbAI;
+import plugin.utils.Gamemode;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,8 +43,18 @@ public class Patches {
                 }, 5);
             }, 60 * 60 * 2, 60 * 60 * 2);
         }
+        if(gamemode == Gamemode.sandbox)
+            patchCoreHealth();
         loadLogger();
         replaceNetServer();
+    }
+
+    public static void patchCoreHealth() {
+        Vars.content.each(content -> {
+            if(content instanceof CoreBlock block) {
+                block.health = 999999999;
+            }
+        });
     }
 
     private static void replaceNetServer() {
