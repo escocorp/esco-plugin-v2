@@ -213,7 +213,7 @@ public class PEvents {
         });
 
         Events.on(EventType.WaveEvent.class, (e) -> {
-            Groups.player.each(p -> getPlayerStats(p).ifPresent(s -> s.adjWavesSurvived()));
+            Groups.player.each(p -> getPlayerStats(p).ifPresent(PlayerStats::adjWavesSurvived));
         });
     }
 }
