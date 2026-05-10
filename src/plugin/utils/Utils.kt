@@ -3,9 +3,7 @@ package plugin.utils
 import arc.Events
 import arc.files.Fi
 import arc.func.Cons
-import arc.func.Prov
 import arc.net.Connection
-import arc.struct.Seq
 import arc.util.Http
 import arc.util.Log
 import arc.util.Reflect
@@ -19,7 +17,9 @@ import plugin.PVars
 import plugin.PVars.apiAuth
 import plugin.PVars.httpClient
 import plugin.utils.Permission.getPerms
+import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.IOException
 import java.net.URI
@@ -28,6 +28,7 @@ import java.net.http.HttpResponse
 import java.nio.file.Path
 import java.util.*
 import java.util.zip.InflaterInputStream
+import javax.imageio.ImageIO
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
@@ -219,4 +220,11 @@ fun <T> onAsync(type: Class<T>, listener: Cons<T>) {
             listener.get(e)
         }
     }
+}
+
+@Throws(IOException::class)
+fun parseImage(image: BufferedImage): ByteArray {
+    val stream = ByteArrayOutputStream()
+    ImageIO.write(image, "png", stream)
+    return stream.toByteArray()
 }

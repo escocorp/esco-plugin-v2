@@ -33,6 +33,8 @@ fun load() {
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.roundsChannelStr)
             PVars.parrotChannel =
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.parrotChannelStr)
+            PVars.nsfwChannel =
+                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.nsfwChannelStr)
         } else {
             Log.err("Failed to get server guild!")
         }

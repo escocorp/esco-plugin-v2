@@ -2,12 +2,18 @@ package plugin.events
 
 import arc.Core.app
 import arc.Events
+import arc.util.Log
 import arc.util.Timer
+import com.xpdustry.nohorny.client.ClassificationEvent
+import com.xpdustry.nohorny.common.MindustryImageRenderer
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.PlayerConnect
 import mindustry.game.Team
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.utils.FileUpload
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import plugin.KVars
 import plugin.KVars.eventsScope
 import plugin.KVars.mapStats
@@ -16,7 +22,8 @@ import plugin.antigrief.apply
 import plugin.database.createOrGetMapStats
 import plugin.database.getAdmin
 import plugin.database.getBan
-import plugin.database.getOrCreatePlayerData
+import plugin.database.*
+import plugin.database.getPlayerId
 import plugin.database.models.Admin
 import plugin.database.putLog
 import plugin.database.updateMapStats
@@ -25,6 +32,8 @@ import plugin.utils.ApiResponse
 import plugin.utils.Permission
 import plugin.utils.isAnon
 import plugin.utils.onAsync
+import plugin.utils.parseImage
+import java.awt.Color
 import java.util.function.Consumer
 
 fun loadEvents() {
@@ -145,17 +154,25 @@ fun loadEvents() {
             loses,
             skips
         )
-        /*
-        app.post {
-            KVars.mapStats = stats.copy(
-                minWave = minWave,
-                maxWave = maxWave,
-                minPlaytime = minPlaytime,
-                maxPlaytime = maxPlaytime,
-                wins = wins,
-                loses = loses
-            )
+    }
+
+    onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
+        val embed = EmbedBuilder()
+            .setColor(Color.red)
+            .setTitle("NSFW detected on ${PVars.gamemode.name}")
+        e.author?.uuid?.let { uuid ->
+            getPlayerData(uuid).ifPresent { pd ->
+                embed.setAuthor("[${pd.id}] ${pd.lastName}")
+            }
         }
-         */
+        val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
+        try {
+            val image = parseImage(MindustryImageRenderer.render(e.group))
+            message.addFiles(FileUpload.fromData(image, "image.png"))
+            embed.setImage("attachment://image.png")
+        } catch (e: Exception) {
+            Log.err("Error while rendering nsfw image", e)
+        }
+        message.queue()
     }
 }

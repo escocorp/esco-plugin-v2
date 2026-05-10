@@ -40,9 +40,7 @@ import static plugin.events.PEventsKt.loadEvents;
 import static plugin.utils.Gamemode.campaign;
 import static plugin.utils.Gamemode.sandbox;
 import static plugin.utils.UtilsKt.*;
-/**
- * @deprecated USE plugin.events.PEvents.kt for new Events!
- * */
+
 public class PEvents {
     public static void load() {
         loadEvents();

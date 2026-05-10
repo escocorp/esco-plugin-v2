@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.zip.InflaterInputStream;
 
 import static mindustry.io.MapIO.colorFor;
+import static plugin.utils.UtilsKt.parseImage;
 
 public class MapPreview {
     public static void loadColors() {
@@ -192,12 +193,6 @@ public class MapPreview {
 
     public static int convert(int color) {
         return new arc.graphics.Color(color).argb8888();
-    }
-
-    public static byte[] parseImage(BufferedImage image) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", stream);
-        return stream.toByteArray();
     }
 
     public static byte[] parseTiles(Tiles tiles) {
