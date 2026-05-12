@@ -2,10 +2,7 @@ package plugin.events;
 
 import arc.Core;
 import arc.Events;
-import arc.util.Log;
-import arc.util.Strings;
-import arc.util.Time;
-import arc.util.Timer;
+import arc.util.*;
 import mindustry.Vars;
 import mindustry.content.Items;
 import mindustry.content.UnitTypes;
@@ -41,51 +38,20 @@ import static plugin.utils.Gamemode.sandbox;
 import static plugin.utils.UtilsKt.*;
 
 public class PEvents {
+    public static Timekeeper antigriefCooldown = Timekeeper.ofSeconds(3);
     public static void load() {
         loadEvents();
 
         Events.on(EventType.ServerLoadEvent.class, (e) -> {
             Loader.loadAfterStart();
 
-            Vars.netServer.admins.addActionFilter(a -> {
-                Administration.ActionType type = a.type;
-                Player player = a.player;
-
-                Optional<PlayerData> pdOpt = getPlayerData(player);
-                if (pdOpt.isEmpty()) {
-                    return false;
-                }
-                PlayerData pd = pdOpt.get();
-
-                if (type == Administration.ActionType.buildSelect || type == Administration.ActionType.configure)
-                    if (a.tile.block() instanceof LogicBlock && a.config instanceof byte[] b) {
-                        String code = decompress(b);
-                        if (code.isEmpty()) return true;
-                        if (countWords("radar", code) > 25) {
-                            sendMessage("logic.antilag", player);
-                            putLog(pd.id, "system", "Player possible building lag machines!");
-                            return false;
-                        }
-                    }
-
-                // putLog(a, pd);
+            /*Vars.netServer.admins.addActionFilter(a -> {
                 return true;
-            });
+            });*/
 
-            Vars.netServer.admins.addChatFilter((player, message) -> {
-
-                /* WIP
-                Optional<Mute> muteOpt = getMute(player);
-                if(muteOpt.isPresent()) {
-                    Mute mute = muteOpt.get();
-                    if(mute.unmuteIn == null)
-                        mute.unmuteIn = formatTime((mute.getUnmuteTime().toEpochMilli() - Time.millis()) / 1000);
-                    Bundle.sendMessage("muted", player, mute.getReason(), mute.unmuteIn);
-                    return null;
-                }*/
-
+            /*Vars.netServer.admins.addChatFilter((player, message) -> {
                 return message;
-            });
+            });*/
         });
 
         Events.on(EventType.BlockBuildEndEvent.class, (e) -> {
@@ -98,10 +64,11 @@ public class PEvents {
                 getPlayerStats(player).ifPresent(s -> {
                     if (e.breaking) {
                         s.adjBlocksBroken();
-                        if (s.blocksBroken >= 350 && s.blocksBuild < 15 && s.playtime < 600) {
-                            ban(player, player, "AutoBan: Possible Griefer", parseTime("3d"));
+                        if (antigriefCooldown.get() && s.blocksBroken >= 350 && s.blocksBuild < 5 && s.playtime < 600) {
+                            ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"));
                             player.kick("AutoBan: Possible Griefer", 0);
                             player.con.close();
+                            antigriefCooldown.reset();
                         }
                     } else
                         s.adjBlocksBuild();
