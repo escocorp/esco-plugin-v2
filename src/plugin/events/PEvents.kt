@@ -253,10 +253,12 @@ fun loadEvents() {
     }
 
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
-        if(e.rating != Rating.NSFW) return@onAsync
+        val response = e.response
+        if(response.rating != Rating.NSFW) return@onAsync
         val embed = EmbedBuilder()
             .setColor(Color.red)
-            .setTitle("NSFW detected on ${PVars.gamemode.name} (Rate: ${e.rating.name})")
+            .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${response.confidence.toInt()})")
+            .setImage("attachment://image.png")
         e.author?.uuid?.let { uuid ->
             getPlayerData(uuid).ifPresent { pd ->
                 embed.setAuthor("[${pd.id}] ${pd.lastName}")
@@ -266,9 +268,9 @@ fun loadEvents() {
         try {
             val image = parseImage(MindustryImageRenderer.render(e.group))
             message.addFiles(FileUpload.fromData(image, "image.png"))
-            embed.setImage("attachment://image.png")
         } catch (e: Exception) {
             Log.err("Error while rendering nsfw image", e)
+            message.addContent("Error while rendering nsfw image")
         }
         message.queue()
     }
