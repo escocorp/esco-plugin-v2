@@ -97,6 +97,6 @@ object Loader {
         saveLogs()
         Timer.schedule({
             exitProcess(0)
-        }, 1f)
+        }, 3f)
     }
 }
