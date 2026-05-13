@@ -15,15 +15,15 @@ import plugin.utils.Loader
 import plugin.gamemodes.TDGamemode
 
 fun register(handler: CommandHandler) {
-    handler.register("reload-bundle", "reload bundle") { _: Array<String?>? ->
+    handler.register("reload-bundle", "reload bundle") { _: Array<String> ->
         Bundle.load()
     }
 
-    handler.register("despawn-units", "Despawn all unused untis") { _: Array<String?>? ->
+    handler.register("despawn-units", "Despawn all unused untis") { _: Array<String> ->
         Patches.despawnUnits()
     }
 
-    handler.register("restart", "set needRestart to true.", Cons { _: Array<String?>? ->
+    handler.register("restart", "set needRestart to true.", Cons { _: Array<String> ->
         if (Groups.player.isEmpty) {
             Loader.exit()
             return@Cons
@@ -33,7 +33,7 @@ fun register(handler: CommandHandler) {
         Log.info("Ok!")
     })
 
-    handler.register("savelog", "save logs") { _: Array<String?>? ->
+    handler.register("savelog", "save logs") { _: Array<String> ->
         Loader.saveLogs()
     }
 
@@ -41,16 +41,20 @@ fun register(handler: CommandHandler) {
         Log.info("Stacks: @", History.history.size)
     }
 
-    handler.register("say", "<text...>", "") { a: Array<String?>? ->
-        Log.info("Server: @", a!![0])
+    handler.register("say", "<text...>", "") { a: Array<String> ->
+        Log.info("Server: @", a[0])
         Call.sendMessage("[scarlet][Server]:[white] " + a[0])
         sendServerMessage("Server: " + a[0])
     }
 
-    handler.register("loadgm", "<name>", "") { a: Array<String?>? ->
-        when (a!![0]) {
+    handler.register("loadgm", "<name>", "") { a: Array<String> ->
+        when (a[0]) {
             "tdf" -> TDGamemode.load()
             else -> Log.err("Unknown gamemode!")
         }
+    }
+
+    handler.register("exit", "") { _: Array<String> ->
+        Loader.exit()
     }
 }
