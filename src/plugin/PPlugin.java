@@ -27,6 +27,7 @@ public class PPlugin extends Plugin {
     @Override
     public void registerServerCommands(CommandHandler handler) {
         ServerCommandsKt.register(handler);
+        Log.info("Registered @ server commands", handler.getCommandList().size);
     }
 
     @Override
@@ -35,5 +36,7 @@ public class PPlugin extends Plugin {
         Foos.Companion.init();
         //ClientCommands.register(clientCommands);
         ClientCommandsKt.register(clientCommands);
+
+        Log.info("Registered @ client commands", handler.getCommandList().size);
     }
 }

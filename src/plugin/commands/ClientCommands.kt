@@ -2,13 +2,13 @@ package plugin.commands
 
 import arc.Core
 import arc.Events
-import arc.func.Cons
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
 import arc.util.Strings
 import arc.util.Time
 import arc.util.Timekeeper
+import arc.util.Timer
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
@@ -24,8 +24,9 @@ import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.database.*
 import plugin.database.models.*
-import plugin.menus.showShop
-import plugin.menus.slot
+import plugin.gamemodes.hexed.Hex
+import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
+import plugin.menus.*
 import plugin.utils.*
 import plugin.votes.VoteMap
 import plugin.votes.VoteWave
@@ -33,8 +34,6 @@ import plugin.votes.VotekickSession
 import java.util.*
 import java.util.function.Consumer
 import kotlin.math.roundToInt
-import plugin.menus.*
-import arc.util.Timer
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
@@ -557,6 +556,66 @@ fun register(handler: CustomHandler) {
                     // player.sendMessage("[scarlet]No player [orange]'" + args[0] + "'[scarlet] found.");
                     Bundle.sendMessage("votekick.playernotfound", player, args[0])
                 }
+            }
+        })
+    if(PVars.gamemode == Gamemode.hexed)
+        registerHexedCommands(handler)
+}
+
+private fun registerHexedCommands(handler: CustomHandler) {
+    handler.registerCommand(
+        "spectate",
+        "Enter spectator mode. This destroys your base.",
+        CommandRunner { _: Array<String>, player: Player ->
+            if (player.team() === Team.derelict) {
+                player.sendMessage("[scarlet]You're already spectating.")
+            } else {
+                hexedGamemode.killTiles(player.team())
+                player.unit().kill()
+                player.team(Team.derelict)
+            }
+        })
+
+    handler.registerCommand(
+        "captured",
+        "Dispay the number of hexes you have captured.",
+        CommandRunner { _: Array<String>, player: Player ->
+            if (player.team() === Team.derelict) {
+                player.sendMessage("[scarlet]You're spectating.")
+            } else {
+                player.sendMessage("[lightgray]You've captured[accent] " + hexedGamemode.data.getControlled(player).size + "[] hexes.")
+            }
+        })
+
+    handler.registerCommand(
+        "leaderboard",
+        "Display the leaderboard",
+        CommandRunner { _: Array<String>, player: Player ->
+            player.sendMessage(hexedGamemode.getLeaderboard())
+        })
+
+    handler.registerCommand(
+        "hexstatus",
+        "Get hex status at your position.",
+        CommandRunner { _: Array<String>, player: Player ->
+            val hex: Hex? = hexedGamemode.data.data(player).location
+            if (hex != null) {
+                hex.updateController()
+                val builder = java.lang.StringBuilder()
+                builder.append("| [lightgray]Hex #").append(hex.id).append("[]\n")
+                builder.append("| [lightgray]Owner:[] ")
+                    .append(if (hex.controller != null && hexedGamemode.data.getPlayer(hex.controller) != null) hexedGamemode.data.getPlayer(hex.controller).name else "<none>")
+                    .append("\n")
+                for (data in Vars.state.teams.getActive()) {
+                    if (hex.getProgressPercent(data.team) > 0) {
+                        builder.append("|> [accent]").append(hexedGamemode.data.getPlayer(data.team).name)
+                            .append("[lightgray]: ").append(hex.getProgressPercent(data.team).toInt())
+                            .append("% captured\n")
+                    }
+                }
+                player.sendMessage(builder.toString())
+            } else {
+                player.sendMessage("[scarlet]No hex found.")
             }
         })
 }
