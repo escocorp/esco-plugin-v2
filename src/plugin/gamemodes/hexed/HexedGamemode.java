@@ -26,6 +26,9 @@ import static mindustry.Vars.*;
 import static plugin.PPlugin.mainClass;
 
 public class HexedGamemode {
+    @Nullable
+    public static HexedGamemode hexedGamemode = null;
+
     //TODO: move these to a config file or Config
 
     //in seconds
@@ -50,7 +53,7 @@ public class HexedGamemode {
     private final Rules rules = new Rules();
     private Interval interval = new Interval(5);
 
-    private HexData data;
+    public HexData data;
     private boolean restarting = false, registered = false;
 
     private Schematic baseSchematic;
@@ -251,28 +254,6 @@ public class HexedGamemode {
         if(registered) return;
         registered = true;
 
-        handler.<Player>register("spectate", "Enter spectator mode. This destroys your base.", (args, player) -> {
-             if(player.team() == Team.derelict){
-                 player.sendMessage("[scarlet]You're already spectating.");
-             }else{
-                 killTiles(player.team());
-                 player.unit().kill();
-                 player.team(Team.derelict);
-             }
-        });
-
-        handler.<Player>register("captured", "Dispay the number of hexes you have captured.", (args, player) -> {
-            if(player.team() == Team.derelict){
-                player.sendMessage("[scarlet]You're spectating.");
-            }else{
-                player.sendMessage("[lightgray]You've captured[accent] " + data.getControlled(player).size + "[] hexes.");
-            }
-        });
-
-        handler.<Player>register("leaderboard", "Display the leaderboard", (args, player) -> {
-            player.sendMessage(getLeaderboard());
-        });
-
         handler.<Player>register("hexstatus", "Get hex status at your position.", (args, player) -> {
             Hex hex = data.data(player).location;
             if(hex != null){
@@ -322,7 +303,7 @@ public class HexedGamemode {
         });
     }
 
-    String getLeaderboard(){
+    public String getLeaderboard(){
         StringBuilder builder = new StringBuilder();
         builder.append("[accent]Leaderboard\n[scarlet]").append(lastMin).append("[lightgray] mins. remaining\n\n");
         int count = 0;
@@ -335,7 +316,7 @@ public class HexedGamemode {
         return builder.toString();
     }
 
-    void killTiles(Team team){
+    public void killTiles(Team team){
         data.data(team).dying = true;
         Time.runTask(8f, () -> data.data(team).dying = false);
         for(int x = 0; x < world.width(); x++){

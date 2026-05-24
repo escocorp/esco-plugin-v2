@@ -14,6 +14,8 @@ import plugin.database.BanListener
 import plugin.database.models.Server
 import plugin.discord.sendLog
 import plugin.events.PEvents
+import plugin.gamemodes.hexed.HexedGamemode
+import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.menus.Menu
 import plugin.menus.TextMenu
 import plugin.menus.loadMenus
@@ -60,7 +62,8 @@ object Loader {
         when(PVars.gamemode) {
             Gamemode.tdefense -> TDGamemode.load()
             Gamemode.hexed -> {
-                // TODO
+                hexedGamemode = HexedGamemode()
+                hexedGamemode.init()
             }
             else -> {}
         }
