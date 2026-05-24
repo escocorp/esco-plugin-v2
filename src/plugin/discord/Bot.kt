@@ -47,6 +47,9 @@ fun load() {
         register(PVars.discordCommands)
         registerGlobal(PVars.globalCommands)
 
+        Log.info("Registered ${PVars.discordCommands.commandList.size} discord commands")
+        Log.info("Registered ${PVars.globalCommands.commandList.size} global discord commands")
+
         Log.info("Bot loaded")
     } catch (e: Exception) {
         Log.err("Failed to load discord bot!", e)
