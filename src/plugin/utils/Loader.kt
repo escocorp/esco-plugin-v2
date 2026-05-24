@@ -51,8 +51,9 @@ object Loader {
         // AntiFimoz.load();
         Administration.Config.showConnectMessages.set(false)
         Packets.load()
-
-        Vars.maps.setMapProvider(PluginMapProvider())
+        if(PVars.gamemode != Gamemode.hexed) {
+            Vars.maps.setMapProvider(PluginMapProvider())
+        }
     }
 
     fun loadGamemode() {

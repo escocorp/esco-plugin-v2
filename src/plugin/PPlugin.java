@@ -13,8 +13,10 @@ import plugin.utils.Loader;
 import static plugin.PVars.clientCommands;
 
 public class PPlugin extends Plugin {
+    public static PPlugin mainClass;
     @Override
     public void init() {
+        mainClass = this;
         Loader.load();
 
         Threads.daemon(BotKt::load);

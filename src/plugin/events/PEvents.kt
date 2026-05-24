@@ -217,6 +217,7 @@ fun loadEvents() {
     }
 
     onAsync(EventType.GameOverEvent::class.java) { e: EventType.GameOverEvent ->
+        if(PVars.gamemode == Gamemode.hexed) return@onAsync
         val stats = mapStats ?: return@onAsync
 
         val wave = Vars.state.wave
