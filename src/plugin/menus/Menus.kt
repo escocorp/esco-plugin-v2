@@ -10,6 +10,7 @@ import mindustry.Vars
 import mindustry.content.UnitTypes
 import mindustry.gen.Call
 import mindustry.gen.Player
+import mindustry.type.Item
 import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock.CoreBuild
 import plugin.Bundle
@@ -29,6 +30,7 @@ import java.util.function.Consumer
 import kotlin.math.roundToInt
 
 val unitCosts = ObjectIntMap<UnitType>()
+val itemCosts = ObjectIntMap<Item>()
 val slotsSymbols = arrayOf(
     "\uF82F",  // sili
     "\uF82C",  // surge alloy
@@ -49,6 +51,49 @@ fun loadMenus() {
         UnitTypes.mega, 1550,
         UnitTypes.fortress, 1550
     )
+}
+
+fun showShopZ(stats: PlayerStats, p: Player) {
+    val menu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance, rowPerItems = 1)
+
+    menu.add(Bundle.get("units", p.locale)) { pl ->
+        val unitMenu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+
+        unitCosts.forEach(Consumer { en: ObjectIntMap.Entry<UnitType> ->
+            val type = en.key
+            val cost = if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value
+            unitMenu.add(type.emoji() + "\n[green]$[lightgray]" + cost) { pl: Player ->
+                if (cost > stats.balance) {
+                    Bundle.sendMessage("menu.shop.nomoney", pl)
+                    return@add
+                }
+                type.spawn(pl.team(), pl.x, pl.y)
+                stats.subBalance(cost)
+                //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
+                Bundle.label("menu.shop.unitbuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
+            }
+        })
+
+        unitMenu.show(pl)
+    }
+    menu.add(Bundle.get("items", p.locale)) { pl ->
+        val itemMenu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+        itemCosts.forEach(Consumer { en: ObjectIntMap.Entry<Item> ->
+            val type = en.key
+            val cost = if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value
+            itemMenu.add(type.emoji() + "\n[green]$[lightgray]" + cost) { pl: Player ->
+                if (cost > stats.balance) {
+                    Bundle.sendMessage("menu.shop.nomoney", pl)
+                    return@add
+                }
+                pl.team().core().items.add(type, 100)
+                stats.subBalance(cost)
+                Bundle.label("menu.shop.itembuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
+            }
+        })
+        itemMenu.show(pl)
+    }
+    menu.add(Bundle.get("other", p.locale))
 }
 
 fun showShop(stats: PlayerStats, p: Player) {
