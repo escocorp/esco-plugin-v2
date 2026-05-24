@@ -10,6 +10,7 @@ import plugin.Bundle
 import plugin.Config
 import plugin.KVars.globalScope
 import plugin.PVars
+import plugin.PVars.serverCommands
 import plugin.database.BanListener
 import plugin.database.models.Server
 import plugin.discord.sendLog
@@ -64,6 +65,7 @@ object Loader {
             Gamemode.hexed -> {
                 hexedGamemode = HexedGamemode()
                 hexedGamemode.init()
+                hexedGamemode.registerServerCommands(serverCommands)
             }
             else -> {}
         }

@@ -58,8 +58,4 @@ fun register(handler: CommandHandler) {
     handler.register("exit", "") { _: Array<String> ->
         Loader.exit()
     }
-
-    hexedGamemode?.let { hexed ->
-        hexed.registerServerCommands(handler)
-    }
 }
