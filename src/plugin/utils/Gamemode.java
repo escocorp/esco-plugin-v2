@@ -8,7 +8,8 @@ public enum Gamemode {
     pvp(false, "pvp", "pvp!", 0, 1, 300),
     campaign(false, "campaign", "cmp!", 3, 2, 100),
     tdefense(false, "tower defense", "td!", 5, 1, 150),
-    hub(true, "hub", "hb!", 0, 0, 0);
+    hub(true, "hub", "hb!", 0, 0, 0),
+    hexed(false, "hexed", "hex!", 0, 2, 150);
 
     public boolean optimized;
     public String simpleName, botPrefix;
