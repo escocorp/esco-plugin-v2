@@ -56,9 +56,13 @@ object Loader {
     }
 
     fun loadGamemode() {
-        if (PVars.gamemode == Gamemode.tdefense) {
-		    TDGamemode.load()
-	    }
+        when(PVars.gamemode) {
+            Gamemode.tdefense -> TDGamemode.load()
+            Gamemode.hexed -> {
+                // TODO
+            }
+            else -> {}
+        }
     }
 
     fun loadTimers() {
