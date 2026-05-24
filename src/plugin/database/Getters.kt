@@ -691,8 +691,8 @@ fun updateMapStats(
 
 fun getNextMap(excluded: String) : Optional<String> {
     return executeQueryAsync(
-        "SELECT name, loses + wins + skips AS rounds_total FROM maps" +
-                "WHERE name != ? AND server == ?" +
+        "SELECT name, loses + wins + skips AS rounds_total FROM maps " +
+                "WHERE name != ? AND server == ? " +
                 "ORDER BY rounds_total LIMIT 1",
         { stmt ->
             stmt.setString(1, excluded)
