@@ -11,6 +11,7 @@ import plugin.discord.BotKt;
 import plugin.utils.Loader;
 
 import static plugin.PVars.clientCommands;
+import static plugin.PVars.serverCommands;
 
 public class PPlugin extends Plugin {
     public static PPlugin mainClass;
@@ -27,6 +28,7 @@ public class PPlugin extends Plugin {
     @Override
     public void registerServerCommands(CommandHandler handler) {
         ServerCommandsKt.register(handler);
+        serverCommands = handler;
         Log.info("Registered @ server commands", handler.getCommandList().size);
     }
 
