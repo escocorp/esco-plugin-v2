@@ -280,6 +280,8 @@ public class HexedGamemode {
             }
         }
 
+        Time.runTask(50*10f, ()->Groups.player.each(p->p.team(Team.derelict)));
+
         Time.runTask(60f * 10f, () -> {
             counter = 0;
             lastMin = 0;
@@ -318,7 +320,6 @@ public class HexedGamemode {
                 player.team(newTeam);
                 data.data(newTeam).chosen = true;
 
-                // Ищем свободный гекс
                 Hex hex = available.find(h -> h.controller == null && h.spawnTime.get());
                 if(hex != null){
                     available.remove(hex);
