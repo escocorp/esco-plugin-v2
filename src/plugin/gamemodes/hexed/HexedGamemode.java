@@ -5,6 +5,7 @@ import arc.files.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
+import mindustry.net.WorldReloader;
 import plugin.gamemodes.hexed.HexData.*;
 import mindustry.content.*;
 import mindustry.core.GameState.*;
@@ -278,13 +279,27 @@ public class HexedGamemode {
             }
         }
 
-        /*Log.info("&ly--SERVER RESTARTING--");
-        Groups.player.each(p->Call.connect(p.con, hubIp, hubPort));
         Time.runTask(60f * 10f, () -> {
-            //netServer.kickAll(KickReason.serverRestarting);
-            Time.runTask(5f, () -> System.exit(2));
-        });*/
-        generateMap();
+            restarting = false;
+            counter = 0;
+            lastMin = 0;
+
+            data = new HexData();
+
+            WorldReloader reloader = new WorldReloader();
+            reloader.begin();
+
+            HexedGenerator generator = new HexedGenerator();
+            world.loadGenerator(Hex.size, Hex.size, generator);
+            data.initHexes(generator.getHex());
+
+            state.rules = rules.copy();
+            logic.play();
+
+            reloader.end();
+
+            Log.info("Hexed map regenerated, new round started.");
+        });
     }
 
     public String getLeaderboard(){
@@ -340,19 +355,5 @@ public class HexedGamemode {
 
     public boolean active(){
         return state.rules.tags.getBool("hexed") && !state.is(State.menu);
-    }
-
-    public void generateMap() {
-        data = new HexData();
-
-        logic.reset();
-        Log.info("Generating map...");
-        HexedGenerator generator = new HexedGenerator();
-        world.loadGenerator(Hex.size, Hex.size, generator);
-        data.initHexes(generator.getHex());
-        info("Map generated.");
-        state.rules = rules.copy();
-        logic.play();
-        //netServer.openServer();
     }
 }
