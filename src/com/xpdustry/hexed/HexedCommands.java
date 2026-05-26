@@ -50,10 +50,26 @@ final class HexedCommands implements PluginListener {
 
     private final MindustryPlugin plugin;
 
+    /**
+     * Creates a HexedCommands instance bound to the provided plugin.
+     *
+     * @param plugin the MindustryPlugin used to initialize the command manager and register commands
+     */
     public HexedCommands(final MindustryPlugin plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Starts hosting a Hexed match using the specified map generator.
+     *
+     * If a game is already running, the sender receives an error. If no provider
+     * matches the given generator name, the sender receives an error. On success
+     * the sender is notified that the Hexed game started; if starting fails the
+     * sender is notified of the error.
+     *
+     * @param sender the source of the command used to send replies or errors
+     * @param name   the name of the HexedMapGenerator to use (defaults to "anuke")
+     */
     @Command("start [generator]")
     @CommandDescription("Begin hosting with the Hexed game mode.")
     @Permission("com.xpdustry.hexed.start")
@@ -80,12 +96,25 @@ final class HexedCommands implements PluginListener {
         }
     }
 
+    /**
+     * Shows the current Hexed leaderboard to the command sender.
+     *
+     * @param sender the command sender who will receive the leaderboard message
+     */
     @Command("leaderboard")
     @CommandDescription("Display the leaderboard.")
     public void onLeaderboardCommand(final CommandSender sender) {
         sender.reply(HexedUtils.createLeaderboard(HexedAPI.get().getHexedState()));
     }
 
+    /**
+     * Display the captured hexes of a player to the command sender.
+     *
+     * If `player` is null and the sender is a player, the sender's player is used; if `player` is null and the sender is the server, the command errors. Sends an error if the target player is not on a team or has captured no hexes; otherwise replies with the number of captured hexes and their coordinates.
+     *
+     * @param sender the command sender that will receive the reply or error
+     * @param player the player whose captured hexes to list; may be null to target the invoking player (not permitted when invoked from the server)
+     */
     @Command("list [player]")
     @ProxiedBy("hexes")
     @CommandDescription("Display the captured hexes of a player.")
@@ -114,6 +143,14 @@ final class HexedCommands implements PluginListener {
                         .collect(Collectors.joining(", ", "[", "]")));
     }
 
+    /**
+     * Switches the calling player into spectate mode by posting a HexPlayerQuitEvent.
+     *
+     * If the command is run from the server sender, an error is sent. If the player is already spectating
+     * (team equals Team.derelict), an error is sent instead.
+     *
+     * @param sender the command sender; must be a player to enter spectate mode
+     */
     @Command("spectate")
     @CommandDescription("Spectate the game.")
     public void onSpectateCommand(final CommandSender sender) {
@@ -131,6 +168,14 @@ final class HexedCommands implements PluginListener {
         }
     }
 
+    /**
+     * Adds the invoking player to the Hexed game.
+     *
+     * If called by a player who is currently spectating, posts a HexPlayerJoinEvent to join them.
+     * If called from the server or by a player already in the game, sends an error message to the sender.
+     *
+     * @param sender the command sender; must be a player to join (server invocation will produce an error)
+     */
     @Command("join")
     @CommandDescription("Join the game.")
     public void onJoinCommand(final CommandSender sender) {
@@ -145,6 +190,11 @@ final class HexedCommands implements PluginListener {
         }
     }
 
+    /**
+     * Set the Hexed match counter to the specified duration.
+     *
+     * @param duration the duration to apply to the Hexed match counter
+     */
     @Command("set counter <duration>")
     @CommandDescription("Set the time counter.")
     @Permission("com.xpdustry.hexed.set.counter")
@@ -152,16 +202,32 @@ final class HexedCommands implements PluginListener {
         HexedAPI.get().getHexedState().setCounter(duration);
     }
 
+    /**
+     * Registers the plugin's commands with the server-side command handler.
+     *
+     * @param handler the command handler to register commands with
+     */
     @Override
     public void onPluginServerCommandsRegistration(final CommandHandler handler) {
         this.onPluginSharedCommandsRegistration(handler);
     }
 
+    /**
+     * Registers client-side plugin commands using the shared command registration logic.
+     *
+     * @param handler the CommandHandler used to register commands on the client
+     */
     @Override
     public void onPluginClientCommandsRegistration(final CommandHandler handler) {
         this.onPluginSharedCommandsRegistration(handler);
     }
 
+    /**
+     * Registers shared plugin commands for both server and client by creating a MindustryCommandManager
+     * and parsing annotation-based command handlers on this instance.
+     *
+     * @param handler the Cloud command handler used to register commands into the manager
+     */
     private void onPluginSharedCommandsRegistration(final CommandHandler handler) {
         final var manager = new MindustryCommandManager<>(
                 this.plugin, handler, ExecutionCoordinator.simpleCoordinator(), SenderMapper.identity());

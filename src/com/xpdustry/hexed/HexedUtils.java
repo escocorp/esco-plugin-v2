@@ -25,8 +25,21 @@ import mindustry.gen.Player;
 
 final class HexedUtils {
 
-    private HexedUtils() {}
+    /**
+ * Prevents instantiation of this utility class.
+ */
+private HexedUtils() {}
 
+    /**
+     * Builds a human-readable, formatted leaderboard from the provided game state.
+     *
+     * The leaderboard lists up to the top 10 teams sorted by captured-hex count in descending order.
+     * If no entries exist, the returned string contains a message indicating no hexes have been captured.
+     *
+     * @param state the game state containing the leaderboard map (team → captured-hex count)
+     * @return the formatted leaderboard string beginning with "[accent]Leaderboard:"; each entry contains a 1-based rank,
+     * the player's colored name (or "Unknown" if not found), and the team's captured-hex count (e.g., "1.[white] Name [orange]>[white] 5 hexes")
+     */
     public static String createLeaderboard(final HexedState state) {
         final var builder = new StringBuilder();
         builder.append("[accent]Leaderboard:");

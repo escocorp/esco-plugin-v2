@@ -29,6 +29,12 @@ final class AnukeHexedCaptureProgress implements HexedCaptureProgress {
 
     private final int requirement;
 
+    /**
+     * Creates an instance with the given capture requirement used to normalize accumulated capture values.
+     *
+     * @param requirement the divisor applied to accumulated capture values; must be greater than 0
+     * @throws IllegalArgumentException if {@code requirement} is less than or equal to 0
+     */
     AnukeHexedCaptureProgress(final int requirement) {
         if (requirement <= 0) {
             throw new IllegalArgumentException("Requirement must be greater than 0");
@@ -36,6 +42,16 @@ final class AnukeHexedCaptureProgress implements HexedCaptureProgress {
         this.requirement = requirement;
     }
 
+    /**
+     * Computes and stores per-team capture progress for the given hex into the provided map.
+     *
+     * Increments each team's entry in `capture` based on non-player units inside the hex (adds `unit.health()/10`)
+     * and synthetic tiles inside the hex (adds `1` for `CoreBlock` tiles or the sum of each requirement's `amount * item.cost`
+     * for other blocks), then normalizes every team's accumulated value by dividing by this instance's `requirement`.
+     *
+     * @param hex the hexagon region for which to compute capture progress
+     * @param capture a mutable map of team id -> capture value that will be incremented and normalized in-place
+     */
     @Override
     public void calculate(final Hex hex, final IntFloatMap capture) {
         Groups.unit

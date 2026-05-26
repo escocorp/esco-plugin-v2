@@ -21,6 +21,10 @@ package com.xpdustry.hexed.generation;
 
 public interface MapGenerator<C extends MapContext> {
 
-    // TODO Use "void generate(C)" instead
+    /**
+ * Generates a map context instance of type C.
+ *
+ * @return the generated map context of type C
+ */
     C generate();
 }

@@ -24,13 +24,30 @@ import com.xpdustry.hexed.model.Hex;
 
 public interface HexedCaptureProgress {
 
+    /**
+     * Create an Anuke-style capture progress calculator configured with the given requirement.
+     *
+     * @param requirement the capture requirement threshold used when computing progress
+     * @return a HexedCaptureProgress instance configured with the provided requirement
+     */
     static HexedCaptureProgress anuke(final int requirement) {
         return new AnukeHexedCaptureProgress(requirement);
     }
 
+    /**
+     * Creates an Anuke-style capture progress calculator configured with the default requirement of 210.
+     *
+     * @return a HexedCaptureProgress configured with a requirement value of 210
+     */
     static HexedCaptureProgress anuke() {
         return new AnukeHexedCaptureProgress(210);
     }
 
-    void calculate(final Hex hex, final IntFloatMap capture);
+    /**
+ * Compute and write capture progress for the given hex into the provided capture map.
+ *
+ * @param hex     the hex whose capture progress should be calculated
+ * @param capture a mutable IntFloatMap that will be written to or updated with capture progress values (integer keys mapped to float progress values)
+ */
+void calculate(final Hex hex, final IntFloatMap capture);
 }

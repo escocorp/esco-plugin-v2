@@ -37,10 +37,21 @@ public final class MapLoader implements Closeable {
 
     private final boolean paused;
 
+    /**
+     * Create a MapLoader configured to manage map loading and server state transitions.
+     *
+     * @return a new MapLoader instance
+     */
     public static MapLoader create() {
         return new MapLoader();
     }
 
+    /**
+     * Creates a MapLoader, capturing the current paused state and preparing the server for map loading.
+     *
+     * If the game is currently running, all players are kicked with reason {@code serverRestarting}, the game
+     * state is set to the menu, and the network server is closed.
+     */
     private MapLoader() {
         this.paused = Vars.state.isPaused();
         if (Vars.state.isGame()) {
@@ -50,20 +61,48 @@ public final class MapLoader implements Closeable {
         }
     }
 
+    /**
+     * Loads the given map into the current game world.
+     *
+     * @param map the Mindustry map to load into the world
+     */
     public void load(final Map map) {
         Vars.world.loadMap(map);
     }
 
+    /**
+     * Loads a saved map from the given file and clears the current sector reference.
+     *
+     * @param file the save file to load
+     */
     public void load(final File file) {
         SaveIO.load(new Fi(file));
         Vars.state.rules.sector = null;
     }
 
+    /**
+     * Generates a new world using the provided tiles generator and dimensions.
+     *
+     * @param width     the world width in tiles
+     * @param height    the world height in tiles
+     * @param generator a callback that receives the Tiles grid to populate during generation
+     */
     public void load(final int width, final int height, final Consumer<Tiles> generator) {
         Vars.logic.reset();
         Vars.world.loadGenerator(width, height, generator::accept);
     }
 
+    /**
+     * Loads a map produced by the given generator into the game world and applies its rules and metadata.
+     *
+     * This resets game logic, clears existing tile entities, replaces the world's tile grid with the generator's
+     * tiles (including floors, overlays, blocks, and building state/configuration), and finalizes the map load
+     * so the world's rules and map name tag reflect the generated context.
+     *
+     * @param generator the MapGenerator that produces the MapContext to load
+     * @param <C>       the concrete MapContext type produced by the generator
+     * @return          the generated MapContext produced by the generator
+     */
     public <C extends MapContext> C load(final MapGenerator<C> generator) {
         Vars.logic.reset();
         Vars.world.beginMapLoad();
@@ -96,6 +135,13 @@ public final class MapLoader implements Closeable {
         return context;
     }
 
+    /**
+     * Restores the game's paused/playing state captured at construction and attempts to host the server on the configured port.
+     *
+     * If hosting the server fails, sets the game state to the main menu and rethrows the encountered IOException.
+     *
+     * @throws IOException if starting the server host fails
+     */
     @Override
     public void close() throws IOException {
         Vars.state.set(this.paused ? State.paused : State.playing);

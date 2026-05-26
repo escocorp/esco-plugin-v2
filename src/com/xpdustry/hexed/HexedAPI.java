@@ -25,13 +25,34 @@ import mindustry.Vars;
 
 public interface HexedAPI {
 
+    /**
+     * Retrieve the active HexedAPI implementation for the loaded HexedReloaded mod.
+     *
+     * @return the HexedAPI instance provided by the HexedReloaded mod
+     */
     static HexedAPI get() {
         return (HexedAPI) Vars.mods.getMod(HexedPluginReloaded.class).main;
     }
 
-    HexedState getHexedState();
+    /**
+ * Gets the current Hexed mod state.
+ *
+ * @return the current {@link HexedState} instance representing the mod's runtime state
+ */
+HexedState getHexedState();
 
-    boolean isEnabled();
+    /**
+ * Indicates whether the Hexed gameplay mode is currently enabled.
+ *
+ * @return `true` if the Hexed gameplay logic is enabled, `false` otherwise.
+ */
+boolean isEnabled();
 
-    boolean start(final MapGenerator<HexedMapContext> generator);
+    /**
+ * Starts the Hexed mode using the provided map generator.
+ *
+ * @param generator the map generator configured for HexedMapContext used to create the game map
+ * @return `true` if Hexed was started successfully, `false` otherwise
+ */
+boolean start(final MapGenerator<HexedMapContext> generator);
 }

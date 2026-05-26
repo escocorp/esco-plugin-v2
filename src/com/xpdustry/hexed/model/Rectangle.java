@@ -21,26 +21,53 @@ package com.xpdustry.hexed.model;
 
 record Rectangle(int identifier, int x, int y, int w, int h) implements Hex {
 
+    /**
+     * Retrieve the rectangle's identifier.
+     *
+     * @return the identifier associated with this rectangle
+     */
     @Override
     public int getIdentifier() {
         return this.identifier;
     }
 
+    /**
+     * Retrieves the rectangle's tile X coordinate.
+     *
+     * @return the X coordinate in tile space
+     */
     @Override
     public int getTileX() {
         return this.x;
     }
 
+    /**
+     * Gets the tile Y coordinate.
+     *
+     * @return the tile Y coordinate
+     */
     @Override
     public int getTileY() {
         return this.y;
     }
 
+    /**
+     * Calculates the tile diameter as the integer average of the rectangle's width and height.
+     *
+     * @return the tile diameter computed as (w + h) / 2 using integer division
+     */
     @Override
     public int getTileDiameter() {
         return (this.w + this.h) / 2;
     }
 
+    /**
+     * Checks whether the given point lies within this rectangle's axis-aligned bounds.
+     *
+     * @param x the x-coordinate of the point to test
+     * @param y the y-coordinate of the point to test
+     * @return true if the point is inside the rectangle's bounds (left/top inclusive, right/bottom exclusive), false otherwise
+     */
     @Override
     public boolean contains(final int x, final int y) {
         final var hw = (this.w / 2);

@@ -65,41 +65,82 @@ public class SimpleHexedMapContext extends SimpleMapContext implements HexedMapC
         this.setRules(rules);
     }
 
+    /**
+     * Gets the list of hexes configured for this map context.
+     *
+     * @return the stored list of {@code Hex} objects used by the context
+     */
     @Override
     public List<Hex> getHexes() {
         return this.hexes;
     }
 
+    /**
+     * Replaces the stored hex list with an immutable copy of the provided list.
+     *
+     * @param hexes the list of hexes to store; a defensive, unmodifiable copy will be kept
+     * @throws NullPointerException if {@code hexes} is null or contains a null element
+     */
     @Override
     public void setHexes(final List<Hex> hexes) {
         this.hexes = List.copyOf(hexes);
     }
 
+    /**
+     * Gets the configured game duration for this map context.
+     *
+     * @return the configured game duration used for matches in this context
+     */
     @Override
     public Duration getDuration() {
         return this.duration;
     }
 
+    /**
+     * Sets the game duration used for matches on this map context.
+     *
+     * @param duration the duration of a match (must not be null)
+     */
     @Override
     public void setDuration(final Duration duration) {
         this.duration = duration;
     }
 
+    /**
+     * Retrieves the base schematic used by this map context.
+     *
+     * @return the current base ImmutableSchematic for the map
+     */
     @Override
     public ImmutableSchematic getBaseSchematic() {
         return this.schematic;
     }
 
+    /**
+     * Sets the base schematic used as the map's starting structure.
+     *
+     * @param schematic the schematic to use as the map's base
+     */
     @Override
     public void setBaseSchematic(final ImmutableSchematic schematic) {
         this.schematic = schematic;
     }
 
+    /**
+     * Gets the capture progress calculator used to compute hex capture progress.
+     *
+     * @return the current HexedCaptureProgress instance used by this context
+     */
     @Override
     public HexedCaptureProgress getCaptureCalculator() {
         return this.calculator;
     }
 
+    /**
+     * Configures the capture-progress calculator used by this context to compute hex capture progress.
+     *
+     * @param calculator the HexedCaptureProgress implementation to use
+     */
     @Override
     public void setCaptureCalculator(final HexedCaptureProgress calculator) {
         this.calculator = calculator;

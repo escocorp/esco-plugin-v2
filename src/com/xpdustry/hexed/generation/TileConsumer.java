@@ -24,6 +24,15 @@ import java.util.List;
 @FunctionalInterface
 public interface TileConsumer {
 
+    /**
+     * Create a composite TileConsumer that forwards each accept call to every consumer in the given list.
+     *
+     * The returned consumer invokes the provided consumers in list order for each (x, y, tile) call.
+     * Any exception thrown by an aggregated consumer propagates to the caller.
+     *
+     * @param consumers list of consumers to invoke for each tile; may be empty but must not be null
+     * @return a TileConsumer that sequentially delegates accept(x, y, tile) to each consumer in {@code consumers}
+     */
     static TileConsumer aggregate(final List<? extends TileConsumer> consumers) {
         return (x, y, tile) -> {
             for (final var consumer : consumers) {
@@ -32,5 +41,12 @@ public interface TileConsumer {
         };
     }
 
-    void accept(int x, int y, MapTile tile);
+    /**
+ * Consume the given MapTile at the specified tile coordinates.
+ *
+ * @param x horizontal tile coordinate
+ * @param y vertical tile coordinate
+ * @param tile the MapTile to be consumed or processed
+ */
+void accept(int x, int y, MapTile tile);
 }

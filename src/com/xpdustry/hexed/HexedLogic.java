@@ -54,20 +54,42 @@ final class HexedLogic implements PluginListener {
     private final Interval interval = new Interval(2);
     private final HexedPluginReloaded hexed;
 
+    /**
+     * Creates a HexedLogic instance bound to the provided Hexed plugin state.
+     *
+     * @param hexed the HexedPluginReloaded instance that provides configuration and shared state for the Hexed mode
+     */
     public HexedLogic(final HexedPluginReloaded hexed) {
         this.hexed = hexed;
     }
 
+    /**
+     * Installs the Hexed-specific team assigner into the server networking layer, preserving the previous assigner.
+     */
     @Override
     public void onPluginInit() {
         Vars.netServer.assigner = new HexedTeamAssigner(this.hexed, Vars.netServer.assigner);
     }
 
+    /**
+     * Notifies the plugin event bus of a player join by posting a HexPlayerJoinEvent.
+     *
+     * @param event the original Mindustry player join event
+     */
     @EventHandler
     public void onPlayerJoin(final EventType.PlayerJoin event) {
         Distributor.get().getEventBus().post(new HexPlayerJoinEvent(event.player, true));
     }
 
+    /**
+     * Assigns a joining player to an available hex base or places them into spectator mode if no empty hex is available.
+     *
+     * If the join is virtual the player is first assigned a team; when an available hex is found this method places the base
+     * schematic for the player and updates hex progress. If no available hex exists the player is notified, their unit is
+     * killed (if present), and their team is set to derelict (spectator).
+     *
+     * @param event the join event containing the player and virtual-join flag
+     */
     @EventHandler
     public void onPlayerJoin(final HexPlayerJoinEvent event) {
         if (!this.hexed.isEnabled()) {
@@ -100,11 +122,25 @@ final class HexedLogic implements PluginListener {
         }
     }
 
+    /**
+     * Posts a HexPlayerQuitEvent to the distributor event bus when a player leaves.
+     *
+     * The posted event carries the leaving player, their current team, and a `false` flag
+     * indicating this was not treated as a forced quit.
+     *
+     * @param event the player-leave event containing the leaving player
+     */
     @EventHandler
     public void onPlayerLeave(final EventType.PlayerLeave event) {
         Distributor.get().getEventBus().post(new HexPlayerQuitEvent(event.player, event.player.team(), false));
     }
 
+    /**
+     * Handles a player quit event by marking the player's team as dying, killing the player's unit if present,
+     * setting the player's team to derelict, and clearing the player's unit — only when the plugin is enabled.
+     *
+     * @param event the quit event containing the player and quit context
+     */
     @EventHandler
     public void onPlayerQuit(final HexPlayerQuitEvent event) {
         if (this.hexed.isEnabled()) {
@@ -117,6 +153,14 @@ final class HexedLogic implements PluginListener {
         }
     }
 
+    /**
+     * Handles destruction of a core block by resetting the corresponding hex's spawn timer and updating its capture progress.
+     *
+     * If the plugin is enabled and the destroyed block is a CoreBlock within a known hex, this resets that hex's spawn timer
+     * (making the hex temporarily vacant) and triggers a progress update for the hex.
+     *
+     * @param event the block-destroy event containing the destroyed tile and block
+     */
     @EventHandler
     public void onBlockDestroy(final EventType.BlockDestroyEvent event) {
         // reset last spawn times so this hex becomes vacant for a while.
@@ -129,6 +173,11 @@ final class HexedLogic implements PluginListener {
         }
     }
 
+    /**
+     * Advances Hexed mode timers and performs periodic game checks such as controller capture/loss detection, player/team elimination, derelict unit clearance, and match termination.
+     *
+     * Posts HexCaptureEvent, HexLostEvent, and HexPlayerQuitEvent when relevant and may invoke endGame() to finish the match.
+     */
     @Override
     public void onPluginUpdate() {
         if (!this.hexed.isEnabled()) {
@@ -184,6 +233,14 @@ final class HexedLogic implements PluginListener {
         }
     }
 
+    /**
+     * Marks the given team as dying, converts its cores to derelict, and clears the dying state after 8 seconds.
+     *
+     * <p>Side effects: sets the team's dying flag to `true`, calls `destroyToDerelict()` on the team's data,
+     * and schedules the dying flag to be set to `false` after an 8-second delay.
+     *
+     * @param team the team to mark as dying and convert to derelict
+     */
     @SuppressWarnings("FutureReturnValueIgnored")
     private void killTeam(final Team team) {
         this.hexed.getHexedState0().setDying(team, true);
@@ -195,6 +252,13 @@ final class HexedLogic implements PluginListener {
                 .execute(() -> this.hexed.getHexedState0().setDying(team, false));
     }
 
+    /**
+     * Finalizes the match by determining winners and publishing game-over events when the plugin is enabled and the game is not already over.
+     *
+     * Determines the team(s) with the highest number of controlled hexes (ties preserved), then posts a Mindustry `GameOverEvent`
+     * (using the single winning team when there is exactly one winner, otherwise `Team.derelict`) and a `HexedGameOverEvent`
+     * containing the full list of winners.
+     */
     private void endGame() {
         if (!this.hexed.isEnabled() || Vars.state.gameOver) {
             return;
@@ -209,6 +273,15 @@ final class HexedLogic implements PluginListener {
         bus.post(new HexedGameOverEvent(winners));
     }
 
+    /**
+     * Places the mode's base schematic with its core anchored at the given world tile coordinates and assigns ownership to the player's team.
+     *
+     * The schematic's tiles are written into the world; existing blocks at target tiles are removed from the network before placement. If any schematic tile includes configuration it is applied to the placed build. When a placed tile is a core, the server loadout items are placed into that core's build.
+     *
+     * @param player the player whose team will own the placed schematic
+     * @param x the world tile x-coordinate to anchor the schematic's core
+     * @param y the world tile y-coordinate to anchor the schematic's core
+     */
     @SuppressWarnings("EnumOrdinal")
     private void placeBaseSchematic(final Player player, final int x, final int y) {
         final var core = this.hexed.getHexedState().getBaseSchematic().getTiles().stream()
@@ -241,7 +314,13 @@ final class HexedLogic implements PluginListener {
         }
     }
 
-    // https://stackoverflow.com/a/29339106
+    /**
+     * Creates a collector that accumulates all elements that are maximal according to the provided comparator.
+     *
+     * @param comp comparator used to compare elements
+     * @param <T> the element type
+     * @return a List containing one or more elements that compare equal to the maximum element per {@code comp}; returns an empty list for empty input
+     */
     static <T> Collector<T, ?, List<T>> maxList(final Comparator<? super T> comp) {
         return Collector.of(
                 ArrayList::new,

@@ -34,22 +34,70 @@ public interface HexedMapContext extends MapContext {
 
     Duration DEFAULT_GAME_DURATION = Duration.ofMinutes(90L);
 
-    List<Hex> getHexes();
+    /**
+ * Retrieves the list of hexes that define the generated map.
+ *
+ * @return the list of {@link Hex} objects representing the map's hexes
+ */
+List<Hex> getHexes();
 
-    void setHexes(final List<Hex> hexes);
+    /**
+ * Set the collection of hex tiles that define the map layout.
+ *
+ * @param hexes the list of hex tiles defining the map layout
+ */
+void setHexes(final List<Hex> hexes);
 
-    Duration getDuration();
+    /**
+ * Gets the configured game duration for the generated map.
+ *
+ * @return the configured game duration for the map
+ */
+Duration getDuration();
 
-    void setDuration(final Duration duration);
+    /**
+ * Set the total game duration for the map.
+ *
+ * @param duration the desired game duration for the generated map
+ */
+void setDuration(final Duration duration);
 
-    ImmutableSchematic getBaseSchematic();
+    /**
+ * Retrieves the immutable base schematic used as the starting layout for generated maps.
+ *
+ * @return the base {@code ImmutableSchematic} used for map generation
+ */
+ImmutableSchematic getBaseSchematic();
 
-    void setBaseSchematic(final ImmutableSchematic schematic);
+    /**
+ * Sets the schematic used as the map's base foundation.
+ *
+ * @param schematic the base schematic to apply to the map
+ */
+void setBaseSchematic(final ImmutableSchematic schematic);
 
-    HexedCaptureProgress getCaptureCalculator();
+    /**
+ * Retrieves the capture progress calculator used for hex capture mechanics.
+ *
+ * @return the current {@link HexedCaptureProgress} instance responsible for computing capture progress
+ */
+HexedCaptureProgress getCaptureCalculator();
 
-    void setCaptureCalculator(final HexedCaptureProgress calculator);
+    /**
+ * Sets the capture progress calculator used to compute hex capture state and progress.
+ *
+ * @param calculator the HexedCaptureProgress instance to use for capture calculations
+ */
+void setCaptureCalculator(final HexedCaptureProgress calculator);
 
+    /**
+     * Loads the bundled default base schematic for hexed maps.
+     *
+     * The schematic is read from the packaged resource "/com/xpdustry/hexed/default.msch".
+     *
+     * @return the default {@code ImmutableSchematic} used as the base map
+     * @throws RuntimeException if the resource cannot be found, read, or parsed
+     */
     private static ImmutableSchematic loadDefaultBaseSchematic() {
         try (final var stream = SimpleHexedMapContext.class.getResourceAsStream("/com/xpdustry/hexed/default.msch")) {
             return new ImmutableSchematic(Schematics.read(Objects.requireNonNull(stream)));

@@ -53,10 +53,20 @@ final class HexedRenderer implements PluginListener {
     private final Interval timers = new Interval(2);
     private final HexedPluginReloaded hexed;
 
+    /**
+     * Creates a HexedRenderer associated with the given HexedPluginReloaded instance.
+     *
+     * @param hexed the plugin instance used to check feature enablement and access Hexed game state
+     */
     public HexedRenderer(final HexedPluginReloaded hexed) {
         this.hexed = hexed;
     }
 
+    /**
+     * Displays a warning toast announcing a hex capture and the player who captured it.
+     *
+     * @param event the capture event containing the captured hex and the capturing player
+     */
     @EventHandler
     public void onHexCapture(final HexCaptureEvent event) {
         Call.warningToast(
@@ -65,6 +75,11 @@ final class HexedRenderer implements PluginListener {
                         + event.player().name());
     }
 
+    /**
+     * Announces to the losing player that they lost a hex, including the hex identifier and its tile coordinates.
+     *
+     * @param event the event containing the losing player connection and the affected hex information
+     */
     @EventHandler
     public void onHexLost(final HexLostEvent event) {
         Call.announce(
@@ -73,6 +88,11 @@ final class HexedRenderer implements PluginListener {
                         + event.hex().getTileX() + ", " + event.hex().getTileY() + ")");
     }
 
+    /**
+     * Announces in chat that a virtual player "died of cringe" when they quit.
+     *
+     * @param event the player quit event; if {@link HexPlayerQuitEvent#virtual()} is true, the player's name is sent with the message
+     */
     @EventHandler
     public void onPlayerQuit(final HexPlayerQuitEvent event) {
         if (event.virtual()) {
@@ -80,6 +100,11 @@ final class HexedRenderer implements PluginListener {
         }
     }
 
+    /**
+     * Creates and adds a WorldLabel for every hex when the game state transitions to playing and the plugin is enabled.
+     *
+     * @param event the state-change event used to detect transition into GameState.State.playing
+     */
     @EventHandler
     public void onPlayEvent(final EventType.StateChangeEvent event) {
         if (this.hexed.isEnabled() && event.to == GameState.State.playing) {
@@ -95,6 +120,16 @@ final class HexedRenderer implements PluginListener {
         }
     }
 
+    /**
+     * Announces the outcome when a Hexed game ends.
+     *
+     * <p>If no team won, sends a message stating nobody won. If exactly one winning team is present,
+     * finds a player on that team and announces the player's colored name along with the number of
+     * hexes controlled by that team. If multiple winning teams are present, announces that the game
+     * ended in a draw.
+     *
+     * @param event the game-over event containing the list of winning teams
+     */
     @EventHandler
     public void onGameOverEvent(final HexedGameOverEvent event) {
         if (event.winners().isEmpty()) {
@@ -114,6 +149,9 @@ final class HexedRenderer implements PluginListener {
         }
     }
 
+    /**
+     * Sends the current Hexed leaderboard message to all players when the plugin is enabled and a game is active.
+     */
     @TaskHandler(interval = 5L, unit = MindustryTimeUnit.MINUTES)
     public void onLeaderboardDisplay() {
         if (this.hexed.isEnabled() && Vars.state.isGame()) {
@@ -121,6 +159,12 @@ final class HexedRenderer implements PluginListener {
         }
     }
 
+    /**
+     * Periodically updates player HUDs and the game duration display while the plugin is enabled.
+     *
+     * <p>When enabled, triggers internal timed checks that refresh per-player HUD information and
+     * the remaining-game duration at their configured intervals.</p>
+     */
     @Override
     public void onPluginUpdate() {
         if (!this.hexed.isEnabled()) {
@@ -136,6 +180,15 @@ final class HexedRenderer implements PluginListener {
         }
     }
 
+    /**
+     * Updates per-player HUD text to reflect the nearest containing hex and its state.
+     *
+     * For each connected player this method finds the nearest hex that contains the player's tile.
+     * If no such hex exists or the player is on the derelict team, the HUD text is hidden.
+     * Otherwise the HUD is set to show the hex identifier, whether it is controlled (with the
+     * controller's name and team color) or marked as empty, and — when the hex is contested —
+     * the player's team's capture progress formatted to one decimal place.
+     */
     private void updateHud() {
         final List<Hex> hexes = new ArrayList<>(this.hexed.getHexedState().getHexes());
         for (final var player : Groups.player) {
@@ -181,6 +234,12 @@ final class HexedRenderer implements PluginListener {
         }
     }
 
+    /**
+     * Displays the remaining match time as a one-second, bottom-aligned info popup.
+     *
+     * Computes remaining milliseconds as (total duration − counter), clamps to zero,
+     * formats the result for human-readable time, and shows it in an info popup.
+     */
     private void updateDuration() {
         final var remaining = Math.max(
                 this.hexed

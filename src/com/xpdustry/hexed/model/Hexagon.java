@@ -23,26 +23,53 @@ import arc.math.geom.Intersector;
 
 record Hexagon(int identifier, int x, int y, int diameter) implements Hex {
 
+    /**
+     * Obtain the hexagon's unique identifier.
+     *
+     * @return the identifier value assigned to this hexagon
+     */
     @Override
     public int getIdentifier() {
         return this.identifier;
     }
 
+    /**
+     * Gets the tile x coordinate of this hexagon.
+     *
+     * @return the tile x coordinate
+     */
     @Override
     public int getTileX() {
         return this.x;
     }
 
+    /**
+     * Tile Y coordinate of this hexagon.
+     *
+     * @return the tile Y coordinate
+     */
     @Override
     public int getTileY() {
         return this.y;
     }
 
+    /**
+     * Gets the hexagon's tile diameter.
+     *
+     * @return the diameter that defines this hexagon's size
+     */
     @Override
     public int getTileDiameter() {
         return this.diameter;
     }
 
+    /**
+     * Determines whether a point lies inside this hexagon.
+     *
+     * @param x the x coordinate of the point to test
+     * @param y the y coordinate of the point to test
+     * @return `true` if the point (x, y) is inside this hexagon, `false` otherwise
+     */
     @Override
     public boolean contains(final int x, final int y) {
         return Intersector.isInsideHexagon(this.x, this.y, this.diameter, x, y);

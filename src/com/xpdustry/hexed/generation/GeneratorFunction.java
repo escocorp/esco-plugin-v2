@@ -26,14 +26,30 @@ public abstract class GeneratorFunction implements TileConsumer {
     private static final Random RANDOM = new Random();
     private int seed = 0;
 
+    /**
+     * Get the current seed value used by this generator.
+     *
+     * @return the current per-instance seed (defaults to 0 if not set)
+     */
     public int getSeed() {
         return this.seed;
     }
 
+    /**
+     * Sets the generator's seed used to initialize pseudo-random generation.
+     *
+     * @param seed the seed value to use for this generator
+     */
     public void setSeed(final int seed) {
         this.seed = seed;
     }
 
+    /**
+     * Assigns a new pseudo-random seed to this generator.
+     *
+     * Sets the instance {@code seed} to a pseudo-random integer greater than or equal to
+     * 0 and less than 1,000,000,000.
+     */
     public void randomize() {
         this.seed = RANDOM.nextInt(1_000_000_000);
     }

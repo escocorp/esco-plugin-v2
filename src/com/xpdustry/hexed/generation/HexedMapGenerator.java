@@ -21,5 +21,10 @@ package com.xpdustry.hexed.generation;
 
 public interface HexedMapGenerator extends MapGenerator<HexedMapContext> {
 
-    String getName();
+    /**
+ * Provides the generator's human-readable name.
+ *
+ * @return the human-readable name of this map generator
+ */
+String getName();
 }

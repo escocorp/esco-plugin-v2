@@ -71,11 +71,27 @@ public class AnukeHexedGenerator implements HexedMapGenerator {
         {Blocks.iceWall, Blocks.snowWall, Blocks.snowWall, Blocks.snowWall, Blocks.stoneWall, Blocks.saltWall}
     };
 
+    /**
+     * Identifier for this map generator.
+     *
+     * @return the generator name "anuke"
+     */
     @Override
     public String getName() {
         return "anuke";
     }
 
+    /**
+     * Generates a complete hex-based map and returns its populated context.
+     *
+     * Populates a new SimpleHexedMapContext sized to the generator's WIDTH and HEIGHT:
+     * assigns floors and base blocks from noise-driven temperature/elevation lookup tables,
+     * applies randomized ore generators, creates a grid of hexes and carves their interiors
+     * and connecting gaps to air, scatters boulders/clusters based on underlying floor types,
+     * updates generation rules, and sets the map name to "Hexed".
+     *
+     * @return the populated HexedMapContext representing the generated map
+     */
     @Override
     public HexedMapContext generate() {
         final var context = new SimpleHexedMapContext();

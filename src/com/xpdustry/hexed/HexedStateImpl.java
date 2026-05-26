@@ -49,6 +49,17 @@ final class HexedStateImpl implements HexedState {
     private final ImmutableSchematic base;
     private final HexedCaptureProgress calculator;
 
+    /**
+     * Creates a new HexedStateImpl storing the provided base schematic, capture progress
+     * calculator, participating hexes, and match duration.
+     *
+     * Initializes internal state and indexes each hex by its packed tile coordinates.
+     *
+     * @param base       the base schematic associated with this state
+     * @param calculator the capture-progress calculator used to compute per-hex progress
+     * @param hexes      the list of hexes participating in the match (will be copied)
+     * @param duration   the total duration for the match or mode
+     */
     HexedStateImpl(
             final ImmutableSchematic base,
             final HexedCaptureProgress calculator,
@@ -63,11 +74,22 @@ final class HexedStateImpl implements HexedState {
         }
     }
 
+    /**
+     * Provides the list of hex tiles managed by this state.
+     *
+     * @return an immutable list of Hex objects included in this state
+     */
     @Override
     public List<Hex> getHexes() {
         return this.hexes;
     }
 
+    /**
+     * Return the list of hexes currently controlled by the given team.
+     *
+     * @param team the team whose controlled hexes to retrieve
+     * @return a list of hexes controlled by {@code team}
+     */
     @Override
     public List<Hex> getControlled(final Team team) {
         return this.hexes.stream()
@@ -75,16 +97,36 @@ final class HexedStateImpl implements HexedState {
                 .toList();
     }
 
+    /**
+     * Retrieves the current controller for the specified hex.
+     *
+     * @return the controlling {@link Team} for the hex, or {@code null} if the hex is uncontrolled
+     */
     @Override
     public @Nullable Team getController(final Hex hex) {
         return this.controllers.get(hex);
     }
 
+    /**
+     * Retrieve the Hex at the given tile coordinates.
+     *
+     * @param x the tile X coordinate
+     * @param y the tile Y coordinate
+     * @return the Hex mapped to the specified tile coordinates, or `null` if none exists
+     */
     @Override
     public @Nullable Hex getHex(final int x, final int y) {
         return this.positions.get(Point2.pack(x, y));
     }
 
+    /**
+     * Determines whether a hex tile is available for spawning or capture.
+     *
+     * A hex is available when it has no current controller and its per-hex spawn timer has expired.
+     *
+     * @param hex the hex tile to check
+     * @return `true` if the hex is available, `false` otherwise
+     */
     @Override
     public boolean isAvailable(final Hex hex) {
         return (this.getController(hex) == null)
@@ -93,17 +135,34 @@ final class HexedStateImpl implements HexedState {
                         .get();
     }
 
+    /**
+     * Resets the per-hex spawn timer so the given hex becomes unavailable until its spawn delay elapses.
+     *
+     * @param hex the hex whose spawn timer will be reset
+     */
     public void resetSpawnTimer(final Hex hex) {
         this.spawnTimers
                 .get(Point2.pack(hex.getTileX(), hex.getTileY()), () -> new Timekeeper(6 * 60))
                 .reset();
     }
 
+    /**
+     * Checks whether the given team is marked as dying.
+     *
+     * @param team the team to check
+     * @return `true` if the team is marked as dying, `false` otherwise
+     */
     @Override
     public boolean isDying(final Team team) {
         return this.dying.contains(team);
     }
 
+    /**
+     * Marks or unmarks a team as dying in this state.
+     *
+     * @param team  the team to update
+     * @param dying true to mark the team as dying, false to clear the dying state
+     */
     public void setDying(final Team team, final boolean dying) {
         if (dying) {
             this.dying.add(team);
@@ -112,31 +171,63 @@ final class HexedStateImpl implements HexedState {
         }
     }
 
+    /**
+     * Returns the total configured duration for the match.
+     *
+     * @return the configured total Duration for the match
+     */
     @Override
     public Duration getDuration() {
         return this.duration;
     }
 
+    /**
+     * Set the internal countdown counter from the given duration.
+     *
+     * @param counter the duration to store; the value is converted and kept as seconds in the internal counter
+     */
     @Override
     public void setCounter(final Duration counter) {
         this.counter = counter.toMillis() * Time.toSeconds;
     }
 
+    /**
+     * Get the current internal counter as a Duration.
+     *
+     * @return the internal counter value represented as a Duration
+     */
     @Override
     public Duration getCounter() {
         return Duration.ofMillis((long) ((this.counter / Time.toSeconds) * 1000L));
     }
 
+    /**
+     * Adds the specified amount of time to the internal counter.
+     *
+     * @param delta amount of time, in seconds, to add to the counter
+     */
     @Override
     public void incrementCounter(final float delta) {
         this.counter += delta;
     }
 
+    /**
+     * Retrieve the base schematic associated with this state.
+     *
+     * @return the immutable base schematic used by this HexedState
+     */
     @Override
     public ImmutableSchematic getBaseSchematic() {
         return this.base;
     }
 
+    /**
+     * Computes the capture progress for a team on a specific hex, scaled to the current controller when the controller is a different team.
+     *
+     * @param hex  the hex tile to query
+     * @param team the team whose progress to return
+     * @return the team's progress value for the hex; if another team currently controls the hex, returns (teamProgress / controllerProgress) * 100F, otherwise returns the raw progress value
+     */
     @Override
     public float getProgress(final Hex hex, final Team team) {
         final var progress = this.getProgress0(hex, team);
@@ -147,6 +238,13 @@ final class HexedStateImpl implements HexedState {
         return progress;
     }
 
+    /**
+     * Get the stored raw capture progress for the given team at the specified hex as a percentage.
+     *
+     * @param hex  the hex tile to query
+     * @param team the team whose progress to read
+     * @return the team's progress value for the hex multiplied by 100 (percentage)
+     */
     private float getProgress0(final Hex hex, final Team team) {
         return this.progress
                         .get(Point2.pack(hex.getTileX(), hex.getTileY()), () -> new IntFloatMap(4))
@@ -154,6 +252,14 @@ final class HexedStateImpl implements HexedState {
                 * 100F;
     }
 
+    /**
+     * Recalculates capture progress for the given hex and updates its controller.
+     *
+     * Recomputes per-team progress for the specified hex, stores the updated progress,
+     * and sets the hex's controller to the active team with the highest progress when
+     * that team's progress is greater than or equal to 1.0; otherwise the controller
+     * is cleared.
+     */
     public void updateProgress(final Hex hex) {
         final var progress = this.progress.get(Point2.pack(hex.getTileX(), hex.getTileY()), () -> new IntFloatMap(4));
         progress.clear();

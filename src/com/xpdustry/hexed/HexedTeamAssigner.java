@@ -41,11 +41,30 @@ final class HexedTeamAssigner implements TeamAssigner {
         Collections.shuffle(this.teams);
     }
 
+    /**
+     * Creates a HexedTeamAssigner that uses the provided HexedPluginReloaded to control
+     * team assignment and falls back to the given parent TeamAssigner when Hexed mode is disabled.
+     *
+     * @param hexed  the Hexed plugin instance used to determine Hexed mode and state
+     * @param parent the fallback TeamAssigner used when Hexed mode is not enabled
+     */
     public HexedTeamAssigner(final HexedPluginReloaded hexed, final TeamAssigner parent) {
         this.hexed = hexed;
         this.parent = parent;
     }
 
+    /**
+     * Selects a team for the given player according to Hexed mode rules.
+     *
+     * When Hexed mode is enabled, chooses an available non-base team that is inactive,
+     * not already held by any of the provided players, and not marked as dying; if no
+     * such team exists, informs the player and assigns spectator (derelict). When Hexed
+     * mode is disabled, delegates assignment to the wrapped parent assigner.
+     *
+     * @param player  the player to assign
+     * @param players the iterable of current players used to determine already-used teams
+     * @return the team assigned to the player; `Team.derelict` if no eligible hex team is available
+     */
     @Override
     public Team assign(final Player player, final Iterable<Player> players) {
         final var used = Seq.with(players).map(Player::team).asSet();
