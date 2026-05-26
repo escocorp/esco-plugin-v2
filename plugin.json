@@ -3,5 +3,5 @@
   "author": "grely",
   "main": "plugin.PPlugin",
   "description": "Simple server plugin",
-  "version": 2.0
+  "version": 2.1
 }
