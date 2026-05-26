@@ -280,7 +280,7 @@ public class HexedGamemode {
             }
         }
 
-        Time.runTask(50*10f, ()->Groups.player.each(p->p.team(Team.derelict)));
+        //Time.runTask(50*10f, ()->Groups.player.each(p->p.team(Team.derelict)));
 
         Time.runTask(60f * 10f, () -> {
             counter = 0;
@@ -299,6 +299,26 @@ public class HexedGamemode {
 
             reloader.end();
 
+            Groups.player.each(p->{
+                if(!active() /*|| player.team() == Team.derelict*/) return;
+
+                Seq<Hex> copy = data.hexes().copy();
+                copy.shuffle();
+                Hex hex = copy.find(h -> h.controller == null && h.spawnTime.get());
+
+                if(hex != null){
+                    loadout(player, hex.x, hex.y);
+                    Core.app.post(() -> data.data(player).chosen = false);
+                    hex.findController();
+                }else{
+                    Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
+                    player.unit().kill();
+                    player.team(Team.derelict);
+                }
+
+                data.data(player).lastMessage.reset();
+            });
+/*
             Seq<Hex> available = data.hexes().copy();
             available.shuffle();
 
@@ -330,7 +350,7 @@ public class HexedGamemode {
                     player.team(Team.derelict);
                     Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
                 }
-            }
+            }*/
 
             restarting = false;
             Log.info("Hexed map regenerated, new round started.");
