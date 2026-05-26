@@ -62,8 +62,8 @@ dependencies{
 
     compileOnly files('nohorny-client.jar')
 
-    implementation "com.xpdustry:distributor-common:4.0.0"
-    compileOnly("com.xpdustry:hexed-reloaded:1.0.0")
+    //implementation "com.xpdustry:distributor-common:4.0.0"
+    //compileOnly("com.xpdustry:hexed-reloaded:1.0.0")
 }
 
 def versionGitDir = layout.buildDirectory.dir('version-git')
