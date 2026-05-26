@@ -228,22 +228,7 @@ public class HexedGamemode {
 
     public void registerServerCommands(CommandHandler handler){
         handler.register("hexed", "Begin hosting with the Hexed gamemode.", args -> {
-            if(!state.is(State.menu)){
-                Log.err("Stop the server first.");
-                return;
-            }
-
-            data = new HexData();
-
-            logic.reset();
-            Log.info("Generating map...");
-            HexedGenerator generator = new HexedGenerator();
-            world.loadGenerator(Hex.size, Hex.size, generator);
-            data.initHexes(generator.getHex());
-            info("Map generated.");
-            state.rules = rules.copy();
-            logic.play();
-            netServer.openServer();
+            generateMap();
         });
 
         handler.register("countdown", "Get the hexed restart countdown.", args -> {
@@ -362,5 +347,24 @@ public class HexedGamemode {
 
     public boolean active(){
         return state.rules.tags.getBool("hexed") && !state.is(State.menu);
+    }
+
+    public void generateMap() {
+        if(!state.is(State.menu)){
+            Log.err("Stop the server first.");
+            return;
+        }
+
+        data = new HexData();
+
+        logic.reset();
+        Log.info("Generating map...");
+        HexedGenerator generator = new HexedGenerator();
+        world.loadGenerator(Hex.size, Hex.size, generator);
+        data.initHexes(generator.getHex());
+        info("Map generated.");
+        state.rules = rules.copy();
+        logic.play();
+        netServer.openServer();
     }
 }

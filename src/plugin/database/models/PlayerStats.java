@@ -86,7 +86,7 @@ public class PlayerStats {
     }
 
     public PlayerStats update(Player player, boolean purge) {
-        long time = joinTime.get(player.uuid());
+        Long time = joinTime.get(player.uuid(), 0L);
         playtime += (Time.millis() - time) / 1000; // to sec
 
         joinTime.remove(player.uuid());
