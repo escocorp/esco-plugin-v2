@@ -1,6 +1,6 @@
 {
   "name": "plugin",
-  "author": "grely",
+  "author": "grely/anuken(hexed)",
   "main": "plugin.PPlugin",
   "description": "Simple server plugin",
   "version": 2.1
