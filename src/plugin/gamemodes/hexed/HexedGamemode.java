@@ -91,7 +91,7 @@ public class HexedGamemode {
                 data.updateStats();
 
                 for(Player player : Groups.player){
-                    if(player.team() != Team.derelict && player.team().cores().isEmpty()){
+                    if(!restarting && player.team() != Team.derelict && player.team().cores().isEmpty()){
                         player.clearUnit();
                         killTiles(player.team());
                         Call.sendMessage("[yellow](!)[] [accent]" + player.name + "[lightgray] has been eliminated![yellow] (!)");
@@ -280,10 +280,8 @@ public class HexedGamemode {
         }
 
         Time.runTask(60f * 10f, () -> {
-            restarting = false;
             counter = 0;
             lastMin = 0;
-
             data = new HexData();
 
             WorldReloader reloader = new WorldReloader();
@@ -298,6 +296,41 @@ public class HexedGamemode {
 
             reloader.end();
 
+            Seq<Hex> available = data.hexes().copy();
+            available.shuffle();
+
+            for(Player player : Groups.player){
+                Team newTeam = null;
+                for(Team team : Team.all){
+                    if(team.id > 5 && !team.active()){
+                        newTeam = team;
+                        break;
+                    }
+                }
+
+                if(newTeam == null){
+                    player.team(Team.derelict);
+                    Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
+                    continue;
+                }
+
+                player.team(newTeam);
+                data.data(newTeam).chosen = true;
+
+                // Ищем свободный гекс
+                Hex hex = available.find(h -> h.controller == null && h.spawnTime.get());
+                if(hex != null){
+                    available.remove(hex);
+                    loadout(player, hex.x, hex.y);
+                    data.data(player).chosen = false;
+                    hex.findController();
+                }else{
+                    player.team(Team.derelict);
+                    Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
+                }
+            }
+
+            restarting = false;
             Log.info("Hexed map regenerated, new round started.");
         });
     }
