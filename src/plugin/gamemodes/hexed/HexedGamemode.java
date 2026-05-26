@@ -299,25 +299,6 @@ public class HexedGamemode {
 
             reloader.end();
 
-            Groups.player.each(p->{
-                if(!active() /*|| player.team() == Team.derelict*/) return;
-
-                Seq<Hex> copy = data.hexes().copy();
-                copy.shuffle();
-                Hex hex = copy.find(h -> h.controller == null && h.spawnTime.get());
-
-                if(hex != null){
-                    loadout(player, hex.x, hex.y);
-                    Core.app.post(() -> data.data(player).chosen = false);
-                    hex.findController();
-                }else{
-                    Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
-                    player.unit().kill();
-                    player.team(Team.derelict);
-                }
-
-                data.data(player).lastMessage.reset();
-            });
 /*
             Seq<Hex> available = data.hexes().copy();
             available.shuffle();
@@ -353,8 +334,28 @@ public class HexedGamemode {
             }*/
 
             Timer.schedule(()->{
+                Groups.player.each(p->{
+                    if(!active() /*|| player.team() == Team.derelict*/) return;
+
+                    Seq<Hex> copy = data.hexes().copy();
+                    copy.shuffle();
+                    Hex hex = copy.find(h -> h.controller == null && h.spawnTime.get());
+
+                    if(hex != null){
+                        loadout(player, hex.x, hex.y);
+                        Core.app.post(() -> data.data(player).chosen = false);
+                        hex.findController();
+                    }else{
+                        Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
+                        player.unit().kill();
+                        player.team(Team.derelict);
+                    }
+
+                    data.data(player).lastMessage.reset();
+                });
+
                 restarting = false;
-            }, 0.5f);
+            }, 1f);
             Log.info("Hexed map regenerated, new round started.");
         });
     }
