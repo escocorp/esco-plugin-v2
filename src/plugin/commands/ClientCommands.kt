@@ -242,6 +242,10 @@ fun register(handler: CustomHandler) {
     })
 
     handler.registerCommand("vnw", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
+        if(PVars.gamemode == Gamemode.hexed) {
+            p.sendMessage("rtv.error.hexed", p)
+            return@CommandRunner
+        }
         val i = if (a.isEmpty()) 1
         else parseBool(a[0])
 
@@ -262,6 +266,10 @@ fun register(handler: CustomHandler) {
     })
 
     handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
+        if(PVars.gamemode == Gamemode.hexed) {
+            p.sendMessage("rtv.error.hexed", p)
+            return@CommandRunner
+        }
         val i: Int = if (a.isEmpty()) 1
         else parseBool(a[0])
 
@@ -397,7 +405,11 @@ fun register(handler: CustomHandler) {
                 }
                 player.team(Team.get(id));
             });*/
-    handler.registerCommand("artv", "", Permission.artv, CommandRunner { _: Array<String>, _: Player ->
+    handler.registerCommand("artv", "", Permission.artv, CommandRunner { _: Array<String>, p: Player ->
+        if(PVars.gamemode == Gamemode.hexed) {
+            p.sendMessage("rtv.error.hexed", p)
+            return@CommandRunner
+        }
         Events.fire(EventType.GameOverEvent(Team.derelict))
     })
 
