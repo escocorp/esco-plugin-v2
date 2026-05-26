@@ -352,9 +352,9 @@ public class HexedGamemode {
                 }
             }*/
 
-            Core.app.post(()->{
+            Timer.schedule(()->{
                 restarting = false;
-            });
+            }, 0.5f);
             Log.info("Hexed map regenerated, new round started.");
         });
     }
