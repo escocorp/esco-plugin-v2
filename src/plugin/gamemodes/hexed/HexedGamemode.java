@@ -158,7 +158,7 @@ public class HexedGamemode {
             }
         });
 
-        Events.on(PlayerJoin.class, event -> {
+        Events.on(PlayerConnectionConfirmed.class, event -> {
             if(!active() || event.player.team() == Team.derelict) return;
 
             Seq<Hex> copy = data.hexes().copy();
@@ -356,10 +356,6 @@ public class HexedGamemode {
 
                 restarting = false;
             }, 1f);*/
-
-            Groups.player.each(p->{
-               Call.connect(p.con, "play.larzed.icu", 6569);
-            });
             Log.info("Hexed map regenerated, new round started.");
         });
     }
