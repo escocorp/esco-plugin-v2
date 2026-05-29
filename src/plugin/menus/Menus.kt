@@ -123,6 +123,7 @@ fun showShop(stats: PlayerStats, p: Player) {
                 pl.team().cores().each(Cons { obj: CoreBuild -> obj.heal() })
             }
         }
+        otherMenu.show(pl)
     }
 
     menu.show(p)
