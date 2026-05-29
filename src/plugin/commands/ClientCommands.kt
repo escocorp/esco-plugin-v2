@@ -233,9 +233,9 @@ fun register(handler: CustomHandler) {
             val c = handler.commands.get(i) ?: continue
             if (!perms.contains(c.permission)) continue
             menu.add(
-                "[tan]${c.name}[lightgray]" +
-                        if (c.args.isEmpty()) "" else "\n${c.args}"
-                                + " - [orange]${c.getDesc(player)}"
+                "[tan]/${c.name}[lightgray]" +
+                        (if (c.args.isEmpty()) "" else "\n${c.args}")
+                        + " - [orange]${c.getDesc(player)}"
             )
         }
         menu.show(player)
