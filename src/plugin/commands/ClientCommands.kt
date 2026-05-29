@@ -228,16 +228,15 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("help", "", CommandRunner { _: Array<String>, player: Player ->
         val perms = Permission.getPerms(player)
-        val menu = ScrollableMenu("Help", rowPerItems = 1, message = "Click to see description.")
+        val menu = ScrollableTextMenu("Help")
         for (i in 0..<handler.commands.size) {
             val c = handler.commands.get(i) ?: continue
             if (!perms.contains(c.permission)) continue
             menu.add(
                 "[tan]${c.name}[lightgray]" +
                         if (c.args.isEmpty()) "" else "\n${c.args}"
-            ) { pl2: Player ->
-                pl2.sendMessage(c.getDesc(pl2))
-            }
+                                + " - [orange]${c.getDesc(player)}"
+            )
         }
         menu.show(player)
     })
