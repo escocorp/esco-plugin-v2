@@ -8,9 +8,9 @@ import java.util.Optional;
 public record HistoryRecord(String playerName, Optional<Integer> playerId, HistoryType type, Block block,
                             UnitType unit) {
     public String getMessage() {
-        String actor = playerName == null ?
+        String actor = "[white]" + (playerName == null ?
                 unit == null ? "?" : unit.emoji() :
-                playerName;
+                playerName);
         if (playerId.isPresent())
             actor = playerId.get() + " " + actor;
         return switch (type) {
