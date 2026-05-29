@@ -1,5 +1,6 @@
 package plugin.utils
 
+import arc.Core
 import arc.Events
 import arc.files.Fi
 import arc.func.Cons
@@ -10,7 +11,11 @@ import arc.util.Reflect
 import arc.util.Strings
 import kotlinx.coroutines.launch
 import mindustry.Vars
+import mindustry.Vars.saveDirectory
+import mindustry.Vars.saveExtension
+import mindustry.core.GameState
 import mindustry.gen.Player
+import mindustry.io.SaveIO
 import mindustry.maps.Map
 import plugin.KVars.eventsScope
 import plugin.PVars
@@ -227,4 +232,46 @@ fun parseImage(image: BufferedImage): ByteArray {
     val stream = ByteArrayOutputStream()
     ImageIO.write(image, "png", stream)
     return stream.toByteArray()
+}
+
+fun save(name: String): Boolean {
+    if(!Vars.state.isGame){
+        Log.err("Not hosting. Failed to save.");
+        return false;
+    }
+
+    val file = saveDirectory.child("$name.$saveExtension");
+
+    Core.app.post {
+        SaveIO.save(file);
+        Log.info("Saved to @.", file);
+    }
+    return true;
+}
+
+fun loadSave(name: String): Boolean {
+    if (Vars.state.isGame()) {
+        Log.err("Already hosting. Failed to load save.");
+        return false
+    }
+
+    val file = saveDirectory.child(name + "." + saveExtension)
+
+    if (!SaveIO.isSaveValid(file)) {
+        Log.err("No (valid) save data found for slot.")
+        return false
+    }
+
+    Core.app.post(Runnable {
+        try {
+            SaveIO.load(file)
+            Vars.state.rules.sector = null
+            Log.info("Save loaded.")
+            Vars.state.set(GameState.State.playing)
+            Vars.netServer.openServer()
+        } catch (t: Throwable) {
+            Log.err("Failed to load save. Outdated or corrupt file.")
+        }
+    })
+    return true
 }
