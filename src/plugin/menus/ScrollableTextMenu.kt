@@ -4,40 +4,32 @@ import arc.struct.Seq
 import mindustry.gen.Player
 
 class ScrollableTextMenu(
-    private val title: String
+    val title: String,
+    val itemsPerPage: Int = 5
 ) {
 
-    private val pages = Seq<Seq<String>>()
-    private var currentPage = Seq<String>()
+    private val items = Seq<String>()
 
     fun add(text: String): ScrollableTextMenu {
-        currentPage.add(text)
-        return this
-    }
-
-    fun row(): ScrollableTextMenu {
-        pages.add(currentPage)
-        currentPage = Seq()
+        items.add(text)
         return this
     }
 
     fun show(player: Player) {
-        if (!currentPage.isEmpty) {
-            pages.add(currentPage)
-            currentPage = Seq()
-        }
-
         showPage(player, 0)
     }
 
     private fun showPage(player: Player, page: Int) {
-        val totalPages = pages.size.coerceAtLeast(1)
+        val totalPages = kotlin.math.ceil(items.size / itemsPerPage.toDouble()).toInt().coerceAtLeast(1)
+
+        val start = page * itemsPerPage
+        val end = minOf(start + itemsPerPage, items.size)
 
         val pageText = buildString {
-            if (page < pages.size) {
-                append(pages[page].toString("\n"))
+            for (i in start until end) {
+                appendLine(items[i])
             }
-            append("\n\n[gray]Page ${page + 1}/$totalPages")
+            append("\n[gray]Page ${page + 1}/$totalPages")
         }
 
         val menu = Menu(title, pageText)
