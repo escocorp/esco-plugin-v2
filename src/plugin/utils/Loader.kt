@@ -16,6 +16,7 @@ import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.PVars.serverCommands
 import plugin.database.BanListener
+import plugin.database.getPlayerStats
 import plugin.database.models.Server
 import plugin.discord.sendLog
 import plugin.events.PEvents
@@ -95,6 +96,15 @@ object Loader {
         Timer.schedule({
             if (!Groups.player.isEmpty) Bundle.sendMessage("advertise.reports", PVars.discordLink)
         }, (15 * 60).toFloat(), (35 * 60).toFloat())
+        Timer.schedule({
+            Groups.player.each { p ->
+                globalScope.launch {
+                    getPlayerStats(p).ifPresent { stats ->
+                        stats.update(p, false)
+                    }
+                }
+            }
+        }, (15 * 60).toFloat(), (15 * 60).toFloat())
         if (PVars.lokiLoggingEnabled) Timer.schedule({ pushLogs() }, 0f, (5 * 60).toFloat())
     }
 

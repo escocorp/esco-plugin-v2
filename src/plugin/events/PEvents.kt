@@ -1,5 +1,6 @@
 package plugin.events
 
+import arc.Core
 import arc.Core.app
 import arc.Events
 import arc.func.Cons
@@ -18,7 +19,6 @@ import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
-import mindustry.net.Administration
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
@@ -384,6 +384,19 @@ fun loadEvents() {
         if(e.tile == null || e.tile.block() == null) return@Cons
 
         History.write(e.tile, null, Optional.empty<Int>(), HistoryType.destroyBlock, e.tile.block(), null)
+    })
+
+    Events.on(WaveEvent::class.java, Cons { e: WaveEvent ->
+        // Groups.player.each(Cons { p: Player -> getPlayerStats(p).ifPresent(Consumer { obj: PlayerStats? -> obj!!.adjWavesSurvived() }) })
+        Groups.player.each { p ->
+            eventsScope.launch {
+                getPlayerStats(p).ifPresent { stats ->
+                    app.post {
+                        stats.adjWavesSurvived()
+                    }
+                }
+            }
+        }
     })
 }
 
