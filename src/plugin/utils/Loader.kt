@@ -1,11 +1,15 @@
 package plugin.utils
 
+import arc.Core
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
 import mindustry.Vars
+import mindustry.Vars.state
+import mindustry.core.GameState
 import mindustry.gen.Groups
 import mindustry.net.Administration
+import mindustry.server.ServerControl
 import plugin.Bundle
 import plugin.Config
 import plugin.KVars.globalScope
@@ -45,7 +49,20 @@ object Loader {
         PVars.version = getResource("version")!!.readString()
 
         loadMenus()
-	Log.debug("Loader: OK!")
+        if(Core.settings.getBool("autorestarted", false)) {
+            if(state.isGame) {
+                Vars.net.closeServer()
+                ServerControl.instance.cancelPlayTask()
+                state.set(GameState.State.menu)
+                Log.info("Stopped server.")
+            }
+
+            loadSave("autorestart")
+
+            Core.settings.put("autorestarted", false)
+        }
+
+	    Log.debug("Loader: OK!")
     }
 
     @JvmStatic
@@ -54,9 +71,9 @@ object Loader {
         // AntiFimoz.load();
         Administration.Config.showConnectMessages.set(false)
         Packets.load()
-        if(PVars.gamemode != Gamemode.hexed) {
+        /*if(PVars.gamemode != Gamemode.hexed) {
             Vars.maps.setMapProvider(PluginMapProvider())
-        }
+        }*/
     }
 
     fun loadGamemode() {
@@ -107,9 +124,12 @@ object Loader {
     fun exit() {
         Log.info("Exiting server, please wait...")
         sendLog("Exiting server")
+        save("autorestart")
+        Core.settings.put("autorestarted", "true")
+        Core.settings.manualSave()
         saveLogs()
         Timer.schedule({
             exitProcess(0)
-        }, 3f)
+        }, 5f)
     }
 }
