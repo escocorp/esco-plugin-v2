@@ -68,7 +68,7 @@ public class HexedGamemode {
         rules.tags.put("hexed", "true");
         rules.canGameOver = false;
         rules.polygonCoreProtection = false;
-        rules.enemyCoreBuildRadius = 31.5f;
+        rules.enemyCoreBuildRadius = 31.5f * 8f;
         rules.placeRangeCheck = true;
         rules.pvpAutoPause = false;
 
