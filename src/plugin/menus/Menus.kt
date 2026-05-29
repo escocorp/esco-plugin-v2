@@ -7,6 +7,7 @@ import arc.struct.ObjectIntMap
 import arc.struct.Seq
 import arc.util.Timekeeper
 import mindustry.Vars
+import mindustry.content.Items.*
 import mindustry.content.UnitTypes
 import mindustry.gen.Call
 import mindustry.gen.Player
@@ -51,9 +52,20 @@ fun loadMenus() {
         UnitTypes.mega, 1550,
         UnitTypes.fortress, 1550
     )
+    itemCosts.putAll(
+        coal, 100,
+        sand, 100,
+        scrap, 100,
+        copper, 150,
+        lead, 200,
+        pyratite, 200,
+        graphite, 250,
+        silicon, 250,
+        titanium, 250
+    )
 }
 
-fun showShopZ(stats: PlayerStats, p: Player) {
+fun showShop(stats: PlayerStats, p: Player) {
     val menu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance, rowPerItems = 1)
 
     menu.add(Bundle.get("units", p.locale)) { pl ->
@@ -94,11 +106,27 @@ fun showShopZ(stats: PlayerStats, p: Player) {
         itemMenu.show(pl)
     }
     menu.add(Bundle.get("other", p.locale)) { pl ->
-
+        val otherMenu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+        if(PVars.gamemode != Gamemode.pvp) {
+            menu.add(
+                Bundle.get(
+                    "menu.shop.healcores",
+                    p.locale
+                ) + "\n[green]$[lightgray]2500"
+            ) { pl: Player ->
+                if (2500 > stats.balance) {
+                    Bundle.sendMessage("menu.shop.nomoney", pl)
+                    return@add
+                }
+                // sendMessage("menu.shop.advertise.healcores", pl.coloredName(), pl.team().emoji);
+                Bundle.label("menu.shop.advertise.healcores", 1f, pl.x, pl.y, pl.coloredName(), pl.team().emoji)
+                pl.team().cores().each(Cons { obj: CoreBuild -> obj.heal() })
+            }
+        }
     }
 }
-
-fun showShop(stats: PlayerStats, p: Player) {
+@Deprecated("Use showShop instead")
+fun showShopOld(stats: PlayerStats, p: Player) {
     val menu = Menu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
 
     val i = AtomicInteger()
