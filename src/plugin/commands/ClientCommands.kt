@@ -22,6 +22,8 @@ import mindustry.net.Administration
 import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
+import plugin.PVars.hubIp
+import plugin.PVars.hubPort
 import plugin.database.*
 import plugin.database.models.*
 import plugin.gamemodes.hexed.Hex
@@ -76,6 +78,10 @@ fun register(handler: CustomHandler) {
                 Core.app.post { p.name(name) }
             }
         }
+    })
+
+    handler.registerCommand("hub", CommandRunner { _: Array<String>, p: Player ->
+        Call.connect(p.con, hubIp, hubPort)
     })
 
     handler.registerCommand("testmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
