@@ -124,6 +124,8 @@ fun showShop(stats: PlayerStats, p: Player) {
             }
         }
     }
+
+    menu.show(p)
 }
 @Deprecated("Use showShop instead")
 fun showShopOld(stats: PlayerStats, p: Player) {
