@@ -94,6 +94,17 @@ fun register(handler: CustomHandler) {
         menu.show(p)
     })
 
+    handler.registerCommand("testtextmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
+        val menu = ScrollableTextMenu(p.coloredName())
+        for(i in 0..15) {
+            menu.add("[gold][[[white]$i[gold]][stat] - meow")
+            if(i % 5 == 0) {
+                menu.row()
+            }
+        }
+        menu.show(p)
+    })
+
     handler.registerCommand("maps", "", CommandRunner { _: Array<String>, p: Player ->
         Vars.maps.customMaps().each { m: Map ->
             p.sendMessage("${m.name()} : ${m.author()}")
