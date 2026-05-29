@@ -95,9 +95,5 @@ public class PEvents {
                 return;
             Call.setHudText(e.player.con, History.getMessage(e.tile.pos()));
         });
-
-        Events.on(EventType.WaveEvent.class, (e) -> {
-            Groups.player.each(p -> getPlayerStats(p).ifPresent(PlayerStats::adjWavesSurvived));
-        });
     }
 }
