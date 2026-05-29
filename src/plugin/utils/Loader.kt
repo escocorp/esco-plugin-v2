@@ -125,7 +125,7 @@ object Loader {
         Log.info("Exiting server, please wait...")
         sendLog("Exiting server")
         save("autorestart")
-        Core.settings.put("autorestarted", "true")
+        Core.settings.put("autorestarted", true)
         Core.settings.manualSave()
         saveLogs()
         Timer.schedule({
