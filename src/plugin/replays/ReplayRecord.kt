@@ -10,6 +10,7 @@ data class ReplayRecord(
     val type: Int,
     val blockId: Short,
     val unitId: Short?,
-    val time: Long
+    val time: Long,
+    val team: Int
 ) {
 }
