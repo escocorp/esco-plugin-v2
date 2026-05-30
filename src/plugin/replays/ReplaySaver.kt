@@ -6,6 +6,7 @@ import arc.util.Timer
 import kotlinx.serialization.json.Json
 import mindustry.Vars
 import mindustry.content.Blocks
+import mindustry.gen.Call
 import plugin.history.HistoryStack
 import plugin.history.HistoryType
 import java.util.TimerTask
@@ -17,18 +18,20 @@ fun saveReplay(history: LongMap<HistoryStack>): String {
         val value = entry.value
         val stack = ReplayStack()
         value.stack.forEach { r ->
-            var unitId: Short? = null;
-            r.unit?.let { u ->
-                unitId = u.id
+            if(r.center()) {
+                var unitId: Short? = null;
+                r.unit?.let { u ->
+                    unitId = u.id
+                }
+                stack.add(ReplayRecord(
+                    r.playerName(),
+                    r.playerId.orElse(null),
+                    r.type.ordinal,
+                    r.block.id,
+                    unitId,
+                    r.time
+                ))
             }
-            stack.add(ReplayRecord(
-                r.playerName(),
-                r.playerId.orElse(null),
-                r.type.ordinal,
-                r.block.id,
-                unitId,
-                r.time
-            ))
         }
         map[key] = stack
     }
@@ -48,9 +51,13 @@ fun playReplay(replay: HashMap<Long, ReplayStack>) {
 
     events.sortBy { it.record.time }
     val start = events.first().record.time
+    val end = events.last().record.time
     events.forEach { event ->
         val delay = (event.record.time - start) / 1000f
         Timer.schedule({
+            if(event.record.time == end) {
+                Call.sendMessage("Done!")
+            }
             applyEvent(event)
         }, delay)
     }
