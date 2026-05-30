@@ -32,7 +32,7 @@ fun saveReplay(history: LongMap<HistoryStack>): String {
                     unitId,
                     r.time,
                     r.team.id,
-                    r.rotation()
+                    r.rotation
                 ))
             }
         }
@@ -72,7 +72,7 @@ private fun applyEvent(event: ReplayEvent) {
     tile ?: return
     when(event.record.type) {
         HistoryType.buildBlock.ordinal -> {
-            tile.setNet(Vars.content.block(record.blockId.toInt()), Team.get(record.blockId.toInt()), record.rotation)
+            tile.setNet(Vars.content.block(record.blockId.toInt()), Team.get(record.team), record.rotation)
         }
         HistoryType.destroyBlock.ordinal,
         HistoryType.breakBlock.ordinal -> {
