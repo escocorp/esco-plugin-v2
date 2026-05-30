@@ -38,18 +38,19 @@ public class History {
                              HistoryType type,
                              Block block,
                              UnitType unit,
-                             Team team) {
+                             Team team,
+                             int rotation) {
 
         if (tile == null) return;
 
         long time = System.currentTimeMillis();
 
-        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, time, false, team);
+        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, time, false, team, rotation);
 
         tile.getLinkedTiles(t -> {
             long pos = t.pos();
             if(t.isCenter()) {
-                addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true, team));
+                addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation));
             } else {
                 addTile(pos, record);
             }
