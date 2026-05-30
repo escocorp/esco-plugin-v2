@@ -335,7 +335,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), tile.team(), tile.build.rotation)
+            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), tile.build.team, tile.build.rotation)
         }
     })
 
