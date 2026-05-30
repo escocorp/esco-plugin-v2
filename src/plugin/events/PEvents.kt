@@ -335,7 +335,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), tile.team())
+            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), tile.team(), tile.build.rotation)
         }
     })
 
@@ -351,7 +351,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.breakBlock, tile.block(), unit.type(), tile.team())
+            History.write(tile, name, pid, HistoryType.breakBlock, tile.block(), unit.type(), tile.team(), 0)
         }
     })
 
@@ -366,7 +366,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(build.tile, name, pid, HistoryType.rotate, build.block, null, player.team())
+            History.write(build.tile, name, pid, HistoryType.rotate, build.block, null, player.team(), e.build.rotation)
         }
     })
 
@@ -376,14 +376,14 @@ fun loadEvents() {
         val build = e.tile
         val name = player.coloredName()
         eventsScope.launch {
-            History.write(build.tile, name, getPlayerId(player), HistoryType.configure, build.block, null, player.team())
+            History.write(build.tile, name, getPlayerId(player), HistoryType.configure, build.block, null, player.team(), build.rotation)
         }
     })
 
     Events.on(BlockDestroyEvent::class.java, Cons { e: BlockDestroyEvent ->
         if(e.tile == null || e.tile.block() == null) return@Cons
 
-        History.write(e.tile, null, Optional.empty<Int>(), HistoryType.destroyBlock, e.tile.block(), null, e.tile.team())
+        History.write(e.tile, null, Optional.empty<Int>(), HistoryType.destroyBlock, e.tile.block(), null, e.tile.team(), 0)
     })
 
     Events.on(WaveEvent::class.java, Cons { e: WaveEvent ->

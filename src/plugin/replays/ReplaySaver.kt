@@ -6,6 +6,7 @@ import arc.util.Timer
 import kotlinx.serialization.json.Json
 import mindustry.Vars
 import mindustry.content.Blocks
+import mindustry.game.Team
 import mindustry.gen.Call
 import plugin.history.HistoryStack
 import plugin.history.HistoryType
@@ -70,7 +71,7 @@ private fun applyEvent(event: ReplayEvent) {
     tile ?: return
     when(event.record.type) {
         HistoryType.buildBlock.ordinal -> {
-            tile.setNet(Vars.content.block(record.blockId.toInt()))
+            tile.setNet(Vars.content.block(record.blockId.toInt()), Team.get(record.blockId.toInt()), record.rotation)
         }
         HistoryType.destroyBlock.ordinal,
         HistoryType.breakBlock.ordinal -> {
