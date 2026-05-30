@@ -61,8 +61,10 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("savereplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.json")
-        file.mkdirs()
+
+        file.parent().mkdirs()
         file.writeString(saveReplay(History.history))
+
         p.sendMessage("Done!")
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
