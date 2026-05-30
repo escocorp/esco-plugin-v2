@@ -31,7 +31,8 @@ fun saveReplay(history: LongMap<HistoryStack>): String {
                     r.block.id,
                     unitId,
                     r.time,
-                    r.team.id
+                    r.team.id,
+                    r.rotation()
                 ))
             }
         }
