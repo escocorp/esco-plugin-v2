@@ -6,7 +6,7 @@ import mindustry.world.Block;
 import java.util.Optional;
 
 public record HistoryRecord(String playerName, Optional<Integer> playerId, HistoryType type, Block block,
-                            UnitType unit, long time) {
+                            UnitType unit, long time, boolean center) {
     public String getMessage() {
         String actor = "[white]" + (playerName == null ?
                 unit == null ? "?" : unit.emoji() :
