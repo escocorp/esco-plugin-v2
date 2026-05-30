@@ -2,6 +2,7 @@ package plugin.history;
 
 import arc.math.geom.Point2;
 import arc.struct.LongMap;
+import arc.struct.Seq;
 import mindustry.net.Administration;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
@@ -39,26 +40,33 @@ public class History {
 
         if (tile == null) return;
 
-        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, System.currentTimeMillis());
+        long time = System.currentTimeMillis();
+
+        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, time, false);
 
         tile.getLinkedTiles(t -> {
-
             long pos = t.pos();
-
-            HistoryStack stack = history.get(pos);
-
-            if (stack == null) {
-                stack = new HistoryStack();
-                history.put(pos, stack);
+            if(t.isCenter()) {
+                addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true));
+            } else {
+                addTile(pos, record);
             }
-
-            if (stack.size() >= 6) {
-                stack.removeFirst();
-            }
-
-            stack.add(record);
-
         });
+    }
+
+    private static void addTile(long pos, HistoryRecord record) {
+        HistoryStack stack = history.get(pos);
+
+        if (stack == null) {
+            stack = new HistoryStack();
+            history.put(pos, stack);
+        }
+
+        if (stack.size() >= 6) {
+            stack.removeFirst();
+        }
+
+        stack.add(record);
     }
 
     public static void clear() {

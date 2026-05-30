@@ -77,6 +77,7 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         val replay = Json.decodeFromString<HashMap<Long, ReplayStack>>(file.readString())
+        p.sendMessage("total actions: ${replay.size}")
         playReplay(replay)
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
