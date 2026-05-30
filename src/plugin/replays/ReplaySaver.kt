@@ -29,7 +29,8 @@ fun saveReplay(history: LongMap<HistoryStack>): String {
                     r.type.ordinal,
                     r.block.id,
                     unitId,
-                    r.time
+                    r.time,
+                    r.team.id
                 ))
             }
         }

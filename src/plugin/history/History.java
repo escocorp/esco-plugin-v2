@@ -3,6 +3,7 @@ package plugin.history;
 import arc.math.geom.Point2;
 import arc.struct.LongMap;
 import arc.struct.Seq;
+import mindustry.game.Team;
 import mindustry.net.Administration;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
@@ -36,18 +37,19 @@ public class History {
                              Optional<Integer> playerId,
                              HistoryType type,
                              Block block,
-                             UnitType unit) {
+                             UnitType unit,
+                             Team team) {
 
         if (tile == null) return;
 
         long time = System.currentTimeMillis();
 
-        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, time, false);
+        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, time, false, team);
 
         tile.getLinkedTiles(t -> {
             long pos = t.pos();
             if(t.isCenter()) {
-                addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true));
+                addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true, team));
             } else {
                 addTile(pos, record);
             }
