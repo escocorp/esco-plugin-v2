@@ -47,6 +47,7 @@ CREATE TABLE bans (
     unban_time TIMESTAMP default null
 );
 
+/*
 CREATE TABLE mutes (
     id SERIAL PRIMARY KEY,
     active BOOLEAN default true,
@@ -56,6 +57,7 @@ CREATE TABLE mutes (
     mute_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     unmute_time TIMESTAMP NOT NULL
 );
+*/
 
 CREATE TABLE logs (
     id SERIAL PRIMARY KEY,
