@@ -22,13 +22,13 @@ import plugin.discord.sendLog
 import plugin.events.PEvents
 import plugin.gamemodes.hexed.HexedGamemode
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
+import plugin.gamemodes.tdf.TDGamemode
 import plugin.menus.Menu
 import plugin.menus.TextMenu
 import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
 import kotlin.system.exitProcess
-import plugin.gamemodes.tdf.TDGamemode
 
 object Loader {
 

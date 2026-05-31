@@ -1,11 +1,15 @@
 package plugin.gamemodes.hexed;
 
-import arc.*;
-import arc.math.geom.*;
-import arc.struct.*;
-import arc.util.*;
-import mindustry.game.*;
-import mindustry.gen.*;
+import arc.Events;
+import arc.math.geom.Point2;
+import arc.struct.IntMap;
+import arc.struct.IntSeq;
+import arc.struct.Seq;
+import arc.util.Nullable;
+import arc.util.Timekeeper;
+import mindustry.game.Team;
+import mindustry.gen.Groups;
+import mindustry.gen.Player;
 
 public class HexData{
     /** All hexes on the map. No order. */
