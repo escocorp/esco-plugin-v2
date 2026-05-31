@@ -2,6 +2,7 @@ package plugin.commands
 
 import arc.Core
 import arc.Events
+import arc.func.Cons
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
@@ -30,6 +31,7 @@ import plugin.PVars.hubPort
 import plugin.database.*
 import plugin.database.models.*
 import plugin.gamemodes.hexed.Hex
+import plugin.gamemodes.hexed.HexedGamemode
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.history.History
 import plugin.menus.*
@@ -678,4 +680,24 @@ private fun registerHexedCommands(handler: CustomHandler) {
                 player.sendMessage("[scarlet]No hex found.")
             }
         })
+
+    if(false)
+    handler.registerCommand("join", "<player...>", Permission.test, CommandRunner { arg: Array<String>, player: Player ->
+        val sname = Strings.stripColors(arg[0])
+        val player2 = Groups.player.find({ p ->
+            return@find p.plainName().contains(sname, ignoreCase = true)
+        })
+        if(player2 == null) {
+            player.sendBundle("votekick.playernotfound", sname)
+            return@CommandRunner
+        }
+        val oldTeam = player.team()
+        val newTeam = player2.team()
+        /*val oldTeamPlayers = Groups.player.find({
+            return@find it.team() == oldTeam && it.uuid() != player.uuid()
+        })
+        if(oldTeamPlayers == null) {
+            HexedGamemode.hexedGamemode.killTiles(oldTeam)
+        }*/
+    })
 }
