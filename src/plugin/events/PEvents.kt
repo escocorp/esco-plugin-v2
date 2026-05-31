@@ -1,6 +1,5 @@
 package plugin.events
 
-import arc.Core
 import arc.Core.app
 import arc.Events
 import arc.func.Cons
@@ -70,7 +69,7 @@ fun loadEvents() {
                 }
             })
             if(PVars.gamemode != Gamemode.hub)
-            isAnon(player.ip()) { resp: ApiResponse ->
+            isAnon(player.ip()) { resp: VPNApiResponse ->
                 if (resp.anon && pd.discordId == null) {
                     putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
                     app.post {
