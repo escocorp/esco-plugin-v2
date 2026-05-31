@@ -99,6 +99,7 @@ public class VotekickSession {
     public void sendEmbed(int stId, int tId) {
         if (votekicksChannel == null) return;
 
+        EmbedBuilder embed = new EmbedBuilder();
 
         embed.setColor(Color.red)
                 .addField("Votekick", MessageFormat.format(
