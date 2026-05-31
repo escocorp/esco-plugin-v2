@@ -84,10 +84,22 @@ public class VotekickSession {
         currentlyKicking = null;
     }
 
+    /**
+     * Sends a summary embed to the configured votekicks Discord channel when a votekick passes.
+     *
+     * <p>The embed contains the initiating player, the targeted player, the final vote count,
+     * the kick reason, and the server name. If any administration players participated in the
+     * vote, two additional fields are appended listing admins who voted <em>for</em> and
+     * <em>against</em> the kick respectively. Admins are identified by UUID length (24 chars)
+     * and deduplicated via a {@link HashSet} to avoid double-counting IP-keyed entries.
+     *
+     * @param stId database ID of the player who started the votekick session.
+     * @param tId  database ID of the player targeted by the votekick.
+     */
     public void sendEmbed(int stId, int tId) {
         if (votekicksChannel == null) return;
 
-        EmbedBuilder embed = new EmbedBuilder();
+
         embed.setColor(Color.red)
                 .addField("Votekick", MessageFormat.format(
                         """
