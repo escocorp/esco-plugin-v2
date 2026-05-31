@@ -1,12 +1,9 @@
 package plugin.gamemodes.crawlerarena;
 
-import arc.files.Fi;
 import arc.struct.ObjectMap;
 import arc.struct.StringMap;
 import arc.util.Strings;
 import arc.util.Structs;
-import arc.util.Log;
-import mindustry.Vars;
 import mindustry.gen.Groups;
 import mindustry.gen.Iconc;
 import mindustry.gen.Player;
@@ -15,30 +12,13 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class Bundle {
+public class BundleOld {
 
     public static final Locale[] supportedLocales = null;
     private static final ObjectMap<Locale, StringMap> bundles = new ObjectMap<>();
     private static final ObjectMap<Locale, MessageFormat> formats = new ObjectMap<>();
 
-    /*static {
-        Fi[] files = Vars.mods.list().find(mod -> mod.main instanceof CrawlerArenaMod).root.child("bundles").list();
-        supportedLocales = new Locale[files.length + 1];
-        supportedLocales[supportedLocales.length - 1] = new Locale("router");
-
-        for (int i = 0; i < files.length; i++){
-            String code = files[i].nameWithoutExtension();
-            code = code.substring("bundle_".length());
-            if(code.contains("_")){
-                String[] codes = code.split("_");
-                supportedLocales[i] = new Locale(codes[0], codes[1]);
-            }else{
-                supportedLocales[i] = new Locale(code);
-            }
-        }
-    }*/
-
-    private Bundle(){
+    private BundleOld(){
     }
 
     public static Locale defaultLocale(){
@@ -95,7 +75,7 @@ public class Bundle {
     }
 
     public static Locale findLocale(Player player){
-        Locale locale = Structs.find(Bundle.supportedLocales, l -> l.toString().equals(player.locale) || player.locale.startsWith(l.toString()));
-        return locale == null ? Bundle.defaultLocale() : locale;
+        Locale locale = Structs.find(BundleOld.supportedLocales, l -> l.toString().equals(player.locale) || player.locale.startsWith(l.toString()));
+        return locale == null ? BundleOld.defaultLocale() : locale;
     }
 }

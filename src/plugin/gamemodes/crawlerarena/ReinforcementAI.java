@@ -8,8 +8,6 @@ import mindustry.ai.types.GroundAI;
 import mindustry.gen.*;
 import mindustry.world.blocks.payloads.*;
 
-import static mindustry.Vars.*;
-
 public class ReinforcementAI extends GroundAI {
 
     Teamc target = null;

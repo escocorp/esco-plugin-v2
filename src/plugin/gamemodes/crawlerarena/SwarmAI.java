@@ -4,7 +4,6 @@ import mindustry.ai.types.FlyingAI;
 import mindustry.entities.Units;
 import mindustry.gen.Posc;
 import mindustry.gen.Unit;
-import mindustry.world.meta.BlockFlag;
 
 import static mindustry.Vars.state;
 
@@ -13,7 +12,7 @@ public class SwarmAI extends FlyingAI {
     public float innerSwarmRange2 = 120f * 120f;
     public float avoidRange = 480f;
     public float avoidRange2 = avoidRange * avoidRange;
-    public float swarmCollectRange = 1200f;
+    //public float swarmCollectRange = 1200f;
     public float kiteRange = 0.8f;
     public int swarmCount = 10;
 
