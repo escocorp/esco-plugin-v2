@@ -37,6 +37,7 @@ import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
 import plugin.history.HistoryType
+import plugin.logic.attemCode
 import plugin.logic.attemText
 import plugin.logic.isAttem
 import plugin.menus.showWelcome
@@ -406,7 +407,8 @@ fun loadEvents() {
         if (e.tile == null || e.tile.build == null) return@Cons
         val build = e.tile.build
         if(build is LogicBlock.LogicBuild && isAttem(build.code)) {
-            build.updateCode(attemText)
+            // build.updateCode(attemText)
+            build.configure(attemCode)
             Bundle.label("attem83", 2f, build.x, build.y)
         }
     })
