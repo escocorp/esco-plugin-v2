@@ -1,5 +1,8 @@
 package plugin.logic
 
+import arc.struct.Seq
+import mindustry.world.blocks.logic.LogicBlock
+
 private val attemMatcher by lazy {
     """
         (ubind @?[^ ]+)                            # bind a unit
@@ -18,5 +21,9 @@ val attemText = """
         print "For more info please go to https://mindustry.dev/attem"
         printflush message1
     """.trimIndent()
+
+val attemCode by lazy {
+    LogicBlock.compress(attemText, Seq.with())
+}
 
 fun isAttem(code: String) = attemMatcher.containsMatchIn(code)
