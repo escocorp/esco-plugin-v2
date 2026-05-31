@@ -1,32 +1,38 @@
 package plugin.gamemodes.hexed;
 
-import arc.*;
-import arc.files.*;
-import arc.math.*;
-import arc.struct.*;
+import arc.Core;
+import arc.Events;
+import arc.files.Fi;
+import arc.math.Mathf;
+import arc.struct.Seq;
 import arc.util.*;
+import mindustry.content.Blocks;
+import mindustry.core.GameState.State;
+import mindustry.core.NetServer.TeamAssigner;
+import mindustry.game.EventType.BlockDestroyEvent;
+import mindustry.game.EventType.PlayerConnectionConfirmed;
+import mindustry.game.EventType.PlayerLeave;
+import mindustry.game.EventType.Trigger;
+import mindustry.game.Rules;
+import mindustry.game.Schematic;
+import mindustry.game.Schematic.Stile;
+import mindustry.game.Schematics;
+import mindustry.game.Team;
+import mindustry.gen.Call;
+import mindustry.gen.Groups;
+import mindustry.gen.Player;
 import mindustry.net.WorldReloader;
-import plugin.gamemodes.hexed.HexData.*;
-import mindustry.content.*;
-import mindustry.core.GameState.*;
-import mindustry.core.NetServer.*;
-import mindustry.game.EventType.*;
-import mindustry.game.*;
-import mindustry.game.Schematic.*;
-import mindustry.game.Teams.*;
-import mindustry.gen.*;
-import mindustry.mod.*;
-import mindustry.net.Packets.*;
-import mindustry.type.*;
-import mindustry.world.*;
-import mindustry.world.blocks.storage.*;
-import plugin.PPlugin;
+import mindustry.type.ItemStack;
+import mindustry.world.Tile;
+import mindustry.world.blocks.storage.CoreBlock;
+import plugin.gamemodes.hexed.HexData.HexCaptureEvent;
+import plugin.gamemodes.hexed.HexData.HexMoveEvent;
+import plugin.gamemodes.hexed.HexData.HexTeam;
+import plugin.gamemodes.hexed.HexData.ProgressIncreaseEvent;
 
-import static arc.util.Log.*;
+import static arc.util.Log.info;
 import static mindustry.Vars.*;
 import static plugin.PPlugin.mainClass;
-import static plugin.PVars.hubIp;
-import static plugin.PVars.hubPort;
 
 public class HexedGamemode {
     @Nullable

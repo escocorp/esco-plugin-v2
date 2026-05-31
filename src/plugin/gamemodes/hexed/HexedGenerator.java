@@ -1,18 +1,28 @@
 package plugin.gamemodes.hexed;
 
-import arc.func.*;
-import arc.math.*;
-import arc.math.geom.*;
-import arc.struct.*;
-import arc.util.*;
-import arc.util.noise.*;
-import mindustry.content.*;
-import mindustry.maps.*;
-import mindustry.maps.filters.*;
-import mindustry.maps.filters.GenerateFilter.*;
-import mindustry.world.*;
+import arc.func.Cons;
+import arc.math.Mathf;
+import arc.math.geom.Bresenham2;
+import arc.math.geom.Geometry;
+import arc.math.geom.Intersector;
+import arc.math.geom.Point2;
+import arc.struct.IntSeq;
+import arc.struct.Seq;
+import arc.struct.StringMap;
+import arc.util.Structs;
+import arc.util.Tmp;
+import arc.util.noise.Simplex;
+import mindustry.content.Blocks;
+import mindustry.maps.Map;
+import mindustry.maps.filters.GenerateFilter;
+import mindustry.maps.filters.GenerateFilter.GenerateInput;
+import mindustry.maps.filters.OreFilter;
+import mindustry.world.Block;
+import mindustry.world.Tile;
+import mindustry.world.Tiles;
 
-import static mindustry.Vars.*;
+import static mindustry.Vars.maps;
+import static mindustry.Vars.state;
 
 public class HexedGenerator implements Cons<Tiles>{
     public int width = Hex.size, height = Hex.size;

@@ -9,9 +9,7 @@ import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
 import plugin.PVars.serverId
-import plugin.database.Database.StatementSetter
-import plugin.database.Database.executeQueryAsync
-import plugin.database.Database.executeUpdate
+import plugin.database.Database.*
 import plugin.database.models.*
 import plugin.utils.Permission
 import plugin.utils.getUDPAddress

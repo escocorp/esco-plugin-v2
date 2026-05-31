@@ -1,9 +1,9 @@
 package plugin.gamemodes.crawlerarena;
 
+import arc.math.Mathf;
 import arc.struct.*;
-import arc.math.*;
-import arc.util.*;
-import mindustry.content.*;
+import mindustry.content.Blocks;
+import mindustry.content.UnitTypes;
 import mindustry.game.Team;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
