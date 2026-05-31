@@ -20,7 +20,6 @@ import mindustry.gen.Syncc;
 import mindustry.io.TypeIO;
 import mindustry.logic.GlobalVars;
 import mindustry.net.Administration;
-import mindustry.world.blocks.storage.CoreBlock;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

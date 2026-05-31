@@ -1,20 +1,19 @@
 package plugin.discord
 
 import arc.Core
-import mindustry.gen.Groups
-import arc.util.Timer
-import net.dv8tion.jda.api.entities.emoji.Emoji
 import arc.util.CommandHandler
 import arc.util.Log
+import arc.util.Timer
 import mindustry.Vars
+import mindustry.gen.Groups
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import plugin.Bundle
 import plugin.KVars.buildsBaseUrl
 import plugin.KVars.buildsLatestTxtUrl
-import plugin.PVars.gamemode
+import plugin.PVars
 import plugin.PVars.globalExecutor
 import plugin.PVars.version
-import plugin.PVars
-import plugin.utils.*
+import plugin.utils.Loader
 import plugin.utils.download
 import plugin.utils.httpGetString
 import java.nio.file.Files

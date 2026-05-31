@@ -25,17 +25,13 @@ import plugin.PVars.version
 import plugin.database.Database
 import plugin.database.getPlayerData
 import plugin.database.models.PlayerData
-import plugin.utils.Loader
-import plugin.utils.MapPreview
-import plugin.utils.Permission
-import plugin.utils.download
-import plugin.utils.httpGetString
+import plugin.utils.*
 import java.awt.Color
 import java.io.File
-import java.util.function.Consumer
-import java.util.function.Function
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.function.Consumer
+import java.util.function.Function
 import kotlin.math.min
 
 fun register(handler: CommandHandler) {

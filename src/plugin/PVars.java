@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import plugin.commands.CustomHandler;
 import plugin.database.models.Log;
-import plugin.database.models.MapStats;
 import plugin.utils.Gamemode;
 import plugin.votes.VoteMap;
 import plugin.votes.VoteWave;
