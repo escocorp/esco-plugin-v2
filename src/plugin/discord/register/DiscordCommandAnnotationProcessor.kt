@@ -6,6 +6,7 @@ import arc.util.Log
 import net.dv8tion.jda.api.EmbedBuilder
 import plugin.discord.Context
 import java.lang.reflect.InvocationTargetException
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.memberFunctions
@@ -60,7 +61,10 @@ object DiscordCommandAnnotationProcessor {
                     val contextParam = function.parameters.find { it.type.jvmErasure == Context::class }
                         ?: throw IllegalStateException("Function ${function.name} missing Context parameter")
 
-                    val argsParam = function.parameters.find { it.type.jvmErasure == Array::class || it.type.classifier == Array::class }
+                    val argsParam = function.parameters.filter { it.kind == KParameter.Kind.VALUE }
+                        .find {
+                            it.type.jvmErasure.java.isArray || it.type.classifier == Array::class
+                        }
                         ?: throw IllegalStateException("Function ${function.name} missing Array<String> parameter")
 
                     val params = mapOf(
