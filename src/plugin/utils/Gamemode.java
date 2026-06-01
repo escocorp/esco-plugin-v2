@@ -2,14 +2,14 @@ package plugin.utils;
 
 public enum Gamemode {
     idk(),
-    survival(false, "survival", "srv!", 5, 3, 150),
+    survival(false, "survival", "srv!", 5, 3, 500),
     sandbox(true, "sandbox", "snd!", 0, 1, 0),
-    attack(false, "attack", "atk!", 0, 1, 200),
-    pvp(false, "pvp", "pvp!", 0, 1, 300),
-    campaign(false, "campaign", "cmp!", 3, 2, 100),
-    tdefense(false, "tower defense", "td!", 5, 1, 150),
-    hub(true, "hub", "hb!", 0, 0, 0),
-    hexed(false, "hexed", "hex!", 0, 2, 150);
+    attack(false, "attack", "atk!", 0, 1, 1000),
+    pvp(false, "pvp", "pvp!", 0, 1, 600),
+    campaign(false, "campaign", "cmp!", 3, 2, 300),
+    tdefense(false, "tower defense", "td!", 5, 1, 750),
+    hub(false, "hub", "hb!", 0, 0, 0),
+    hexed(false, "hexed", "hex!", 0, 2, 1050);
 
     public boolean optimized;
     public String simpleName, botPrefix;

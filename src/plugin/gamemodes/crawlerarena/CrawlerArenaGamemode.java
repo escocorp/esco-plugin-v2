@@ -4,31 +4,37 @@ import arc.Core;
 import arc.Events;
 import arc.graphics.Color;
 import arc.math.Mathf;
-import arc.math.geom.*;
+import arc.math.geom.Geometry;
+import arc.math.geom.Point2;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.pooling.Pools;
-import mindustry.ai.types.*;
+import mindustry.ai.types.CommandAI;
 import mindustry.content.*;
-import mindustry.entities.abilities.*;
-import mindustry.entities.bullet.SapBulletType;
-import mindustry.entities.units.*;
 import mindustry.entities.Units;
+import mindustry.entities.abilities.Ability;
+import mindustry.entities.abilities.UnitSpawnAbility;
+import mindustry.entities.bullet.SapBulletType;
+import mindustry.entities.units.StatusEntry;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.graphics.Pal;
-import mindustry.mod.Plugin;
 import mindustry.net.Administration;
-import mindustry.type.*;
-import mindustry.world.*;
-import mindustry.world.blocks.liquid.Conduit;
+import mindustry.type.StatusEffect;
+import mindustry.type.UnitType;
+import mindustry.world.Block;
+import mindustry.world.Tile;
 import mindustry.world.blocks.distribution.Conveyor;
+import mindustry.world.blocks.liquid.Conduit;
 import mindustry.world.blocks.payloads.BuildPayload;
+import plugin.Bundle;
 
 import static mindustry.Vars.*;
 import static plugin.gamemodes.crawlerarena.CVars.*;
 
 public class CrawlerArenaGamemode {
+    public static CrawlerArenaGamemode instance = null;
+
     public static boolean gameIsOver = true, waveIsOver = false, firstWaveLaunched = false;
 
     public static int worldWidth, worldHeight, worldCenterX, worldCenterY;
@@ -95,9 +101,7 @@ public class CrawlerArenaGamemode {
 
         Events.on(WorldLoadEvent.class, event -> {
             if(state.rules.defaultTeam.core() != null){
-                Core.app.post(() -> state.rules.defaultTeam.cores().each(c -> {
-                    c.tile.setNet(Blocks.air);
-                }));
+                Core.app.post(() -> state.rules.defaultTeam.cores().each(c -> c.tile.setNet(Blocks.air)));
             }
 
             reset();
@@ -124,16 +128,17 @@ public class CrawlerArenaGamemode {
             timer = Time.millis();
         });
 
-        Events.on(GameOverEvent.class, event -> {
-            gameIsOver = true;
-        });
+        Events.on(GameOverEvent.class, event -> gameIsOver = true);
 
         Events.on(PlayerJoin.class, event -> {
             if(!money.containsKey(event.player.uuid()) || !units.containsKey(event.player.uuid())){
-                Bundle.bundled(event.player, "events.join.welcome");
+                //Bundle.sendMessage("events.join.welcome", event.player);
+                Bundle.sendMessage("crawler.events.join.welcome", event.player);
                 // let the "player gc" take care of this
             }else{
-                Bundle.bundled(event.player, "events.join.already-played");
+                //Bundle.sendMessage("events.join.already-played", event.player);
+                Bundle.sendMessage("crawler.events.join.already-played", event.player);
+
                 if(unitIDs.containsKey(event.player.uuid())){
                     Unit swapTo = Groups.unit.getByID(unitIDs.get(event.player.uuid()));
                     if(swapTo != null){
@@ -158,9 +163,7 @@ public class CrawlerArenaGamemode {
             }
         });
 
-        Events.on(BlockDestroyEvent.class, (e) -> {
-            toRespawn.add(e.tile.build);
-        });
+        Events.on(BlockDestroyEvent.class, (e) -> toRespawn.add(e.tile.build));
 
         Events.run(Trigger.update, () -> {
             if(gameIsOver) return;
@@ -178,10 +181,12 @@ public class CrawlerArenaGamemode {
             if(!Groups.unit.contains(u -> u.team == state.rules.defaultTeam)){
                 gameIsOver = true;
                 if(state.wave > bossWave){
-                    Bundle.sendToChat("events.gameover.win");
+                    // Bundle.sendMessage("events.gameover.win");
+                    Bundle.sendMessage("crawler.events.gameover.win");
                     Timer.schedule(() -> Events.fire(new GameOverEvent(state.rules.defaultTeam)), 2f);
                 }else{
-                    Bundle.sendToChat("events.gameover.lose");
+                    //Bundle.sendMessage("events.gameover.lose");
+                    Bundle.sendMessage("crawler.events.gameover.lose");
                     Timer.schedule(() -> Events.fire(new GameOverEvent(state.rules.waveTeam)), 2f);
                 }
                 return;
@@ -191,10 +196,10 @@ public class CrawlerArenaGamemode {
                 if(!u.isFlying()) return;
                 Tile t = u.tileOn();
                 if(t != null && t.solid() && !t.synthetic()){
-                    float tpx[] = new float[]{-1f};
-                    float tpy[] = new float[]{-1f};
-                    int deltaXMin[] = new int[]{Integer.MAX_VALUE / 4};
-                    int deltaYMin[] = new int[]{Integer.MAX_VALUE / 4};
+                    float[] tpx = new float[]{-1f};
+                    float[] tpy = new float[]{-1f};
+                    int[] deltaXMin = new int[]{Integer.MAX_VALUE / 4};
+                    int[] deltaYMin = new int[]{Integer.MAX_VALUE / 4};
                     Geometry.circle(u.tileX(), u.tileY(), 5, (x, y) -> {
                         Tile tile = world.tile(x, y);
                         if(tile != null && (!tile.solid() || t.synthetic()) && Math.abs(u.tileX() - x) + Math.abs(u.tileY() - y) < deltaXMin[0] + deltaYMin[0]){
@@ -213,10 +218,10 @@ public class CrawlerArenaGamemode {
                 }
             });
 
-            Groups.player.each(p -> Call.setHudText(p.con, Bundle.format("labels.money", Bundle.findLocale(p), Mathf.round(money.get(p.uuid(), 0f)))));
+            Groups.player.each(p -> Call.setHudText(p.con, Bundle.get("crawler.labels.money", p.locale, Mathf.round(money.get(p.uuid(), 0f)))));
 
-            if(Mathf.chance(1f * tipChance * Time.delta)) Bundle.sendToChat("events.tip.info");
-            if(Mathf.chance(1f * tipChance * Time.delta)) Bundle.sendToChat("events.tip.upgrades");
+            if(Mathf.chance(1f * tipChance * Time.delta)) Bundle.sendMessage("crawler.events.tip.info");
+            if(Mathf.chance(1f * tipChance * Time.delta)) Bundle.sendMessage("crawler.events.tip.upgrades");
 
             if(!spawnsLeft.isEmpty()){
                 float timePassed = (Time.millis() - waveStartTime) * 0.001f;
@@ -236,9 +241,7 @@ public class CrawlerArenaGamemode {
                 endWave();
             }
             if(retargetInterval.get(retargetDelay)){
-                Groups.unit.each(u -> u.team == state.rules.waveTeam && Mathf.chance(retargetChance * Mathf.sqrt(Groups.unit.size())), u -> {
-                    makeAttack(u);
-                });
+                Groups.unit.each(u -> u.team == state.rules.waveTeam && Mathf.chance(retargetChance * Mathf.sqrt(Groups.unit.size())), this::makeAttack);
             }
             if(!waveIsOver){
                 enemyTypes.each(type -> type.speed += enemySpeedBoost * Time.delta * statScaling);
@@ -279,10 +282,10 @@ public class CrawlerArenaGamemode {
 
     public void endWave(){
         if(state.wave < reinforcementMinWave || state.wave % reinforcementSpacing != 0){
-            Bundle.sendToChat("events.wave", (int)(waveDelay + state.wave * waveDelayRamp));
+            Bundle.sendMessage("crawler.events.wave", (int)(waveDelay + state.wave * waveDelayRamp));
             timers.add(Timer.schedule(this::nextWave, waveDelay + state.wave * waveDelayRamp));
         }else{
-            Bundle.sendToChat("events.next-wave", (int)(Math.min(reinforcementWaveDelayBase + state.wave * reinforcementWaveDelayRamp, reinforcementWaveDelayMax)));
+            Bundle.sendMessage("crawler.events.next-wave", (int)(Math.min(reinforcementWaveDelayBase + state.wave * reinforcementWaveDelayRamp, reinforcementWaveDelayMax)));
             timers.add(Timer.schedule(this::spawnReinforcements, 2.5f));
             timers.add(Timer.schedule(this::nextWave, Math.min(reinforcementWaveDelayBase + state.wave * reinforcementWaveDelayRamp, reinforcementWaveDelayMax)));
         }
@@ -302,8 +305,7 @@ public class CrawlerArenaGamemode {
             Teamc target = Units.closestTarget(u.team, u.x, u.y, u.range(), tgt -> {
                 if(!tgt.checkTarget(u.type.targetAir, u.type.targetGround)) return false;
                 Tile tile = world.tile(tgt.tileX(), tgt.tileY());
-                if((tile == null || (tile.solid() && tile.team() != state.rules.defaultTeam)) && !u.isFlying()) return false;
-                return true;
+                return (tile != null && (!tile.solid() || tile.team() == state.rules.defaultTeam)) || u.isFlying();
             }, tgt -> u.type.targetGround && !(tgt.block instanceof Conveyor || tgt.block instanceof Conduit));
             if(target != null){
                 c.commandTarget(target);
@@ -313,23 +315,23 @@ public class CrawlerArenaGamemode {
 
     public void newGame(){
         if(firstWaveLaunched) return;
-        if(Groups.player.size() == 0){
+        if(Groups.player.isEmpty()){
             Timer.schedule(this::newGame, 5f);
             gameIsOver = true;
             return;
         }
         Timer.schedule(() -> gameIsOver = false, 5f);
 
-        Bundle.sendToChat("events.first-wave", (int)firstWaveDelay);
+        Bundle.sendMessage("crawler.events.first-wave", (int)firstWaveDelay);
         Timer.schedule(this::nextWave, firstWaveDelay);
         firstWaveLaunched = true;
         waveIsOver = true;
     }
 
     public static class DeliverySpecifier{
-        Block block = null;
-        int amount = 1;
-        boolean skydrop = false;
+        Block block;
+        int amount;
+        boolean skydrop;
 
         public DeliverySpecifier(Block block, int amount, boolean skydrop){
             this.block = block;
@@ -343,7 +345,7 @@ public class CrawlerArenaGamemode {
     }
 
     public void spawnReinforcements(int deliveryAmount){
-        Bundle.sendToChat("events.aid");
+        Bundle.sendMessage("crawler.events.aid");
         Seq<DeliverySpecifier> blocks = new Seq<>();
         DropSpecifier guaranteed = guaranteedDrops.get(state.wave);
         if(guaranteed != null){
@@ -470,7 +472,7 @@ public class CrawlerArenaGamemode {
 
         if(p.unit().health < p.unit().maxHealth){
             p.unit().heal();
-            Bundle.bundled(p, "events.heal", Pal.heal);
+            Bundle.sendMessage("crawler.events.heal", p, Pal.heal);
         }
     }
 
@@ -490,8 +492,7 @@ public class CrawlerArenaGamemode {
                     if(field.get(unit) instanceof Seq s){
                         s.addAll(entries);
                     }
-                }catch(Exception e){
-                }
+                }catch(Exception ignore){}
             }
         }
     }
@@ -565,22 +566,21 @@ public class CrawlerArenaGamemode {
 
         int crawlers = Mathf.ceil(Mathf.pow(crawlersExpBase, 1f + state.wave * crawlersRamp * (1f + state.wave * extraCrawlersRamp)) * Groups.player.size() * crawlersMultiplier);
 
-        if(state.wave == bossWave - 5) Bundle.sendToChat("events.good-game");
-        else if(state.wave == bossWave - 3) Bundle.sendToChat("events.what-so-long");
-        else if(state.wave == bossWave - 1) Bundle.sendToChat("events.why-alive");
+        if(state.wave == bossWave - 5) Bundle.sendMessage("crawler.events.good-game");
+        else if(state.wave == bossWave - 3) Bundle.sendMessage("crawler.events.what-so-long");
+        else if(state.wave == bossWave - 1) Bundle.sendMessage("crawler.events.why-alive");
         else if(state.wave == bossWave){
-            Bundle.sendToChat("events.boss");
+            Bundle.sendMessage("crawler.events.boss");
             spawnEnemy(UnitTypes.reign);
             return;
         }
         else if(state.wave == bossWave + 1){
-            Bundle.sendToChat("events.victory", Time.timeSinceMillis(timer) / 1000f);
+            Bundle.sendMessage("crawler.events.victory", Time.timeSinceMillis(timer) / 1000f);
         }
         else if(state.wave > maxWave){
             gameIsOver = true;
-            Bundle.sendToChat("events.gameover.win");
+            Bundle.sendMessage("crawler.events.gameover.win");
             Timer.schedule(() -> Events.fire(new GameOverEvent(state.rules.defaultTeam)), 2f);
-            crawlers = 0;
             return;
         }
 
@@ -635,7 +635,6 @@ public class CrawlerArenaGamemode {
             unit.apply(StatusEffects.boss);
             unit.apply(StatusEffects.overclock, Float.MAX_VALUE);
             unit.apply(StatusEffects.overdrive, Float.MAX_VALUE);
-            boolean found = false;
             for(Ability ab : unit.abilities){
                 if(ab instanceof UnitSpawnAbility s){
                     s.spawnTime = playerPolyCooldown;
@@ -674,7 +673,7 @@ public class CrawlerArenaGamemode {
         unitIDs.clear();
         spawnsLeft.clear();
         toRespawn.clear();
-        timers.each(t -> t.cancel());
+        timers.each(Timer.Task::cancel);
         timers.clear();
     }
 
@@ -687,12 +686,12 @@ public class CrawlerArenaGamemode {
 
     public void registerClientCommands(CommandHandler handler){
         handler.<Player>register("upgrade", "[...]", "Migrated to /unit - use /unit instead", (args, player) -> {
-            Bundle.bundled(player, "commands.upgrade.use-unit");
+            Bundle.sendMessage("crawler.commands.upgrade.use-unit", player);
         });
         handler.<Player>register("unit", "<type> [amount]", "Upgrade to another unit. Specifying amount instead buys units to fight alongside you", (args, player) -> {
             UnitType newUnitType = findType(args[0].toLowerCase());
             if(newUnitType == null){
-                Bundle.bundled(player, "commands.upgrade.unit-not-found");
+                Bundle.sendMessage("crawler.commands.upgrade.unit-not-found", player);
                 return;
             }
             int amount = 1;
@@ -700,17 +699,17 @@ public class CrawlerArenaGamemode {
                 try{
                     amount = Integer.parseInt(args[1]);
                 }catch(NumberFormatException e){
-                    Bundle.bundled(player, "exceptions.invalid-amount");
+                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player);
                     return;
                 }
             }
             if(amount < 1){
-                Bundle.bundled(player, "exceptions.invalid-amount");
+                Bundle.sendMessage("crawler.exceptions.invalid-amount", player);
                 return;
             }
 
             if(Groups.unit.count(u -> u.type == newUnitType && u.team == state.rules.defaultTeam) > unitCap - amount){
-                Bundle.bundled(player, "commands.upgrade.too-many-units");
+                Bundle.sendMessage("crawler.commands.upgrade.too-many-units", player);
                 return;
             }
 
@@ -721,7 +720,7 @@ public class CrawlerArenaGamemode {
                         setUnit(newUnit);
                     }
                     money.put(player.uuid(), money.get(player.uuid(), 0f) - unitCosts.get(newUnitType) * amount);
-                    Bundle.bundled(player, "commands.upgrade.already");
+                    Bundle.sendMessage("crawler.commands.upgrade.already", player);
                     return;
                 }
                 Unit newUnit = newUnitType.spawn(player.x, player.y);
@@ -730,15 +729,15 @@ public class CrawlerArenaGamemode {
                 money.put(player.uuid(), money.get(player.uuid(), 0f) - unitCosts.get(newUnitType));
                 units.put(player.uuid(), newUnitType);
                 unitIDs.put(player.uuid(), newUnit.id);
-                Bundle.bundled(player, "commands.upgrade.success");
+                Bundle.sendMessage("crawler.commands.upgrade.success", player);
 
-            }else Bundle.bundled(player, "commands.upgrade.not-enough-money");
+            }else Bundle.sendMessage("crawler.commands.upgrade.not-enough-money", player);
         });
 
         handler.<Player>register("give", "<amount> <name...>", "Give money to another player", (args, player) -> {
             Player giveTo = Groups.player.find(p -> Strings.stripColors(p.name).toLowerCase().contains(args[1].toLowerCase()));
             if(giveTo == null){
-                Bundle.bundled(player, "commands.give.player-not-found");
+                Bundle.sendMessage("crawler.commands.give.player-not-found", player);
                 return;
             }
 
@@ -749,25 +748,25 @@ public class CrawlerArenaGamemode {
                 try{
                     amount = Integer.parseInt(args[0]);
                 }catch(NumberFormatException e){
-                    Bundle.bundled(player, "exceptions.invalid-amount");
+                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player);
                     return;
                 }
             }
             if(amount < 0){
-                Bundle.bundled(player, "exceptions.invalid-amount");
+                Bundle.sendMessage("crawler.exceptions.invalid-amount", player);
                 return;
             }
 
             if(money.get(player.uuid(), 0f) >= amount){
                 money.put(player.uuid(), money.get(player.uuid(), 0f) - amount);
                 money.put(giveTo.uuid(), money.get(giveTo.uuid(), 0f) + amount);
-                Bundle.bundled(player, "commands.give.success", amount, giveTo.coloredName());
-                Bundle.bundled(giveTo, "commands.give.money-recieved", amount, player.coloredName());
+                Bundle.sendMessage("crawler.commands.give.success", player, amount, giveTo.coloredName());
+                Bundle.sendMessage("crawler.commands.give.money-recieved", giveTo, amount, player.coloredName());
 
-            }else Bundle.bundled(player, "commands.give.not-enough-money");
+            }else Bundle.sendMessage("crawler.commands.give.not-enough-money", player);
         });
 
-        handler.<Player>register("info", "Show info about the Crawler Arena gamemode", (args, player) -> Bundle.bundled(player, "commands.info"));
+        handler.<Player>register("info", "Show info about the Crawler Arena gamemode", (args, player) -> Bundle.sendMessage("crawler.commands.info", player));
 
         handler.<Player>register("upgrades", "[page]", "Show units you can upgrade to", (args, player) -> {
             int page;
@@ -777,14 +776,14 @@ public class CrawlerArenaGamemode {
                 try{
                     page = Integer.parseInt(args[0]);
                 }catch(NumberFormatException e){
-                    Bundle.bundled(player, "exceptions.invalid-amount");
+                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player);
                     return;
                 }
             }
             IntSeq sortedUnitCosts = unitCosts.values().toArray();
             int maxPage = (sortedUnitCosts.size - 1) / unitsRows + 1;
             if(1 > page || page > maxPage){
-                Bundle.bundled(player, "exceptions.invalid-amount");
+                Bundle.sendMessage("crawler.exceptions.invalid-amount", player);
                 return;
             }
             sortedUnitCosts.sort();
@@ -796,9 +795,11 @@ public class CrawlerArenaGamemode {
             }
             ObjectIntMap<UnitType> unitCostsCopy = new ObjectIntMap<>();
             unitCostsCopy.putAll(unitCosts);
-            int i = 1;
-            StringBuilder upgrades = new StringBuilder(Bundle.format("commands.upgrades.header", Bundle.findLocale(player)));
-            upgrades.append(Bundle.format("commands.upgrades.page", Bundle.findLocale(player), page, maxPage)).append("\n");
+
+            //StringBuilder upgrades = new StringBuilder(Bundle.format("commands.upgrades.header", Bundle.findLocale(player)));
+            StringBuilder upgrades = new StringBuilder(Bundle.get("crawler.commands.upgrades.header", player.locale));
+
+            upgrades.append(Bundle.get("crawler.commands.upgrades.page", player.locale, page, maxPage)).append("\n");
             sortedUnitCosts.each((cost) -> {
                 UnitType type = unitCostsCopy.findKey(cost);
                 upgrades.append("[gold] - [accent]").append(type.name).append(" [lightgray](").append(cost).append(")\n");
@@ -811,10 +812,10 @@ public class CrawlerArenaGamemode {
             UnitType type = findType(args[0].toLowerCase());
             int cost = unitCosts.get(type, -1);
             if(cost == -1){
-                Bundle.bundled(player, "commands.upgrade.unit-not-found");
+                Bundle.sendMessage("crawler.commands.upgrade.unit-not-found", player);
                 return;
             }
-            player.sendMessage(type.name + (" - ") + (Integer.toString(cost)));
+            player.sendMessage(type.name + (" - ") + (cost));
         });
     }
 
@@ -822,7 +823,7 @@ public class CrawlerArenaGamemode {
         handler.register("kill", "Kill all enemies in the current wave.", args -> Groups.unit.each(u -> u.team == state.rules.waveTeam, Unitc::kill));
         handler.register("spawnaid", "[amount]", "Spawn aid drops.", args -> {
             if(args.length > 0){
-                int amount = 0;
+                int amount;
                 try{
                     amount = Integer.parseInt(args[0]);
                 }catch(NumberFormatException e){

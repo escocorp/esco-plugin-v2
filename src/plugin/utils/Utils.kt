@@ -17,6 +17,7 @@ import mindustry.core.GameState
 import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
+import plugin.Bundle
 import plugin.KVars.eventsScope
 import plugin.PVars
 import plugin.PVars.apiAuth
@@ -37,7 +38,7 @@ import javax.imageio.ImageIO
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
-fun isAnon(ip: String?, callback: Cons<ApiResponse>) {
+fun isAnon(ip: String?, callback: Cons<VPNApiResponse>) {
     Http.get(PVars.vpnApi + ip)
         .header("Authorization", "Basic $apiAuth")
         .error { th ->
@@ -47,8 +48,8 @@ fun isAnon(ip: String?, callback: Cons<ApiResponse>) {
             Log.debug("Received IPAPI response")
             try {
                 val apiResponse = PVars.objectMapper.readValue(
-                    resp!!.resultAsString,
-                    ApiResponse::class.java
+                    resp.resultAsString,
+                    VPNApiResponse::class.java
                 )
                 if (!apiResponse.status.equals("success")) {
                     Log.err("Failed to check ip $ip messsage ${apiResponse.message}")
@@ -236,22 +237,22 @@ fun parseImage(image: BufferedImage): ByteArray {
 
 fun save(name: String): Boolean {
     if(!Vars.state.isGame){
-        Log.err("Not hosting. Failed to save.");
-        return false;
+        Log.err("Not hosting. Failed to save.")
+        return false
     }
 
-    val file = saveDirectory.child("$name.$saveExtension");
+    val file = saveDirectory.child("$name.$saveExtension")
 
     Core.app.post {
-        SaveIO.save(file);
-        Log.info("Saved to @.", file);
+        SaveIO.save(file)
+        Log.info("Saved to @.", file)
     }
-    return true;
+    return true
 }
 
 fun loadSave(name: String): Boolean {
-    if (Vars.state.isGame()) {
-        Log.err("Already hosting. Failed to load save.");
+    if (Vars.state.isGame) {
+        Log.err("Already hosting. Failed to load save.")
         return false
     }
 
@@ -274,4 +275,12 @@ fun loadSave(name: String): Boolean {
         }
     })
     return true
+}
+
+fun Player.sendBundle(req: String) {
+    Bundle.sendMessage(req, this)
+}
+
+fun Player.sendBundle(req: String, vararg params: Any) {
+    Bundle.sendMessage(req, this, *params)
 }

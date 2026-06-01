@@ -1,20 +1,21 @@
 package plugin.gamemodes.hexed;
 
-import arc.math.geom.*;
-import arc.util.*;
-import mindustry.game.*;
-import mindustry.game.Teams.*;
-import mindustry.gen.*;
-import mindustry.type.*;
-import mindustry.world.*;
-import mindustry.world.blocks.storage.*;
+import arc.math.geom.Intersector;
+import arc.util.Nullable;
+import arc.util.Timekeeper;
+import mindustry.game.Team;
+import mindustry.game.Teams.TeamData;
+import mindustry.gen.Groups;
+import mindustry.type.ItemStack;
+import mindustry.world.Tile;
+import mindustry.world.blocks.storage.CoreBlock;
 
-import java.util.*;
+import java.util.Arrays;
 
 import static mindustry.Vars.*;
 
 public class Hex{
-    private float[] progress = new float[256];
+    private final float[] progress = new float[256];
 
     public final static int size = 516;
     public final static int diameter = 74;

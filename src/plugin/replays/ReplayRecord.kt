@@ -1,7 +1,6 @@
 package plugin.replays
 
 import kotlinx.serialization.Serializable
-import java.util.Optional
 
 @Serializable
 data class ReplayRecord(
@@ -13,5 +12,4 @@ data class ReplayRecord(
     val time: Long,
     val team: Int,
     val rotation: Int
-) {
-}
+)

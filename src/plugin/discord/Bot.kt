@@ -14,7 +14,7 @@ import plugin.discord.register.DiscordCommandAnnotationProcessor
 import java.awt.Color
 import java.util.*
 
-const val nohornyBanButtonId = "nohornyban";
+const val nohornyBanButtonId = "nohornyban"
 
 fun load() {
     val intents = EnumSet.allOf(GatewayIntent::class.java)

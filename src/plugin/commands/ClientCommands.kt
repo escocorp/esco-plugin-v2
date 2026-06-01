@@ -10,7 +10,8 @@ import arc.util.Time
 import arc.util.Timekeeper
 import arc.util.Timer
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.Team
@@ -26,12 +27,16 @@ import plugin.PVars
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.*
-import plugin.database.models.*
+import plugin.database.models.PlayerData
+import plugin.database.models.PlayerStats
 import plugin.gamemodes.hexed.Hex
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.history.History
-import plugin.menus.*
-import plugin.replays.ReplayStack
+import plugin.menus.ScrollableMenu
+import plugin.menus.ScrollableTextMenu
+import plugin.menus.showShop
+import plugin.menus.slot
+import plugin.replays.Replay
 import plugin.replays.playReplay
 import plugin.replays.saveReplay
 import plugin.utils.*
@@ -63,22 +68,24 @@ fun register(handler: CustomHandler) {
         }
     })
     handler.registerCommand("savereplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
-        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.json")
+        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
         file.parent().mkdirs()
-        file.writeString(saveReplay(History.history))
+        file.writeBytes(saveReplay(History.history, Vars.state.map.name()))
 
         p.sendMessage("Done!")
     })
     handler.registerCommand("playreplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
-        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.json");
+        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
         if(!file.exists()) {
             p.sendMessage("File doesn't exist!")
             return@CommandRunner
         }
-        val replay = Json.decodeFromString<HashMap<Long, ReplayStack>>(file.readString())
-        p.sendMessage("total actions: ${replay.size}")
-        playReplay(replay)
+        val replay = ProtoBuf.decodeFromByteArray<Replay>(
+            file.readBytes()
+        )
+        p.sendMessage("total actions: ${replay.actions.size}")
+        playReplay(replay.actions)
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
         if(arg.isEmpty()) {
@@ -673,4 +680,24 @@ private fun registerHexedCommands(handler: CustomHandler) {
                 player.sendMessage("[scarlet]No hex found.")
             }
         })
+
+    if(false)
+    handler.registerCommand("join", "<player...>", Permission.test, CommandRunner { arg: Array<String>, player: Player ->
+        val sname = Strings.stripColors(arg[0])
+        val player2 = Groups.player.find({ p ->
+            return@find p.plainName().contains(sname, ignoreCase = true)
+        })
+        if(player2 == null) {
+            player.sendBundle("votekick.playernotfound", sname)
+            return@CommandRunner
+        }
+        val oldTeam = player.team()
+        val newTeam = player2.team()
+        /*val oldTeamPlayers = Groups.player.find({
+            return@find it.team() == oldTeam && it.uuid() != player.uuid()
+        })
+        if(oldTeamPlayers == null) {
+            HexedGamemode.hexedGamemode.killTiles(oldTeam)
+        }*/
+    })
 }

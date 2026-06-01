@@ -1,7 +1,6 @@
 package plugin.listeners
 
 import arc.Events
-import kotlin.collections.get
 import kotlin.reflect.KClass
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberFunctions

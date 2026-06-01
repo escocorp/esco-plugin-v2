@@ -2,9 +2,7 @@ package plugin.history;
 
 import arc.math.geom.Point2;
 import arc.struct.LongMap;
-import arc.struct.Seq;
 import mindustry.game.Team;
-import mindustry.net.Administration;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
 import mindustry.world.Tile;
