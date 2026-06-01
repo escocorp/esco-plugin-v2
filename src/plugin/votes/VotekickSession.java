@@ -5,11 +5,13 @@ import arc.util.Timer;
 import mindustry.Vars;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
+import mindustry.net.Administration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import plugin.PVars;
 
 import java.awt.*;
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static mindustry.core.NetServer.kickDuration;
@@ -82,10 +84,23 @@ public class VotekickSession {
         currentlyKicking = null;
     }
 
+    /**
+     * Sends a summary embed to the configured votekicks Discord channel when a votekick passes.
+     *
+     * <p>The embed contains the initiating player, the targeted player, the final vote count,
+     * the kick reason, and the server name. If any administration players participated in the
+     * vote, two additional fields are appended listing admins who voted <em>for</em> and
+     * <em>against</em> the kick respectively. Admins are identified by UUID length (24 chars)
+     * and deduplicated via a {@link HashSet} to avoid double-counting IP-keyed entries.
+     *
+     * @param stId database ID of the player who started the votekick session.
+     * @param tId  database ID of the player targeted by the votekick.
+     */
     public void sendEmbed(int stId, int tId) {
         if (votekicksChannel == null) return;
 
         EmbedBuilder embed = new EmbedBuilder();
+
         embed.setColor(Color.red)
                 .addField("Votekick", MessageFormat.format(
                         """
@@ -99,6 +114,21 @@ public class VotekickSession {
                         tId, target.plainName(),
                         votes, reason, PVars.gamemode.simpleName
                 ), false);
+
+        StringBuilder votedFor = new StringBuilder();
+        StringBuilder votedAgainst = new StringBuilder();
+        HashSet<Administration.PlayerInfo> checked = new HashSet<>();
+        for (var vote : voted.entries()) {
+            if (vote.key.length() != 24) continue;
+            var info = Vars.netServer.admins.getInfoOptional(vote.key);
+            if (info != null && checked.add(info)) {
+                StringBuilder targetBuilder = (vote.value == -1) ? votedAgainst : votedFor;
+                targetBuilder.append("- ").append(info.lastName).append('\n');
+            }
+        }
+        if (!votedFor.isEmpty()) embed.addField("Voted for", votedFor.toString(), false);
+        if (!votedAgainst.isEmpty()) embed.addField("Voted against", votedAgainst.toString(), false);
+
         votekicksChannel.sendMessageEmbeds(embed.build()).queue();
     }
 

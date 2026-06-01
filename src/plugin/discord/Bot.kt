@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 import plugin.PVars
 import plugin.discord.listeners.MessageListener
+import plugin.discord.register.DiscordCommandAnnotationProcessor
 import java.awt.Color
 import java.util.*
 
@@ -44,8 +45,7 @@ fun load() {
 
         PVars.discordCommands = CommandHandler(PVars.gamemode.botPrefix)
         PVars.globalCommands = CommandHandler("gc!")
-        register(PVars.discordCommands)
-        registerGlobal(PVars.globalCommands)
+        DiscordCommandAnnotationProcessor.registerCommands(Commands(), PVars.discordCommands, PVars.globalCommands)
 
         Log.info("Registered ${PVars.discordCommands.commandList.size} discord commands")
         Log.info("Registered ${PVars.globalCommands.commandList.size} global discord commands")
