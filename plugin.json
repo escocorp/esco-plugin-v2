@@ -1,6 +1,6 @@
 {
   "name": "plugin",
-  "author": "grely, anuken(hexed), ilya246(crawlerarena)",
+  "author": "grely, anuken(hexed), ilya246(crawlerarena), afflictnya",
   "main": "plugin.PPlugin",
   "description": "Simple server plugin",
   "version": 2.1
