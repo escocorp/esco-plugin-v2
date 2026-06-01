@@ -1,20 +1,17 @@
 # СЛИЛ КОД ПЛАГИНА - ЖИРДЯЙ
-## Chaos of shitcode
-### Please, don't use it without permission!!!!!
+## Chaos of shitcode | Хаос говнокода
+### Please, don't use it without permission!!!!! | Не используйте плагин без разрешения от kukoldiki aka grely.
 
-### Building a Jar
+### Сборка
 
 `gradlew jar` / `./gradlew jar`
 
-Output jar should be in `build/libs`.
+Артефакты должны быть в `build/libs`.
 
-### Deploying
+### Деплой
 
 `./autodeploy.sh`
 
-### Installing
-
-Simply place the output jar from the step above in your server's `config/mods` directory and restart the server.
-List your currently installed plugins/mods by running the `mods` command.
-
+### Установка
+Поместите плагин в папку `config/mods` и создайте конфигурационный файл .env, или задайте ее через export или же параметры -D
 <!-- 12344123444262445445 -->
