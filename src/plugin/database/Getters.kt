@@ -453,11 +453,20 @@ fun getPlayerData(rs: ResultSet): PlayerData {
 
 // region PlayerStats
 
+private fun ensureJoinTimeTracked(player: Player) {
+    if (!PlayerStats.joinTime.containsKey(player.uuid())) {
+        PlayerStats.setJoinTime(player)
+    }
+}
+
 fun getPlayerStats(player: Player): Optional<PlayerStats> {
     val uuid = player.uuid()
 
     val cached: PlayerStats? = playerStatsCache.get(uuid)
-    if (cached != null) return Optional.of(cached)
+    if (cached != null) {
+        ensureJoinTimeTracked(player)
+        return Optional.of(cached)
+    }
     logExpectedCacheMiss(player, "playerStatsCache")
 
     val opt = executeQueryAsync(
@@ -466,7 +475,10 @@ fun getPlayerStats(player: Player): Optional<PlayerStats> {
         { rs: ResultSet -> getPlayerStats(rs) }
     )
 
-    opt.ifPresent(Consumer { stats: PlayerStats? -> playerStatsCache.put(uuid, stats) })
+    opt.ifPresent { stats ->
+        playerStatsCache.put(uuid, stats)
+        ensureJoinTimeTracked(player)
+    }
 
     return opt
 }

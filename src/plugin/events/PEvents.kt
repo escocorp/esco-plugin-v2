@@ -128,9 +128,7 @@ fun loadEvents() {
             return@onAsync
         }
         val pd = pdOpt.get()
-        app.post {
-            PlayerStats.setJoinTime(player)
-        }
+        PlayerStats.setJoinTime(player)
 
         //pd.setOriginalName(player.coloredName());
         getPlayerStats(player)
