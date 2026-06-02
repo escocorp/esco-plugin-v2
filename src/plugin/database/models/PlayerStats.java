@@ -86,13 +86,17 @@ public class PlayerStats {
     }
 
     public PlayerStats update(Player player, boolean purge) {
-        Long time = joinTime.get(player.uuid(), 0L);
-        playtime += (Time.millis() - time) / 1000; // to sec
-
-        joinTime.remove(player.uuid());
-        if (!purge)
-            setJoinTime(player);
-        else
+        synchronized (joinTime) {
+            Long time = joinTime.remove(player.uuid());
+            if (time != null) {
+                long deltaSec = (Time.millis() - time) / 1000;
+                if (deltaSec > 0)
+                    playtime += deltaSec;
+            }
+            if (!purge)
+                setJoinTime(player);
+        }
+        if (purge)
             write();
 
         return this;
