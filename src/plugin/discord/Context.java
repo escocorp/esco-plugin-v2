@@ -40,9 +40,9 @@ public class Context {
         message.reply("["+ gamemode.name() + "] " +content).queue();
     }
 
-    /*public void replyServer(String content) {
+    public void replyServer(String content) {
         message.reply("["+gamemode.simpleName+"] "+content).queue();
-    }*/
+    }
 
     public void replyEmbed(MessageEmbed embed) {
         message.reply(MessageCreateData.fromEmbeds(embed)).queue();
