@@ -7,12 +7,20 @@ import java.util.Base64;
 
 import static plugin.utils.Gamemode.parseGamemode;
 
+/**
+ * Configuration manager for the plugin.
+ * Handles loading environment variables and system properties to populate plugin settings.
+ */
 public class Config {
     private static final Dotenv dotenv = Dotenv.configure()
             .ignoreIfMalformed()
             .ignoreIfMissing()
             .load();
 
+    /**
+     * Loads configuration settings from various sources into {@link PVars}.
+     * This method initializes gamemode, API endpoints, database credentials, and Discord bot settings.
+     */
     public static void load() {
         // spec.
         PVars.gamemode = parseGamemode(getEnv("GAMEMODE"));
@@ -43,10 +51,23 @@ public class Config {
     }
 
 
+    /**
+     * Retrieves an environment variable with a default empty string.
+     *
+     * @param name The name of the environment variable to retrieve.
+     * @return The value of the environment variable, or an empty string if not found.
+     */
     private static String getEnv(String name) {
         return getEnv(name, "");
     }
 
+    /**
+     * Retrieves an environment variable from .env file, system environment, or system properties.
+     *
+     * @param name The name of the environment variable to retrieve.
+     * @param def The default value to return if the variable is not found.
+     * @return The value of the environment variable if present; otherwise, the default value.
+     */
     private static String getEnv(String name, String def) {
         String value = dotenv.get(name);
         if (value != null && !value.isEmpty()) {
