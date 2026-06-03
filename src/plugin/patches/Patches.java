@@ -46,7 +46,8 @@ public class Patches {
         if(gamemode == Gamemode.sandbox)
             patchCoreHealth();
         loadLogger();
-        // replaceNetServer();
+        replaceNetServer();
+    }
     }
 
     public static void patchCoreHealth() {
