@@ -48,7 +48,6 @@ public class Patches {
         loadLogger();
         replaceNetServer();
     }
-    }
 
     public static void patchCoreHealth() {
         Vars.content.each(content -> {
