@@ -20,7 +20,7 @@ CREATE TABLE usid_list (
     player_id INTEGER REFERENCES players(id),
     usid VARCHAR(12),
     server INTEGER REFERENCES servers(id),
-    UNIQUE (usid, server)
+    UNIQUE (player_id, server)
 );
 
 CREATE TABLE admin_ranks (
