@@ -67,7 +67,7 @@ dependencies {
 
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
 
-    implementation("net.dv8tion:JDA:6.4.1") {
+    implementation("net.dv8tion:JDA:6.4.2") {
         exclude(module = "opus-java")
     }
 
