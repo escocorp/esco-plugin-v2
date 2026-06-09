@@ -153,7 +153,6 @@ public class HexedGamemode {
                 Hex hex = data.getHex(event.tile.pos());
 
                 if(hex != null){
-                    //update state
                     hex.spawnTime.reset();
                     hex.updateController();
                 }
@@ -450,7 +449,6 @@ public class HexedGamemode {
     public boolean active(){
         return state.rules.tags.getBool("hexed") && !state.is(State.menu);
     }
-
 
     private static class LeavedPlayer{
         public Team team;

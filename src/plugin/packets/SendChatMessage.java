@@ -42,9 +42,7 @@ public class SendChatMessage {
 
         Events.fire(new EventType.PlayerChatEvent(player, message));
 
-        //log commands before they are handled
         if (message.startsWith(netServer.clientCommands.getPrefix()) && Administration.Config.logCommands.bool()) {
-            //log with brackets
             Log.info("<&fi@: @&fr>", "&lk" + player.plainName(), "&lw" + message);
         }
 
