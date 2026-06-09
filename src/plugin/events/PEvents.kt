@@ -69,7 +69,7 @@ fun loadEvents() {
                             0
                         )
                     }
-                    sendLog("Possible account thief! Usid: " + player.usid() + " Database: " + u)
+                    sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             })
             if(PVars.gamemode != Gamemode.hub)
