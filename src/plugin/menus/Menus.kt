@@ -211,7 +211,7 @@ fun showSlot(p: Player, stats: PlayerStats, bet: Int) {
         return
     }
 
-    val loseFactor = (stats.balance / 30000f).coerceIn(0f, 1f)
+    val loseFactor = (stats.balance / 60000f).coerceIn(0f, 1f)
 
     val s1 = randomSymbol()
     var s2 = randomSymbol()
