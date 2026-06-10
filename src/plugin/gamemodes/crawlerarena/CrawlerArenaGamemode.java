@@ -55,7 +55,7 @@ public class CrawlerArenaGamemode {
     public static long timer = Time.millis();
     public static long waveStartTime = Time.millis();
 
-    public void init(){
+    public static void init(){
         UnitTypes.crawler.aiController = CommandAI::new;
         UnitTypes.atrax.aiController = CommandAI::new;
         UnitTypes.spiroct.aiController = CommandAI::new;
@@ -241,7 +241,7 @@ public class CrawlerArenaGamemode {
                 endWave();
             }
             if(retargetInterval.get(retargetDelay)){
-                Groups.unit.each(u -> u.team == state.rules.waveTeam && Mathf.chance(retargetChance * Mathf.sqrt(Groups.unit.size())), this::makeAttack);
+                Groups.unit.each(u -> u.team == state.rules.waveTeam && Mathf.chance(retargetChance * Mathf.sqrt(Groups.unit.size())), CrawlerArenaGamemode::makeAttack);
             }
             if(!waveIsOver){
                 enemyTypes.each(type -> type.speed += enemySpeedBoost * Time.delta * statScaling);
@@ -280,14 +280,14 @@ public class CrawlerArenaGamemode {
         Log.info("Crawler Arena loaded.");
     }
 
-    public void endWave(){
+    public static void endWave(){
         if(state.wave < reinforcementMinWave || state.wave % reinforcementSpacing != 0){
             Bundle.sendMessage("crawler.events.wave", (int)(waveDelay + state.wave * waveDelayRamp));
-            timers.add(Timer.schedule(this::nextWave, waveDelay + state.wave * waveDelayRamp));
+            timers.add(Timer.schedule(CrawlerArenaGamemode::nextWave, waveDelay + state.wave * waveDelayRamp));
         }else{
             Bundle.sendMessage("crawler.events.next-wave", (int)(Math.min(reinforcementWaveDelayBase + state.wave * reinforcementWaveDelayRamp, reinforcementWaveDelayMax)));
-            timers.add(Timer.schedule(this::spawnReinforcements, 2.5f));
-            timers.add(Timer.schedule(this::nextWave, Math.min(reinforcementWaveDelayBase + state.wave * reinforcementWaveDelayRamp, reinforcementWaveDelayMax)));
+            timers.add(Timer.schedule(CrawlerArenaGamemode::spawnReinforcements, 2.5f));
+            timers.add(Timer.schedule(CrawlerArenaGamemode::nextWave, Math.min(reinforcementWaveDelayBase + state.wave * reinforcementWaveDelayRamp, reinforcementWaveDelayMax)));
         }
         Groups.player.each(p -> {
             respawnPlayer(p);
@@ -296,11 +296,11 @@ public class CrawlerArenaGamemode {
         waveIsOver = true;
     }
 
-    public float waveMoney(int wave){
+    public static float waveMoney(int wave){
         return Mathf.pow(moneyExpBase, 1f + wave * (moneyRamp + extraMoneyRamp * wave)) * moneyMultiplier;
     }
 
-    public void makeAttack(Unit u){
+    public static void makeAttack(Unit u){
         if(u.controller() instanceof CommandAI c){
             Teamc target = Units.closestTarget(u.team, u.x, u.y, u.range(), tgt -> {
                 if(!tgt.checkTarget(u.type.targetAir, u.type.targetGround)) return false;
@@ -313,17 +313,17 @@ public class CrawlerArenaGamemode {
         }
     }
 
-    public void newGame(){
+    public static void newGame(){
         if(firstWaveLaunched) return;
         if(Groups.player.isEmpty()){
-            Timer.schedule(this::newGame, 5f);
+            Timer.schedule(CrawlerArenaGamemode::newGame, 5f);
             gameIsOver = true;
             return;
         }
         Timer.schedule(() -> gameIsOver = false, 5f);
 
         Bundle.sendMessage("crawler.events.first-wave", (int)firstWaveDelay);
-        Timer.schedule(this::nextWave, firstWaveDelay);
+        Timer.schedule(CrawlerArenaGamemode::nextWave, firstWaveDelay);
         firstWaveLaunched = true;
         waveIsOver = true;
     }
@@ -340,11 +340,11 @@ public class CrawlerArenaGamemode {
         }
     }
 
-    public void spawnReinforcements(){
+    public static void spawnReinforcements(){
         spawnReinforcements(Mathf.round(Mathf.sqrt(Groups.player.size()) * state.wave * (1f + state.wave * reinforcementRamp) * reinforcementScaling * statScaling));
     }
 
-    public void spawnReinforcements(int deliveryAmount){
+    public static void spawnReinforcements(int deliveryAmount){
         Bundle.sendMessage("crawler.events.aid");
         Seq<DeliverySpecifier> blocks = new Seq<>();
         DropSpecifier guaranteed = guaranteedDrops.get(state.wave);
@@ -428,7 +428,7 @@ public class CrawlerArenaGamemode {
         }
     }
 
-    public void respawnPlayer(Player p){
+    public static void respawnPlayer(Player p){
         int resX = Mathf.round(worldCenterX / tilesize);
         int resY = Mathf.round(worldCenterY / tilesize);
         Player at = Groups.player.find(pl -> !pl.dead());
@@ -476,7 +476,7 @@ public class CrawlerArenaGamemode {
         }
     }
 
-    public void applyStatus(Unit unit, float duration, int amount, StatusEffect... effects){
+    public static void applyStatus(Unit unit, float duration, int amount, StatusEffect... effects){
         Seq<StatusEntry> entries = new Seq<>();
         for(int i = 0; i < amount; i++){
             for(StatusEffect effect : effects){
@@ -496,11 +496,11 @@ public class CrawlerArenaGamemode {
             }
         }
     }
-    public void applyStatus(Unit unit, float duration, StatusEffect... effects){
+    public static void applyStatus(Unit unit, float duration, StatusEffect... effects){
         applyStatus(unit, duration, 1, effects);
     }
 
-    public void spawnEnemy(UnitType unit){
+    public static void spawnEnemy(UnitType unit){
         float sX = 32;
         float sY = 32;
         Seq<Tile> spawns = spawner.getSpawns();
@@ -558,7 +558,7 @@ public class CrawlerArenaGamemode {
         makeAttack(u);
     }
 
-    public void nextWave(){
+    public static void nextWave(){
         state.wave++;
         waveStartTime = Time.millis();
         statScaling = 1f + state.wave * statScalingNormal;
@@ -607,11 +607,11 @@ public class CrawlerArenaGamemode {
         }
     }
 
-    public void addUnitAbility(Unit unit, Ability ability){
+    public static void addUnitAbility(Unit unit, Ability ability){
         unit.abilities = Seq.with(unit.abilities).add(ability).toArray();
     }
 
-    public void setUnit(Unit unit, boolean ultraEligible){
+    public static void setUnit(Unit unit, boolean ultraEligible){
         if(unit.type == UnitTypes.crawler){
             unit.maxHealth = playerCrawlerHealth;
             unit.health = unit.maxHealth;
@@ -660,11 +660,11 @@ public class CrawlerArenaGamemode {
             applyStatus(unit, Float.MAX_VALUE, 3, StatusEffects.overclock, StatusEffects.overdrive, StatusEffects.boss);
         }
     }
-    public void setUnit(Unit unit){
+    public static void setUnit(Unit unit){
         setUnit(unit, false);
     }
 
-    public void reset(){
+    public static void reset(){
         statScaling = 1f;
         UnitTypes.crawler.speed = crawlerSpeedBase;
         UnitTypes.crawler.health = crawlerHealthBase;
@@ -677,14 +677,14 @@ public class CrawlerArenaGamemode {
         timers.clear();
     }
 
-    public UnitType findType(String name){
+    public static UnitType findType(String name){
         Seq<UnitType> types = Seq.with(unitCosts.keys());
         //UnitType type = types.filter(u -> u.name.contains(name)).min(u -> Strings.levenshtein(u.name, name));
         UnitType type = types.find(u->u.name.contains(name));
         return type == null ? Seq.with(unitCosts.keys()).min(u -> Strings.levenshtein(u.name, name)) : type;
     }
 
-    public void registerClientCommands(CommandHandler handler){
+    public static void registerClientCommands(CommandHandler handler){
         handler.<Player>register("upgrade", "[...]", "Migrated to /unit - use /unit instead", (args, player) -> {
             Bundle.sendMessage("crawler.commands.upgrade.use-unit", player);
         });
@@ -819,7 +819,7 @@ public class CrawlerArenaGamemode {
         });
     }
 
-    public void registerServerCommands(CommandHandler handler){
+    public static void registerServerCommands(CommandHandler handler){
         handler.register("kill", "Kill all enemies in the current wave.", args -> Groups.unit.each(u -> u.team == state.rules.waveTeam, Unitc::kill));
         handler.register("spawnaid", "[amount]", "Spawn aid drops.", args -> {
             if(args.length > 0){
