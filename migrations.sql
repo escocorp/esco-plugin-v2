@@ -112,3 +112,19 @@ CREATE TABLE maps (
     skips INTEGER NOT NULL DEFAULT 0,
     UNIQUE(name, server)
 );
+
+CREATE OR REPLACE FUNCTION notify_new_ban()
+RETURNS trigger AS $$
+BEGIN
+    PERFORM pg_notify(
+        'new_ban',
+        NEW.id::text
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bans_notify_new_ban
+AFTER INSERT ON bans
+FOR EACH ROW
+EXECUTE FUNCTION notify_new_ban();
