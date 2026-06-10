@@ -2,6 +2,10 @@ package plugin.commands
 
 import arc.Core
 import arc.Events
+import arc.func.Boolf
+import arc.func.Intc
+import arc.math.Mathf
+import arc.struct.ObjectIntMap
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
@@ -18,9 +22,11 @@ import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
+import mindustry.gen.Unit
 import mindustry.graphics.Pal
 import mindustry.maps.Map
 import mindustry.net.Administration
+import mindustry.type.UnitType
 import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
@@ -29,6 +35,8 @@ import plugin.PVars.hubPort
 import plugin.database.*
 import plugin.database.models.PlayerData
 import plugin.database.models.PlayerStats
+import plugin.gamemodes.crawlerarena.CVars
+import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.Hex
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.history.History
@@ -194,7 +202,7 @@ fun register(handler: CustomHandler) {
         }
     })
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
-        if(PVars.gamemode == Gamemode.hexed) {
+        if(PVars.gamemode == Gamemode.hexed || PVars.gamemode == Gamemode.crawlerArena) {
             return@CommandRunner
         }
         globalScope.launch {
@@ -263,9 +271,9 @@ fun register(handler: CustomHandler) {
             val c = handler.commands.get(i) ?: continue
             if (!perms.contains(c.permission)) continue
             menu.add(
-                "[tan]/${c.name}[lightgray]" +
+                "[orange]/${c.name}[white]" +
                         (if (c.args.isEmpty()) "" else "\n${c.args}")
-                        + " - [orange]${c.getDesc(player)}"
+                        + " - [lightgray]${c.getDesc(player)}"
             )
         }
         menu.show(player)
@@ -620,8 +628,12 @@ fun register(handler: CustomHandler) {
                 }
             }
         })
-    if(PVars.gamemode == Gamemode.hexed)
-        registerHexedCommands(handler)
+    when(PVars.gamemode) {
+        Gamemode.hexed -> registerHexedCommands(handler)
+        Gamemode.crawlerArena -> registerCrawlerArenaCommands(handler)
+
+        else -> {}
+    }
 }
 
 private fun registerHexedCommands(handler: CustomHandler) {
@@ -700,4 +712,162 @@ private fun registerHexedCommands(handler: CustomHandler) {
             HexedGamemode.hexedGamemode.killTiles(oldTeam)
         }*/
     })
+}
+
+private fun registerCrawlerArenaCommands(handler: CustomHandler) {
+    handler.registerCommand(
+        "unit",
+        "<type> [amount]",
+        CommandRunner { args: Array<String>, player: Player ->
+            val newUnitType = CrawlerArenaGamemode.findType(args[0].lowercase(Locale.getDefault()))
+            if (newUnitType == null) {
+                Bundle.sendMessage("crawler.commands.upgrade.unit-not-found", player)
+                return@CommandRunner
+            }
+            var amount = 1
+            if (args.size == 2) {
+                try {
+                    amount = args[1].toInt()
+                } catch (_: NumberFormatException) {
+                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                    return@CommandRunner
+                }
+            }
+            if (amount < 1) {
+                Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                return@CommandRunner
+            }
+
+            if (Groups.unit.count(Boolf { u: Unit -> u.type === newUnitType && u.team === Vars.state.rules.defaultTeam }) > CVars.unitCap - amount) {
+                Bundle.sendMessage("crawler.commands.upgrade.too-many-units", player)
+                return@CommandRunner
+            }
+            if (CrawlerArenaGamemode.money.get(player.uuid(), 0f) >= CVars.unitCosts.get(newUnitType) * amount) {
+                if (!player.dead() && player.unit().type === newUnitType || args.size == 2) {
+                    for (i in 0..<amount) {
+                        val newUnit = newUnitType.spawn(player.x + Mathf.random(), player.y + Mathf.random())
+                        CrawlerArenaGamemode.setUnit(newUnit)
+                    }
+                    CrawlerArenaGamemode.money.put(
+                        player.uuid(),
+                        CrawlerArenaGamemode.money.get(player.uuid(), 0f) - CVars.unitCosts.get(newUnitType) * amount
+                    )
+                    Bundle.sendMessage("crawler.commands.upgrade.already", player)
+                    return@CommandRunner
+                }
+                val newUnit = newUnitType.spawn(player.x, player.y)
+                CrawlerArenaGamemode.setUnit(newUnit, true)
+                player.unit(newUnit)
+                CrawlerArenaGamemode.money.put(
+                    player.uuid(),
+                    CrawlerArenaGamemode.money.get(player.uuid(), 0f) - CVars.unitCosts.get(newUnitType)
+                )
+                CrawlerArenaGamemode.units.put(player.uuid(), newUnitType)
+                CrawlerArenaGamemode.unitIDs.put(player.uuid(), newUnit.id)
+                Bundle.sendMessage("crawler.commands.upgrade.success", player)
+            } else Bundle.sendMessage("crawler.commands.upgrade.not-enough-money", player)
+        })
+
+    handler.registerCommand(
+        "give",
+        "<amount> <name...>",
+        CommandRunner { args: Array<String>, player: Player ->
+            val giveTo = Groups.player.find { p: Player ->
+                Strings.stripColors(p.name).lowercase(Locale.getDefault())
+                    .contains(args[1].lowercase(Locale.getDefault()))
+            }
+            if (giveTo == null) {
+                Bundle.sendMessage("crawler.commands.give.player-not-found", player)
+                return@CommandRunner
+            }
+
+            val amount: Float
+            if (args[0].equals("all", ignoreCase = true)) {
+                amount = CrawlerArenaGamemode.money.get(player.uuid(), 0f)
+            } else {
+                try {
+                    amount = args[0].toInt().toFloat()
+                } catch (_: java.lang.NumberFormatException) {
+                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                    return@CommandRunner
+                }
+            }
+            if (amount < 0) {
+                Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                return@CommandRunner
+            }
+            if (CrawlerArenaGamemode.money.get(player.uuid(), 0f) >= amount) {
+                CrawlerArenaGamemode.money.put(
+                    player.uuid(),
+                    CrawlerArenaGamemode.money.get(player.uuid(), 0f) - amount
+                )
+                CrawlerArenaGamemode.money.put(
+                    giveTo.uuid(),
+                    CrawlerArenaGamemode.money.get(giveTo.uuid(), 0f) + amount
+                )
+                Bundle.sendMessage("crawler.commands.give.success", player, amount, giveTo.coloredName())
+                Bundle.sendMessage("crawler.commands.give.money-recieved", giveTo, amount, player.coloredName())
+            } else Bundle.sendMessage("crawler.commands.give.not-enough-money", player)
+        })
+
+    handler.registerCommand(
+        "info",
+        CommandRunner { _: Array<String>, player: Player -> Bundle.sendMessage("crawler.commands.info", player) })
+
+    handler.registerCommand(
+        "upgrades",
+        "[page]",
+        CommandRunner { args: Array<String>, player: Player ->
+            val page: Int
+            if (args.isEmpty()) {
+                page = 1
+            } else {
+                try {
+                    page = args[0].toInt()
+                } catch (_: java.lang.NumberFormatException) {
+                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                    return@CommandRunner
+                }
+            }
+            val sortedUnitCosts = CVars.unitCosts.values().toArray()
+            val maxPage = (sortedUnitCosts.size - 1) / CVars.unitsRows + 1
+            if (page !in 1..maxPage) {
+                Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                return@CommandRunner
+            }
+            sortedUnitCosts.sort()
+            if (page < maxPage) {
+                sortedUnitCosts.removeRange(CVars.unitsRows * page, sortedUnitCosts.size - 1)
+            }
+            if (page > 1) {
+                sortedUnitCosts.removeRange(0, CVars.unitsRows * (page - 1) - 1)
+            }
+            val unitCostsCopy = ObjectIntMap<UnitType>()
+            unitCostsCopy.putAll(CVars.unitCosts)
+
+            //StringBuilder upgrades = new StringBuilder(Bundle.format("commands.upgrades.header", Bundle.findLocale(player)));
+            val upgrades = java.lang.StringBuilder(Bundle.get("crawler.commands.upgrades.header", player!!.locale))
+
+            upgrades.append(Bundle.get("crawler.commands.upgrades.page", player.locale, page, maxPage)).append("\n")
+            sortedUnitCosts.each(Intc { cost: Int ->
+                val type = unitCostsCopy.findKey(cost)
+                upgrades.append("[gold] - [accent]").append(type.name).append(" [lightgray](").append(cost)
+                    .append(")\n")
+                unitCostsCopy.remove(type)
+            })
+            player.sendMessage(upgrades.toString())
+        })
+
+    handler.registerCommand(
+        "cost",
+        "<type>",
+        CommandRunner { args: Array<String>, player: Player ->
+            val type = CrawlerArenaGamemode.findType(args[0].lowercase(Locale.getDefault()))
+            val cost = CVars.unitCosts.get(type, -1)
+            if (cost == -1) {
+                Bundle.sendMessage("crawler.commands.upgrade.unit-not-found", player)
+                return@CommandRunner
+            }
+            player.sendMessage(type.name + (" - ") + (cost))
+        })
 }

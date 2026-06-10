@@ -20,6 +20,7 @@ import plugin.database.getPlayerStats
 import plugin.database.models.Server
 import plugin.discord.sendLog
 import plugin.events.PEvents
+import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.HexedGamemode
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.gamemodes.tdf.TDGamemode
@@ -87,6 +88,7 @@ object Loader {
                 hexedGamemode.init()
                 hexedGamemode.registerServerCommands(serverCommands)
             }
+            Gamemode.crawlerArena -> CrawlerArenaGamemode.init()
             else -> {}
         }
     }

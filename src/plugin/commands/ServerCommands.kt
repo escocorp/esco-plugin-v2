@@ -47,16 +47,6 @@ fun register(handler: CommandHandler) {
         sendServerMessage("Server: " + a[0])
     }
 
-    handler.register("loadgm", "<name>", "") { a: Array<String> ->
-        when (a[0]) {
-            "tdf" -> TDGamemode.load()
-            "hex" -> {
-                handler.handleMessage("hexed")
-            }
-            else -> Log.err("Unknown gamemode!")
-        }
-    }
-
     handler.register("exit", "") { _: Array<String> ->
         Loader.exit()
     }
