@@ -9,7 +9,8 @@ public enum Gamemode {
     campaign(false, "campaign", "cmp!", 3, 2, 300),
     tdefense(false, "tower defense", "td!", 5, 1, 750),
     hub(false, "hub", "hb!", 0, 0, 0),
-    hexed(false, "hexed", "hex!", 0, 2, 1050);
+    hexed(false, "hexed", "hex!", 0, 2, 1050),
+    crawlerArena(false, "crw", "crw!", 20, 0, 1500);
 
     public boolean optimized;
     public String simpleName, botPrefix;
