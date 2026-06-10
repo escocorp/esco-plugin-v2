@@ -106,12 +106,16 @@ fun loadEvents() {
                 return@launch
             }
 
-            getAdmin(player).ifPresent(Consumer { a: Admin ->
-                app.post {
-                    if (a.perms.contains(Permission.admin) && !a.hidden) player.admin(true)
-                    if (a.perms.size > 1) player.sendMessage("Your permissions " + Permission.seqToString(a.perms))
-                }
-            })
+            if(pd.usid.isPresent && pd.usid.get() != player.usid()) {
+                player.sendMessage("Your authentication credentials are different. Please contact us on Discord. If you have admin rights, they will not be granted until the authentication credentials are updated.")
+            } else {
+                getAdmin(player).ifPresent(Consumer { a: Admin ->
+                    app.post {
+                        if (a.perms.contains(Permission.admin) && !a.hidden) player.admin(true)
+                        if (a.perms.size > 1) player.sendMessage("Your permissions " + Permission.seqToString(a.perms))
+                    }
+                })
+            }
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
         }
     }
