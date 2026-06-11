@@ -40,8 +40,8 @@ public class Patches {
                 Call.sendMessage("[stat]Time to change map! Save your buildings.");
                 Timer.schedule(() -> {
                     Events.fire(new GameOverEvent(Team.derelict));
-                }, 5);
-            }, 60 * 60 * 2, 60 * 60 * 2);
+                }, 10);
+            }, 60 * 60 * 6, 60 * 60 * 6);
         }
         if(gamemode == Gamemode.sandbox)
             patchCoreHealth();

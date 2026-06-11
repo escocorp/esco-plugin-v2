@@ -100,7 +100,7 @@ fun showShop(stats: PlayerStats, p: Player) {
                 }
                 pl.team().core().items.add(type, 1000)
                 stats.subBalance(cost)
-                Bundle.label("menu.shop.itembuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
+                Bundle.label("menu.shop.unitbuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
             }
         })
         itemMenu.show(pl)

@@ -39,7 +39,9 @@ import java.util.function.Consumer
 import java.util.function.Function
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.TimerTask
 import kotlin.math.min
+import kotlin.system.exitProcess
 
 /**
  * Discord bot command handlers for the game server.
@@ -104,8 +106,7 @@ class Commands{
     )
     /** Schedules a server restart, logging the requester and immediately exiting if the server is empty. */
     fun restart(arr: Array<String>, ctx: Context){
-        sendLog("Restart scheduled by <@" + ctx.message.author.id + ">")
-        ctx.message.addReaction(Emoji.fromUnicode("✅")).queue()
+        sendLog("Restart scheduled")
         if (Groups.player.isEmpty) {
             Timer.schedule({ Loader.exit() }, 1f)
         }
@@ -351,5 +352,18 @@ class Commands{
         System.gc()
         val after = Core.app.javaHeap / 1024 / 1024
         ctx.replyServer("Before: $before\nAfter: $after\nDiff: ${before - after}")
+    }
+
+    @DiscordCommand(
+        name = "forcerestart",
+        desc = "SS",
+        type = CommandType.ALL,
+        requiredPerm = Permission.editServer
+    )
+    fun forceRestart(args: Array<String>, ctx: Context){
+        sendLog("Force restarting.")
+        Timer.schedule({
+            exitProcess(0)
+        }, 3f)
     }
 }
