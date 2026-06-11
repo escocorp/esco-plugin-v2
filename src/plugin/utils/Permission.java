@@ -20,7 +20,8 @@ public enum Permission {
     editServer,
     vanish,
     artv,
-    replays;
+    replays,
+    megaBan;
 
     public static final ObjectMap<Player, Seq<Permission>> cache = new ObjectMap<>();
     // public static final Permission[] all = values();
