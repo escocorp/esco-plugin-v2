@@ -40,7 +40,8 @@ CREATE TABLE admins(
 
 CREATE TABLE bans (
     id SERIAL PRIMARY KEY,
-    active BOOLEAN default true,
+    active BOOLEAN default true,,
+    can_be_removed BOOLEAN default true NOT NULL,
     player_id INTEGER REFERENCES players(id) NOT NULL,
     reason VARCHAR(128) DEFAULT 'No reason provided' NOT NULL,
     admin_id INTEGER REFERENCES players(id) NOT NULL,
