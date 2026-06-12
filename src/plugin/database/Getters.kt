@@ -184,7 +184,7 @@ WHERE b.active = true
   AND (b.unban_time IS NULL OR b.unban_time > NOW())
   AND (
         p.uuid = ?
-        OR p.last_ip = ?
+        OR p.last_ip = ?::INET
         OR EXISTS (
             SELECT 1
             FROM usid_list ul
