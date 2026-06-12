@@ -2,7 +2,7 @@ CREATE TABLE players (
     id SERIAL PRIMARY KEY,
     uuid TEXT NOT NULL UNIQUE ,
     last_name TEXT NOT NULL,
-    last_ip TEXT NOT NULL,
+    last_ip INET NOT NULL,
     locale VARCHAR(30) NOT NULL, -- en_US 5 symb.
     color VARCHAR(11) NOT NULL, -- #23456789 + [] 11 symb
     last_seen TIMESTAMP DEFAULT NOW(),
