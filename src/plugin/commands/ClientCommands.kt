@@ -846,7 +846,7 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
             unitCostsCopy.putAll(CVars.unitCosts)
 
             //StringBuilder upgrades = new StringBuilder(Bundle.format("commands.upgrades.header", Bundle.findLocale(player)));
-            val upgrades = java.lang.StringBuilder(Bundle.get("crawler.commands.upgrades.header", player!!.locale))
+            val upgrades = java.lang.StringBuilder(Bundle.get("crawler.commands.upgrades.header", player.locale))
 
             upgrades.append(Bundle.get("crawler.commands.upgrades.page", player.locale, page, maxPage)).append("\n")
             sortedUnitCosts.each(Intc { cost: Int ->
