@@ -330,7 +330,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
         """
                         WITH update_players AS (
                             INSERT INTO players (uuid, last_name, last_ip, locale, color)
-                            VALUES (?, ?, ?, ?, ?)
+                            VALUES (?, ?, ?::INET, ?, ?)
                             ON CONFLICT (uuid) DO UPDATE SET
                                 last_name = EXCLUDED.last_name,
                                 last_ip   = EXCLUDED.last_ip,
@@ -347,7 +347,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
                         ),
                         insert_connection AS (
                             INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
-                            SELECT last_name, last_ip, ?, ?, id
+                            SELECT last_name, last_ip, ?::INET, ?, id
                             FROM update_players
                         ),
                         insert_stats AS (

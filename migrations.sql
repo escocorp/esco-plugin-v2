@@ -88,8 +88,8 @@ CREATE TABLE graylist (
 CREATE TABLE connections (
     id SERIAL PRIMARY KEY,
     player_name TEXT NOT NULL,
-    address VARCHAR(20) NOT NULL,
-    address_udp VARCHAR(20) NOT NULL,
+    address INET NOT NULL,
+    address_udp INET NOT NULL,
     server_id INTEGER REFERENCES servers(id) NOT NULL,
     player_id INTEGER REFERENCES players(id) NOT NULL
 );
