@@ -66,7 +66,7 @@ class Commands{
                 val ver = arr.firstOrNull()?.takeIf { it.isNotBlank() }?.trim()
                     ?: httpGetString(buildsLatestTxtUrl)
                 if(version.equals(ver)) {
-                    ctx.reply("No new updates! But ok.")
+                    return@submit
                 }
                 val modFi = Vars.mods.getMod("plugin").file
                 val tmpFi = modFi.parent().child(modFi.name() + ".part")
