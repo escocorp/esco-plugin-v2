@@ -334,6 +334,7 @@ fun loadEvents() {
 
         val unit = e.unit
         val tile = e.tile
+        val actorTeam = player?.team() ?: unit.team
         var name: String? = null
         var pid: Optional<Int> = Optional.empty<Int>()
         val rotation = tile.build?.rotation ?: 0
@@ -342,7 +343,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), player.team(), rotation)
+            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), actorTeam, rotation)
         }
     })
 
@@ -351,6 +352,7 @@ fun loadEvents() {
         val player = e.unit.player
         val unit = e.unit
         val tile = e.tile
+        val actorTeam = player?.team() ?: unit.team
         var name: String? = null
         var pid: Optional<Int> = Optional.empty<Int>()
         eventsScope.launch {
@@ -358,7 +360,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.breakBlock, tile.block(), unit.type(), player.team(), 0)
+            History.write(tile, name, pid, HistoryType.breakBlock, tile.block(), unit.type(), actorTeam, 0)
         }
     })
 
