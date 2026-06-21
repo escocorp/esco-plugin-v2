@@ -96,6 +96,96 @@ public class HexedGamemode {
 
         Events.run(Trigger.update, () -> {
             if(active()){
+                for(Hex hex : data.hexes()){
+                    Tile tile = world.tile(hex.x, hex.y);
+                    if(tile != null && tile.build instanceof CoreBlock.CoreBuild){
+                        CoreBlock.CoreBuild core = (CoreBlock.CoreBuild) tile.build;
+
+                        if(hex.health <= 0 || hex.health > core.maxHealth()){
+                            hex.health = core.maxHealth();
+                            hex.maxHealth = core.maxHealth();
+                            hex.lastVisualHealth = core.health;
+                        }
+
+                        if(core.health < hex.lastVisualHealth){
+                            float damage = hex.lastVisualHealth - core.health;
+                            hex.health -= damage;
+
+                            Team damager = Team.derelict;
+                            float minDst = Float.MAX_VALUE;
+                            for(mindustry.gen.Unit unit : Groups.unit){
+                                if(unit.team != core.team && unit.team != Team.derelict){
+                                    float dst = unit.dst2(core.x, core.y);
+                                    if(dst < minDst){
+                                        minDst = dst;
+                                        damager = unit.team;
+                                    }
+                                }
+                            }
+                            if(damager != Team.derelict){
+                                hex.lastDamager = damager;
+                            }
+                        }
+
+                        if(hex.health <= 1f){
+                            if(core.team == Team.derelict){
+                                Team capturingTeam = hex.lastDamager;
+                                if(capturingTeam == null || capturingTeam == Team.derelict){
+                                    float minDst = Float.MAX_VALUE;
+                                    for(mindustry.gen.Unit unit : Groups.unit){
+                                        if(unit.team != Team.derelict){
+                                            float dst = unit.dst2(core.x, core.y);
+                                            if(dst < minDst){
+                                                minDst = dst;
+                                                capturingTeam = unit.team;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if(capturingTeam != null && capturingTeam != Team.derelict){
+                                    tile.setNet(core.block, capturingTeam, core.rotation);
+                                    hex.updateController();
+
+                                    hex.health = core.maxHealth();
+                                    hex.lastVisualHealth = core.maxHealth();
+                                    hex.lastDamager = null;
+
+                                    Player capturingPlayer = data.getPlayer(capturingTeam);
+                                    if(capturingPlayer != null){
+                                        Call.sendMessage("[yellow](!)[] [accent]" + capturingPlayer.name + "[lightgray] has captured Hex #" + hex.id + " by destroying its core!");
+                                        Events.fire(new HexCaptureEvent(capturingPlayer, hex));
+                                    }
+                                } else {
+                                    hex.health = core.maxHealth();
+                                    core.health = core.maxHealth();
+                                    hex.lastVisualHealth = core.health;
+                                    hex.lastDamager = null;
+                                }
+                            } else {
+                                Team oldTeam = core.team;
+                                Player oldPlayer = data.getPlayer(oldTeam);
+
+                                tile.setNet(core.block, Team.derelict, core.rotation);
+                                hex.updateController();
+
+                                hex.health = core.maxHealth();
+                                hex.lastVisualHealth = core.maxHealth();
+                                hex.lastDamager = null;
+
+                                hex.clearProgress(oldTeam);
+
+                                if(oldPlayer != null){
+                                    Call.sendMessage("[yellow](!)[] [accent]" + oldPlayer.name + "[lightgray] has lost Hex #" + hex.id + "!");
+                                }
+                            }
+                        } else {
+                            core.health = 50000f;
+                            hex.lastVisualHealth = 50000f;
+                        }
+                    }
+                }
+
                 data.updateStats();
 
                 for(Player player : Groups.player){
@@ -253,6 +343,14 @@ public class HexedGamemode {
             message.append("<Unknown>");
         }
 
+        Hex hex = team.location;
+        if(hex != null){
+            Tile tile = world.tile(hex.x, hex.y);
+            if(tile != null && tile.build instanceof CoreBlock.CoreBuild){
+                message.append("\n[lightgray]Core Health: [accent]").append((int)hex.health).append("[lightgray]/[accent]").append((int)hex.maxHealth);
+            }
+        }
+
         Call.setHudText(player.con, message.toString());
     }
 
@@ -273,6 +371,7 @@ public class HexedGamemode {
             info("Map generated.");
             state.rules = rules.copy();
             logic.play();
+            spawnNeutralCores();
             netServer.openServer();
         });
 
@@ -328,6 +427,7 @@ public class HexedGamemode {
 
             state.rules = rules.copy();
             logic.play();
+            spawnNeutralCores();
 
             reloader.end();
 
@@ -444,6 +544,15 @@ public class HexedGamemode {
                 }
             }
         });
+    }
+
+    public void spawnNeutralCores(){
+        for(Hex hex : data.hexes()){
+            Tile tile = world.tile(hex.x, hex.y);
+            if(tile != null){
+                tile.setNet(Blocks.coreShard, Team.derelict, 0);
+            }
+        }
     }
 
     public boolean active(){

@@ -30,6 +30,15 @@ public class Hex{
     public @Nullable Team controller;
     public Timekeeper spawnTime = Timekeeper.ofSeconds(HexedGamemode.spawnDelay);
 
+    public float health = 2000f;
+    public float maxHealth = 2000f;
+    public float lastVisualHealth = 2000f;
+    public @Nullable Team lastDamager;
+
+    public void clearProgress(Team team){
+        progress[team.id] = 0;
+    }
+
     public Hex(int id, int x, int y){
         this.id = id;
         this.x = x;

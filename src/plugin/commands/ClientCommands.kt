@@ -693,24 +693,82 @@ private fun registerHexedCommands(handler: CustomHandler) {
             }
         })
 
-    if(false)
-    handler.registerCommand("join", "<player...>", Permission.test, CommandRunner { arg: Array<String>, player: Player ->
+    handler.registerCommand("join", "<player...>", CommandRunner { arg: Array<String>, player: Player ->
+        val mode = hexedGamemode
+        if (mode == null || !mode.active()) {
+            player.sendMessage("[scarlet]This command is only available in Hexed gamemode!")
+            return@CommandRunner
+        }
         val sname = Strings.stripColors(arg[0])
-        val player2 = Groups.player.find({ p ->
-            return@find p.plainName().contains(sname, ignoreCase = true)
-        })
-        if(player2 == null) {
-            player.sendBundle("votekick.playernotfound", sname)
+        val target = Groups.player.find { p ->
+            p.plainName().contains(sname, ignoreCase = true)
+        }
+        if (target == null) {
+            player.sendMessage("[scarlet]Player with that name not found!")
+            return@CommandRunner
+        }
+        if (target === player) {
+            player.sendMessage("[scarlet]You cannot join yourself!")
+            return@CommandRunner
+        }
+        if (target.team() === Team.derelict) {
+            player.sendMessage("[scarlet]You cannot join a spectator!")
             return@CommandRunner
         }
         val oldTeam = player.team()
-        val newTeam = player2.team()
-        /*val oldTeamPlayers = Groups.player.find({
-            return@find it.team() == oldTeam && it.uuid() != player.uuid()
-        })
-        if(oldTeamPlayers == null) {
-            HexedGamemode.hexedGamemode.killTiles(oldTeam)
-        }*/
+        val newTeam = target.team()
+        if (oldTeam === newTeam) {
+            player.sendMessage("[scarlet]You are already on this team!")
+            return@CommandRunner
+        }
+
+        player.sendMessage("[yellow]Join request sent to [accent]${target.name}[yellow]. Waiting for confirmation...")
+
+        plugin.menus.Menu("Join Request", "[accent]${player.name}[white] wants to join your team.\nDo you agree?")
+            .add("[green]Accept") { _ ->
+                if (!Groups.player.contains(player)) {
+                    target.sendMessage("[scarlet]The player who requested to join has left the game.")
+                    return@add
+                }
+                if (target.team() === Team.derelict) {
+                    player.sendMessage("[scarlet]Join request canceled: target player is now a spectator.")
+                    target.sendMessage("[scarlet]You cannot accept join requests as a spectator.")
+                    return@add
+                }
+                
+                val currentNewTeam = target.team()
+                val currentOldTeam = player.team()
+                if (currentOldTeam === currentNewTeam) {
+                    player.sendMessage("[scarlet]You are already on this team!")
+                    return@add
+                }
+
+                player.team(currentNewTeam)
+                player.unit().kill()
+                Call.sendMessage("[yellow](!)[] [accent]${player.name}[lightgray] joined the team of [accent]${target.name}[lightgray]!")
+
+                // If the old team has no players left, clean it up
+                val oldTeamPlayersExist = Groups.player.any { p -> p.team() == currentOldTeam && p !== player }
+                if (!oldTeamPlayersExist && currentOldTeam !== Team.derelict) {
+                    currentOldTeam.cores().forEach { core ->
+                        val hex = mode.data.getHex(core.tile.pos())
+                        if (hex != null) {
+                            core.tile.setNet(core.block, Team.derelict, core.rotation)
+                            hex.health = core.maxHealth()
+                            hex.lastVisualHealth = core.maxHealth()
+                            hex.lastDamager = null
+                        }
+                    }
+                    mode.killTiles(currentOldTeam)
+                }
+            }
+            .add("[red]Decline") { _ ->
+                if (Groups.player.contains(player)) {
+                    player.sendMessage("[scarlet]${target.name} declined your join request.")
+                }
+                target.sendMessage("[yellow]You declined the join request from [accent]${player.name}[yellow].")
+            }
+            .show(target)
     })
 }
 
