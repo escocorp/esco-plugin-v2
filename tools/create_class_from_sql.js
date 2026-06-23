@@ -46,7 +46,7 @@ function rsGetter(column, raw) {
 
     if (raw.includes("SERIAL")) return `rs.getInt("${column}")`;
     if (raw.includes("INTEGER")) return `rs.getInt("${column}")`;
-    if (raw.includes("BIGINT")) return `rs.getObject("${column}") as Long?`;
+    if (raw.includes("BIGINT")) return `rs.getLong("${column}") as Long?`;
     if (raw.includes("BOOLEAN")) return `rs.getBoolean("${column}")`;
     if (raw.includes("TIMESTAMP")) return `rs.getTimestamp("${column}")?.toInstant()`;
     if (raw.includes("JSONB")) return `rs.getString("${column}")`;
@@ -54,7 +54,7 @@ function rsGetter(column, raw) {
     if (raw.includes("VARCHAR")) return `rs.getString("${column}")`;
     if (raw.includes("TEXT")) return `rs.getString("${column}")`;
 
-    return `rs.getString("${column}")`;
+    return `rs.getString("${column}") /*Unknown type*/`;
 }
 
 for (const match of tables) {

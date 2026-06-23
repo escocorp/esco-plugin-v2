@@ -34,7 +34,6 @@ import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.*
 import plugin.database.models.PlayerData
-import plugin.database.models.PlayerStats
 import plugin.gamemodes.crawlerarena.CVars
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.Hex
@@ -165,8 +164,8 @@ fun register(handler: CustomHandler) {
             Bundle.sendMessage("args.mustbeint", player, "<amount>")
             return@CommandRunner
         }
-        val targetStatsOpt = getPlayerStats(target)
-        val playerStatsOpt = getPlayerStats(player)
+        val targetStatsOpt = getPlayerData(target)
+        val playerStatsOpt = getPlayerData(player)
         if (targetStatsOpt.isEmpty || playerStatsOpt.isEmpty) {
             player.sendMessage("[scarlet]Unknown error")
             return@CommandRunner
@@ -197,8 +196,8 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         globalScope.launch {
-            getPlayerStats(p)
-                .ifPresent(Consumer { s: PlayerStats -> Core.app.post { slot(p, s, Strings.parseInt(a[0])) } })
+            getPlayerData(p)
+                .ifPresent(Consumer { s -> Core.app.post { slot(p, s, Strings.parseInt(a[0])) } })
         }
     })
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
@@ -206,8 +205,8 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         globalScope.launch {
-            getPlayerStats(p).ifPresent(
-                Consumer { s: PlayerStats -> Core.app.post { showShop(s, p) } })
+            getPlayerData(p).ifPresent(
+                Consumer { s -> Core.app.post { showShop(s, p) } })
         }
     })
     handler.registerCommand("sync", CommandRunner { _: Array<String>, player: Player ->
@@ -284,7 +283,7 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("stats", "", CommandRunner { _: Array<String>, p: Player ->
         val sb = StringBuilder("[stat]Stats:\n")
-        getPlayerStats(p).ifPresent(Consumer { s: PlayerStats ->
+        getPlayerData(p).ifPresent(Consumer { s ->
             s.update(p, false)
             sb.append("Blocks build: ").append(s.blocksBuild).append("\n")
             sb.append("Blocks broken: ").append(s.blocksBroken).append("\n")

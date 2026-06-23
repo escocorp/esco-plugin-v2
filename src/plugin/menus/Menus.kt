@@ -20,7 +20,6 @@ import plugin.database.ban
 import plugin.database.deepSearchNames
 import plugin.database.getPlayerData
 import plugin.database.models.PlayerData
-import plugin.database.models.PlayerStats
 import plugin.utils.Gamemode
 import plugin.utils.Permission
 import plugin.utils.parseTime
@@ -65,7 +64,7 @@ fun loadMenus() {
     )
 }
 
-fun showShop(stats: PlayerStats, p: Player) {
+fun showShop(stats: PlayerData, p: Player) {
     val menu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance, rowPerItems = 1)
 
     menu.add(Bundle.get("units", p.locale)) { pl ->
@@ -129,7 +128,7 @@ fun showShop(stats: PlayerStats, p: Player) {
     menu.show(p)
 }
 @Deprecated("Use showShop instead")
-fun showShopOld(stats: PlayerStats, p: Player) {
+fun showShopOld(stats: PlayerData, p: Player) {
     val menu = Menu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
 
     val i = AtomicInteger()
@@ -172,7 +171,7 @@ fun showShopOld(stats: PlayerStats, p: Player) {
     menu.show(p)
 }
 
-fun slot(p: Player, stats: PlayerStats, bet: Int) {
+fun slot(p: Player, stats: PlayerData, bet: Int) {
     if (bet <= 0) {
         Bundle.sendMessage("slots.smollbet", p)
         return
@@ -195,7 +194,7 @@ fun randomSymbol(): String {
     return slotsSymbols[Mathf.random(slotsSymbols.size - 1)]
 }
 
-fun showSlot(p: Player, stats: PlayerStats, bet: Int) {
+fun showSlot(p: Player, stats: PlayerData, bet: Int) {
     if (bet > stats.balance) {
         Bundle.sendMessage("menu.shop.nomoney", p)
         return

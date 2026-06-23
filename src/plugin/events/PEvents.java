@@ -12,12 +12,12 @@ import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.modules.ItemModule;
-import plugin.database.models.PlayerStats;
+import plugin.database.models.PlayerData;
 import plugin.history.History;
 import plugin.utils.Loader;
 
 import static plugin.PVars.*;
-import static plugin.database.GettersKt.getPlayerStats;
+import static plugin.database.GettersKt.getPlayerData;
 import static plugin.discord.BotKt.sendRoundMessage;
 import static plugin.events.PEventsKt.loadEvents;
 import static plugin.utils.Gamemode.campaign;
@@ -48,7 +48,7 @@ public class PEvents {
             if (e.winner != Team.derelict)
                 Groups.player.each(p -> {
                     if (p.team() == e.winner)
-                        getPlayerStats(p).ifPresent(PlayerStats::adjWins);
+                        getPlayerData(p).ifPresent(PlayerData::adjWins);
                 });
         });
 

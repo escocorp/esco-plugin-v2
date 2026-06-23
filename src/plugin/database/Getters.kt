@@ -28,9 +28,10 @@ var adminsCache = ObjectMap<Player, Admin>()
 
 @JvmField
 var playerDataCache = ObjectMap<Player, PlayerData>()
-
+/*
 @JvmField
-var playerStatsCache = ObjectMap<String, PlayerStats>()
+var playerStatsCache = ObjectMap<String, PlayerData>()
+ */
 
 @JvmField
 var mutesCache = ObjectMap<Int, Mute>()
@@ -446,6 +447,11 @@ fun getPlayerData(rs: ResultSet): PlayerData {
         discordId,
         prefs,
         rs.getString("last_name"),
+        rs.getLong("playtime"),
+        rs.getInt("blocks_build"),
+        rs.getInt("blocks_broken"),
+        rs.getInt("waves_survived"),
+        rs.getInt("balance")
     )
 }
 
@@ -454,11 +460,11 @@ fun getPlayerData(rs: ResultSet): PlayerData {
 // region PlayerStats
 
 private fun ensureJoinTimeTracked(player: Player) {
-    if (!PlayerStats.joinTime.containsKey(player.uuid())) {
-        PlayerStats.setJoinTime(player)
+    if (!PlayerData.joinTime.containsKey(player.uuid())) {
+        PlayerData.setJoinTime(player)
     }
 }
-
+/*
 fun getPlayerStats(player: Player): Optional<PlayerStats> {
     val uuid = player.uuid()
 
@@ -502,7 +508,7 @@ fun getPlayerStats(rs: ResultSet): PlayerStats {
         rs.getInt("balance"),
         rs.getInt("waves_survived")
     )
-}
+}*/
 
 // endregion
 

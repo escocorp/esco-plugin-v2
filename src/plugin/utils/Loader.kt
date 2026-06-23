@@ -16,7 +16,7 @@ import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.PVars.serverCommands
 import plugin.database.BanListener
-import plugin.database.getPlayerStats
+import plugin.database.getPlayerData
 import plugin.database.models.Server
 import plugin.discord.sendLog
 import plugin.events.PEvents
@@ -103,7 +103,7 @@ object Loader {
         Timer.schedule({
             Groups.player.each { p ->
                 globalScope.launch {
-                    getPlayerStats(p).ifPresent { stats ->
+                    getPlayerData(p).ifPresent { stats ->
                         stats.update(p, false)
                     }
                 }

@@ -32,7 +32,6 @@ import plugin.antigrief.apply
 import plugin.database.*
 import plugin.database.models.Admin
 import plugin.database.models.PlayerData
-import plugin.database.models.PlayerStats
 import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
@@ -132,10 +131,10 @@ fun loadEvents() {
             return@onAsync
         }
         val pd = pdOpt.get()
-        PlayerStats.setJoinTime(player)
+        PlayerData.setJoinTime(player)
 
         //pd.setOriginalName(player.coloredName());
-        getPlayerStats(player)
+        getPlayerData(player)
 
         app.post {
             Bundle.sendMessage("messages.join", pd.id.toString(), player.coloredName())
@@ -318,7 +317,7 @@ fun loadEvents() {
         if (e.tile == null || e.unit == null) return@Cons
         val player = e.unit.player
 
-        if (player != null) getPlayerStats(player).ifPresent(Consumer { s: PlayerStats ->
+        if (player != null) getPlayerData(player).ifPresent(Consumer { s ->
             if (e.breaking) {
                 s.adjBlocksBroken()
                 if (PEvents.antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
@@ -396,10 +395,10 @@ fun loadEvents() {
     })
 
     Events.on(WaveEvent::class.java, Cons { e: WaveEvent ->
-        // Groups.player.each(Cons { p: Player -> getPlayerStats(p).ifPresent(Consumer { obj: PlayerStats? -> obj!!.adjWavesSurvived() }) })
+        // Groups.player.each(Cons { p: Player -> getPlayerData(p).ifPresent(Consumer { obj: PlayerStats? -> obj!!.adjWavesSurvived() }) })
         Groups.player.each { p ->
             eventsScope.launch {
-                getPlayerStats(p).ifPresent { stats ->
+                getPlayerData(p).ifPresent { stats ->
                     app.post {
                         stats.adjWavesSurvived()
                     }
@@ -426,7 +425,7 @@ fun purgeData(p: Player) {
     Permission.cache.remove(p)
     playerDataCache.remove(p)
     adminsCache.remove(p)
-    PlayerStats.purge(p)
+    // PlayerStats.purge(p)
     PVars.historyPlayers.remove(p)
     PVars.vanishedPlayers.remove(p)
 
