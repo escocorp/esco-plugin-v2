@@ -33,10 +33,6 @@ fun load() {
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.logsChannelStr)
             PVars.votekicksChannel =
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.votekicksChannelStr)
-            PVars.roundsChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.roundsChannelStr)
-            PVars.parrotChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.parrotChannelStr)
             PVars.nsfwChannel =
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.nsfwChannelStr)
         } else {
@@ -64,16 +60,6 @@ fun sendLog(message: String?) {
 fun sendServerMessage(message: String) {
     if (PVars.serverChannel == null) return
     PVars.serverChannel.sendMessage(message).queue()
-}
-
-fun sendParrotMessage(message: String) {
-    if (PVars.parrotChannel == null) return
-    PVars.parrotChannel.sendMessage(message).queue()
-}
-
-fun sendRoundMessage(message: String?) {
-    if (PVars.roundsChannel == null) return
-    PVars.roundsChannel.sendMessage("[" + PVars.gamemode.simpleName + "] " + message).queue()
 }
 
 fun sendJoinMessage(player: Player, id: Int) {

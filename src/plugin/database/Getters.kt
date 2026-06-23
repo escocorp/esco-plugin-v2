@@ -450,8 +450,8 @@ fun getPlayerData(rs: ResultSet): PlayerData {
         rs.getLong("playtime"),
         rs.getInt("blocks_build"),
         rs.getInt("blocks_broken"),
+        rs.getInt("balance"),
         rs.getInt("waves_survived"),
-        rs.getInt("balance")
     )
 }
 

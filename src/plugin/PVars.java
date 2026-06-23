@@ -29,9 +29,9 @@ public class PVars {
 
     public static final String discordLink = "https://discord.gg/KfusjwYFDx";
 
-    public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, roundsChannelStr, parrotChannelStr, nsfwChannelStr;
+    public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, nsfwChannelStr;
     public static Guild serverGuild;
-    public static TextChannel serverChannel, logsChannel, votekicksChannel, roundsChannel, parrotChannel, nsfwChannel;
+    public static TextChannel serverChannel, logsChannel, votekicksChannel, nsfwChannel;
 
     public static String dbHost, dbPort, dbPassword, dbUser, db;
 

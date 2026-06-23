@@ -18,7 +18,6 @@ import plugin.utils.Loader;
 
 import static plugin.PVars.*;
 import static plugin.database.GettersKt.getPlayerData;
-import static plugin.discord.BotKt.sendRoundMessage;
 import static plugin.events.PEventsKt.loadEvents;
 import static plugin.utils.Gamemode.campaign;
 import static plugin.utils.Gamemode.sandbox;
@@ -44,7 +43,6 @@ public class PEvents {
             if (mapVote != null)
                 mapVote.cancel();
             History.clear();
-            sendRoundMessage("Game Over! Team " + e.winner.name + " wins!\nTotal players: " + Groups.player.size());
             if (e.winner != Team.derelict)
                 Groups.player.each(p -> {
                     if (p.team() == e.winner)

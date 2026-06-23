@@ -208,7 +208,6 @@ fun loadEvents() {
             val content =
                 ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "")
             sendServerMessage(content)
-            if (Math.random() > 0.9) sendParrotMessage(content)
         }
     }
 

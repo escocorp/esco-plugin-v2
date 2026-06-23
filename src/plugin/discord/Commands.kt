@@ -32,6 +32,7 @@ import plugin.utils.Loader
 import plugin.utils.MapPreview
 import plugin.utils.Permission
 import plugin.utils.download
+import plugin.utils.getPlayersCount
 import plugin.utils.httpGetString
 import java.awt.Color
 import java.io.File
@@ -186,7 +187,7 @@ class Commands{
         embed.addField("Map", Vars.state.map.name(), false)
         embed.addField("TPS", Core.graphics.framesPerSecond.toString(), false)
         embed.addField("Wave", Vars.state.wave.toString(), false)
-        embed.addField("Players", sb.toString(), true)
+        embed.addField("Players: " + getPlayersCount(), sb.toString(), true)
         embed.setColor(Color.green)
         embed.setImage("attachment://minimap.png")
         val image = MapPreview.parseTiles(Vars.world.tiles)
@@ -334,7 +335,7 @@ class Commands{
         type = CommandType.GLOBAL,
         requiredPerm = Permission.editServer
     )
-    /** Reloads the plugin's localisation bundle from disk. */
+    /** Reloads the plugin's localization bundle */
     fun reloadBundle(args: Array<String>, ctx: Context){
         Bundle.load()
         ctx.replyServer("IDK, reloaded probably")

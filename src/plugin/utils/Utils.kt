@@ -14,6 +14,7 @@ import mindustry.Vars
 import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
 import mindustry.core.GameState
+import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
@@ -261,4 +262,8 @@ fun Player.sendBundle(req: String) {
 
 fun Player.sendBundle(req: String, vararg params: Any) {
     Bundle.sendMessage(req, this, *params)
+}
+
+fun getPlayersCount() : Int {
+    return if(Core.settings.getInt("totalPlayers") == null) Groups.player.size() else Core.settings.getInt("totalPlayers")
 }
