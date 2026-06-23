@@ -338,7 +338,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
                                 color     = EXCLUDED.color,
                                 locale    = EXCLUDED.locale,
                                 last_seen = NOW()
-                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs
+                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs, playtime, blocks_build, blocks_broken, waves_survived, balance
                         ),
                         insert_usid AS (
                             INSERT INTO usid_list (player_id, usid, server)
