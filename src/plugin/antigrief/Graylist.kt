@@ -57,7 +57,12 @@ fun reloadGraylist() {
             }
             .submit { response ->
                 isps.clear()
-                isps.addAll(response.resultAsString.split('\n'))
+                isps.addAll(
+                    response.resultAsString
+                        .lines()
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                )
                 Log.info("Loaded ${isps.size} ISPs")
             }
         Http.get(ipsUrl)
@@ -66,7 +71,12 @@ fun reloadGraylist() {
             }
             .submit { response ->
                 ips.clear()
-                ips.addAll(response.resultAsString.split('\n'))
+                ips.addAll(
+                    response.resultAsString
+                        .lines()
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                )
                 Log.info("Loaded ${ips.size} IPs")
             }
         Http.get(ipsBlockUrl)
@@ -75,7 +85,12 @@ fun reloadGraylist() {
             }
             .submit { response ->
                 ipsBlock.clear()
-                ipsBlock.addAll(response.resultAsString.split('\n'))
+                ipsBlock.addAll(
+                    response.resultAsString
+                        .lines()
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                )
                 Log.info("Loaded ${ipsBlock.size} blocked IPs")
             }
     } catch (e: Exception) {
