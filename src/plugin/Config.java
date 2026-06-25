@@ -38,6 +38,8 @@ public class Config {
         PVars.logsChannelStr = getEnv("LOGS_ID");
         PVars.votekicksChannelStr = getEnv("VOTEKICKS_ID");
         PVars.nsfwChannelStr = getEnv("NSFW_ID");
+        PVars.consoleChannelStr = getEnv("CONSOLE_ID");
+        PVars.ownerRoleId = getEnv("OWNER_ROLE_ID");
     }
 
 

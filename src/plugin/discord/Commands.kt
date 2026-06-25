@@ -23,6 +23,7 @@ import plugin.KVars.buildsLatestTxtUrl
 import plugin.PVars
 import plugin.PVars.globalExecutor
 import plugin.PVars.version
+import plugin.antigrief.reloadGraylist
 import plugin.database.Database
 import plugin.database.getPlayerData
 import plugin.database.models.PlayerData
@@ -40,6 +41,7 @@ import java.util.function.Consumer
 import java.util.function.Function
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.security.Permissions
 import java.util.TimerTask
 import kotlin.math.min
 import kotlin.system.exitProcess
@@ -53,6 +55,17 @@ import kotlin.system.exitProcess
  * [plugin.discord.register.CommandType] declared in each annotation.
  */
 class Commands{
+    @DiscordCommand(
+        name = "updgray",
+        type = CommandType.ALL,
+        requiredPerm = Permission.editServer,
+        desc = "Update graylist"
+    )
+    fun updateGraylist(arr: Array<String>, ctx: Context) {
+        reloadGraylist()
+        ctx.reply("IDK, update probably")
+    }
+
     @DiscordCommand(
         name = "update",
         args = "[ver]",

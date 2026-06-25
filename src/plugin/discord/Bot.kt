@@ -35,6 +35,8 @@ fun load() {
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.votekicksChannelStr)
             PVars.nsfwChannel =
                 PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.nsfwChannelStr)
+            PVars.consoleChannel =
+                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.consoleChannelStr)
         } else {
             Log.err("Failed to get server guild!")
         }
@@ -80,4 +82,9 @@ fun sendLeaveMessage(player: Player, id: Int) {
 
 fun reply(message: Message, content: String) {
     message.reply(content).queue()
+}
+
+fun sendConsoleMessage(message: String) {
+    if(PVars.consoleChannel == null) return
+    PVars.consoleChannel.sendMessage(message).submit()
 }

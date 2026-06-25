@@ -15,6 +15,7 @@ import plugin.Config
 import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.PVars.serverCommands
+import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
 import plugin.database.getPlayerData
 import plugin.database.models.Server
@@ -47,6 +48,7 @@ object Loader {
         BanListener.load()
         Menu.load()
         TextMenu.load()
+        loadGraylist()
 
         PVars.version = getResource("version")!!.readString()
 

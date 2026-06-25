@@ -18,6 +18,8 @@ import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Role
 import plugin.Bundle
 import plugin.KVars.eventsScope
 import plugin.PVars
@@ -235,14 +237,14 @@ fun loadSave(name: String): Boolean {
         return false
     }
 
-    val file = saveDirectory.child(name + "." + saveExtension)
+    val file = saveDirectory.child("$name.$saveExtension")
 
     if (!SaveIO.isSaveValid(file)) {
         Log.err("No (valid) save data found for slot.")
         return false
     }
 
-    Core.app.post(Runnable {
+    Core.app.post {
         try {
             SaveIO.load(file)
             Vars.state.rules.sector = null
@@ -252,7 +254,7 @@ fun loadSave(name: String): Boolean {
         } catch (t: Throwable) {
             Log.err("Failed to load save. Outdated or corrupt file.")
         }
-    })
+    }
     return true
 }
 
@@ -266,4 +268,16 @@ fun Player.sendBundle(req: String, vararg params: Any) {
 
 fun getPlayersCount() : Int {
     return if(Core.settings.getInt("totalPlayers") == null) Groups.player.size() else Core.settings.getInt("totalPlayers")
+}
+
+fun getRoleIDs(roles : List<Role>) : List<String> {
+    val list = ArrayList<String>()
+    roles.forEach { role ->
+        list.add(role.id)
+    }
+    return list
+}
+
+fun Member.hasRole(id : String) : Boolean {
+    return getRoleIDs(this.roles).contains(id)
 }

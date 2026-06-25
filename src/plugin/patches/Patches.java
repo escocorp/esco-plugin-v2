@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import static arc.util.ColorCodes.*;
 import static arc.util.Log.*;
 import static plugin.PVars.gamemode;
+import static plugin.discord.BotKt.sendConsoleMessage;
 import static plugin.utils.LokiLoggerKt.addLog;
 
 public class Patches {
@@ -78,8 +79,12 @@ public class Patches {
             System.out.println(result);
             addLog(level1.name(), text);
 
+            String cleanText = "[" + dateTime.format(LocalDateTime.now()) + "] " + formatColors(tags[level1.ordinal()] + " " + text + "&fr", false);
+
+            sendConsoleMessage(cleanText);
+
             if (Administration.Config.logging.bool()) {
-                logToFile("[" + dateTime.format(LocalDateTime.now()) + "] " + formatColors(tags[level1.ordinal()] + " " + text + "&fr", false));
+                logToFile(cleanText);
             }
 
             /*if(socketOutput != null){
