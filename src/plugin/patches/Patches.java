@@ -81,7 +81,7 @@ public class Patches {
 
             String cleanText = "[" + dateTime.format(LocalDateTime.now()) + "] " + formatColors(tags[level1.ordinal()] + " " + text + "&fr", false);
 
-            sendConsoleMessage(cleanText);
+            sendConsoleMessage(cleanText.replaceAll("\u001B\\[[;\\d]*m", ""));
 
             if (Administration.Config.logging.bool()) {
                 logToFile(cleanText);
