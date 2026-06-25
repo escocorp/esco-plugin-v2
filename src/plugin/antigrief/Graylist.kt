@@ -16,7 +16,7 @@ import plugin.database.putLog
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-const val baseUrl = "https://raw.githubusercontent.com/escocorp/graylist/refs/heads/main/";
+const val baseUrl = "https://raw.githubusercontent.com/escocorp/graylist/refs/heads/main";
 const val ispsUrl = "$baseUrl/isps.txt"
 const val ipsUrl = "$baseUrl/ips.txt"
 const val ipsBlockUrl = "$baseUrl/ips-filter.txt"
