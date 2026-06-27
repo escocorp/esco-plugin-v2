@@ -267,7 +267,7 @@ fun Player.sendBundle(req: String, vararg params: Any) {
 }
 
 fun getPlayersCount() : Int {
-    return if(Core.settings.getInt("totalPlayers") == null) Groups.player.size() else Core.settings.getInt("totalPlayers")
+    return if(Core.settings.getInt("totalPlayers") == 0) Groups.player.size() else Core.settings.getInt("totalPlayers")
 }
 
 fun getRoleIDs(roles : List<Role>) : List<String> {

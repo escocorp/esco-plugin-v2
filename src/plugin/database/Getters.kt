@@ -110,8 +110,8 @@ fun getAdmin(rs: ResultSet): Admin {
 fun ban(pid: Int, aid: Int, reason: String?, unban: Long): Boolean {
     return executeUpdate(
         "INSERT INTO bans (player_id, admin_id, reason, unban_time) VALUES (?, ?, ?, ?)",
-        StatementSetter { stmt: PreparedStatement? ->
-            stmt!!.setInt(1, pid)
+        StatementSetter { stmt: PreparedStatement ->
+            stmt.setInt(1, pid)
             stmt.setInt(2, aid)
             stmt.setString(3, reason)
             stmt.setTimestamp(4, getTimestamp(unban))
@@ -303,8 +303,8 @@ fun deepSearch(player: Player): MutableList<PlayerData> {
                    OR c.address = ?
                 
                 """.trimIndent(),
-        { stmt: PreparedStatement? ->
-            stmt!!.setString(1, player.ip())
+        { stmt: PreparedStatement ->
+            stmt.setString(1, player.ip())
             stmt.setString(2, player.usid())
             stmt.setString(3, player.ip())
         },

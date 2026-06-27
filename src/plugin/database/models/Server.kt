@@ -1,53 +1,54 @@
-package plugin.database.models;
+package plugin.database.models
 
-import plugin.database.Database;
+import plugin.database.Database.executeQuery
+import plugin.PVars.gamemode
+import java.sql.ResultSet
+import java.sql.SQLException
+import java.util.Optional
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Optional;
+class Server(
+    val id: Int,
+    val name: String
+) {
 
-import static plugin.PVars.gamemode;
-
-public class Server {
-    public String name;
-    public int id;
-
-    public Server(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public static Optional<Server> getOrCreateServer() {
-        Optional<Server> server = Database.executeQuery(
+    companion object {
+        fun getOrCreateServer(): Optional<Server> {
+            val server = executeQuery(
                 """
-                        SELECT * FROM servers
-                        WHERE name = ?
-                        """,
-                stmt -> {
-                    stmt.setString(1, gamemode.simpleName);
-                },
-                Server::getServer
-        );
-        if(server.isPresent()) {
-            return server;
+                SELECT * FROM servers
+                WHERE name = ?
+                """.trimIndent(), { stmt ->
+                stmt.setString(1, gamemode.simpleName)
+            }, { rs ->
+                getServer(rs)
+            })
+
+            if (server.isPresent) {
+                return server
+            }
+
+            return executeQuery(
+                """
+                INSERT INTO servers (name)
+                VALUES (?)
+                ON CONFLICT (name)
+                DO UPDATE SET name = EXCLUDED.name
+                RETURNING id, name
+                """.trimIndent(),
+                { stmt ->
+                stmt.setString(1, gamemode.simpleName)
+            }, { rs ->
+                getServer(rs)
+            })
         }
-        return Database.executeQuery(
-                """
-                        INSERT INTO servers (name)
-                        VALUES (?)
-                        ON CONFLICT (name)
-                        DO UPDATE SET name = EXCLUDED.name
-                        RETURNING id, name
-                        """,
-                stmt -> stmt.setString(1, gamemode.simpleName),
-                Server::getServer
-        );
-    }
 
-    public static Server getServer(ResultSet rs) throws SQLException {
-        return new Server(
+        @JvmStatic
+        @Throws(SQLException::class)
+        fun getServer(rs: ResultSet): Server {
+            return Server(
                 rs.getInt("id"),
                 rs.getString("name")
-        );
+            )
+        }
     }
 }
