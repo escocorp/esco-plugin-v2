@@ -42,7 +42,7 @@ fun apply(p: Player, isp: String?, pd: PlayerData) {
 fun loadGraylist() {
     Timer.schedule({
         reloadGraylist()
-    }, 0f, 5f*60);
+    }, 0f, 30f*60);
 
     Reflect.get<ArcNetProvider>(Vars.net, "provider").setConnectFilter { ip ->
         return@setConnectFilter !ipsBlock.contains(ip)

@@ -65,4 +65,6 @@ public class PVars {
 
     public static final String hubIp = "node2.larzed.icu";
     public static final int hubPort = 6568;
+
+    public static ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();
 }

@@ -14,6 +14,7 @@ import plugin.Bundle
 import plugin.Config
 import plugin.KVars.globalScope
 import plugin.PVars
+import plugin.PVars.joinDemographics
 import plugin.PVars.serverCommands
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
@@ -53,6 +54,11 @@ object Loader {
         PVars.version = getResource("version")!!.readString()
 
         loadMenus()
+
+        Timer.schedule({
+            // ipJoins.clear();
+            if(joinDemographics.size > 7000) joinDemographics.clear();
+        }, 60f, 60f);
 
         /*
         if(PVars.gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {

@@ -13,6 +13,7 @@ import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.content.Blocks
+import mindustry.game.EventType
 import mindustry.game.EventType.*
 import mindustry.game.Team
 import mindustry.gen.Call
@@ -28,6 +29,7 @@ import plugin.KVars
 import plugin.KVars.eventsScope
 import plugin.KVars.mapStats
 import plugin.PVars
+import plugin.PVars.joinDemographics
 import plugin.antigrief.apply
 import plugin.database.*
 import plugin.database.models.Admin
@@ -47,6 +49,16 @@ import java.util.*
 import java.util.function.Consumer
 
 fun loadEvents() {
+    Events.on(ConnectPacketEvent::class.java, { e ->
+        val region = e.packet.uuid.hashCode()
+        val cachedRegion = joinDemographics.get(region)
+        if(cachedRegion == null) joinDemographics.put(region, e.packet.uuid)
+        else if(cachedRegion != e.packet.uuid){
+            Vars.netServer.admins.blacklistDos(e.connection.address)
+            Log.info("Blacklisting IP @ due to suspicious UUIDs", e.connection.address)
+            sendLog($"Blacklisting ${e.connection.address} due to suspicious UUIDs")
+        }
+    });
     Events.on(PlayerConnect::class.java) { e: PlayerConnect ->  // pre-connect
         val player = e.player
 
