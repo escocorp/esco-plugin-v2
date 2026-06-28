@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class PVars {
-    public static int serverId;
+    /*public static int serverId;
     public static String version = "unknown";
     public static Gamemode gamemode = Gamemode.idk;
     public static String bundleApi, vpnApi, apiAuth, lokiApi;
@@ -66,5 +66,5 @@ public class PVars {
     public static final String hubIp = "node2.larzed.icu";
     public static final int hubPort = 6568;
 
-    public static ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();
+    public static ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();*/
 }
