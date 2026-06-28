@@ -51,30 +51,7 @@ class Config {
             ),
             HubConfig()
         )
-        /*
-        // API
-        PVars.bundleApi = getEnv("BUNDLE_API", "http://localhost:8080/bundles/")
-        PVars.vpnApi = getEnv("VPN_API", "http://localhost:3000/ip/")
-        PVars.lokiApi = getEnv("LOKI_API")
-        PVars.lokiLoggingEnabled = !PVars.lokiApi.isEmpty()
-        PVars.apiAuth = Base64.getEncoder().encodeToString(getEnv("API_AUTH")!!.toByteArray())
-
-        // DB
-        PVars.db = getEnv("DB", "mindustry")
-        PVars.dbHost = getEnv("DB_HOST", "127.0.0.1")
-        PVars.dbPort = getEnv("DB_PORT", "5432")
-        PVars.dbUser = getEnv("DB_USER", "plugin")
-        PVars.dbPassword = getEnv("DB_PASSWORD")
-
-        // discord
-        PVars.botToken = getEnv("TOKEN")
-        PVars.serverChannelStr = getEnv("CHANNEL_ID")
-        PVars.serverGuildStr = getEnv("GUILD_ID")
-        PVars.logsChannelStr = getEnv("LOGS_ID")
-        PVars.votekicksChannelStr = getEnv("VOTEKICKS_ID")
-        PVars.nsfwChannelStr = getEnv("NSFW_ID")
-        PVars.consoleChannelStr = getEnv("CONSOLE_ID")
-        PVars.ownerRoleId = getEnv("OWNER_ROLE_ID")*/
+        return appconfig
     }
 
 

@@ -34,6 +34,7 @@ object Loader {
     @JvmStatic
     fun load() {
         val appConfig = Config().load()
+        ServiceLocator.appConfig = appConfig
         Bundle.load()
         Patches.load()
         PEvents.load()
