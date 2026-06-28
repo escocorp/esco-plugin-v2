@@ -22,11 +22,13 @@ class Context(var message: Message, var channel: MessageChannelUnion, var author
     }
 
     fun reply(content: String?) {
-        message.reply("[" + PVars.gamemode.name + "] " + content).queue()
+        val prefix = if (global) "[Global]" else "[${PVars.gamemode.name}]"
+        message.reply("$prefix $content").queue()
     }
 
     fun replyServer(content: String?) {
-        message.reply("[" + PVars.gamemode.simpleName + "] " + content).queue()
+        val prefix = if (global) "[Global Server]" else "[${PVars.gamemode.simpleName}]"
+        message.reply("$prefix $content").queue()
     }
 
     fun replyEmbed(embed: MessageEmbed) {
