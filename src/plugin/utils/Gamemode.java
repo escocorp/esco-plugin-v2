@@ -1,7 +1,7 @@
 package plugin.utils;
 
 public enum Gamemode {
-    idk(),
+    unknown(),
     survival("survival", "srv!", 5, 3, 500),
     sandbox("sandbox", "snd!", 0, 1, 0),
     attack("attack", "atk!", 0, 1, 1000),
@@ -12,21 +12,18 @@ public enum Gamemode {
     hexed("hexed", "hex!", 0, 2, 1050),
     crawlerArena("crw", "crw!", 20, 0, 1500);
 
-    public boolean optimized;
     public String simpleName, botPrefix;
     public int waveCost, blockCost, winCost;
 
     Gamemode() {
-        this.optimized = false;
         this.simpleName = name();
-        this.botPrefix = "idk!";
+        this.botPrefix = "u!";
         this.waveCost = 0;
         this.blockCost = 0;
         this.winCost = 0;
     }
 
     Gamemode(String simpleName, String botPrefix, int waveCost, int blockCost, int winCost) {
-        this.optimized = optimized;
         this.simpleName = simpleName;
         this.botPrefix = botPrefix;
         this.blockCost = blockCost;
@@ -37,6 +34,6 @@ public enum Gamemode {
     public static Gamemode parseGamemode(String name) {
         for (Gamemode g : values())
             if (g.name().equals(name)) return g;
-        return idk;
+        return unknown;
     }
 }

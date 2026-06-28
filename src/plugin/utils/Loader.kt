@@ -33,7 +33,7 @@ object Loader {
 
     @JvmStatic
     fun load() {
-        Config.load()
+        val appConfig = Config().load()
         Bundle.load()
         Patches.load()
         PEvents.load()
