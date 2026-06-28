@@ -2,7 +2,6 @@ package plugin.database.models
 
 import arc.struct.Seq
 import plugin.database.Database.executeUpdate
-import plugin.utils.Permission
 
 class Admin(
     val id: Int,

@@ -33,6 +33,7 @@ import plugin.PVars
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.*
+import plugin.database.models.Permission
 import plugin.database.models.PlayerData
 import plugin.gamemodes.crawlerarena.CVars
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
@@ -51,14 +52,13 @@ import plugin.votes.VoteMap
 import plugin.votes.VoteWave
 import plugin.votes.VotekickSession
 import java.util.*
-import java.util.function.Consumer
 import kotlin.math.roundToInt
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
-    handler.registerCommand("runwave", "<count>", Permission.admin, CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("runwave", "<count>", Permission.Admin, CommandRunner { arg: Array<String>, p: Player ->
         if (!Strings.canParseInt(arg[0])) {
             Bundle.sendMessage("args.mustbeint", p, "<count>")
             return@CommandRunner
@@ -74,7 +74,7 @@ fun register(handler: CustomHandler) {
             }, 0.1f + (i / 10f))
         }
     })
-    handler.registerCommand("savereplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("savereplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
         file.parent().mkdirs()
@@ -82,7 +82,7 @@ fun register(handler: CustomHandler) {
 
         p.sendMessage("Done!")
     })
-    handler.registerCommand("playreplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
         if (!file.exists()) {
             p.sendMessage("File doesn't exist!")
@@ -96,8 +96,8 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
         if (arg.isEmpty()) {
-            getPlayerData(p).ifPresent { pd: PlayerData ->
-                pd.prefs.setCustomName("")
+            getPlayerData(p)?.let { pd: PlayerData ->
+                pd.prefs.customName = ""
                 pd.updatePrefs()
                 Core.app.post { p.name(pd.lastName) }
             }
@@ -109,8 +109,8 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         globalScope.launch {
-            getPlayerData(p).ifPresent { pd: PlayerData ->
-                pd.prefs.setCustomName(name)
+            getPlayerData(p)?.let { pd: PlayerData ->
+                pd.prefs.customName = name
                 pd.updatePrefs()
                 Core.app.post { p.name(name) }
             }
@@ -121,7 +121,7 @@ fun register(handler: CustomHandler) {
         Call.connect(p.con, hubIp, hubPort)
     })
 
-    handler.registerCommand("testmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("testmenus", "", Permission.Test, CommandRunner { _: Array<String>, p: Player ->
         val menu = ScrollableMenu(p.coloredName(), "Hi!")
         for (i in 0..15) {
             menu.add("Button $i") { pl2: Player ->
@@ -131,7 +131,7 @@ fun register(handler: CustomHandler) {
         menu.show(p)
     })
 
-    handler.registerCommand("testtextmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("testtextmenus", "", Permission.Test, CommandRunner { _: Array<String>, p: Player ->
         val menu = ScrollableTextMenu(p.coloredName())
         for (i in 0..15) {
             menu.add("[gold][[[white]$i[gold]][stat] - meow")
@@ -144,7 +144,7 @@ fun register(handler: CustomHandler) {
             p.sendMessage("${m.name()} : ${m.author()}")
         }
     })
-    handler.registerCommand("vanish", "", Permission.vanish, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("vanish", "", Permission.Vanish, CommandRunner { _: Array<String>, p: Player ->
         if (PVars.vanishedPlayers.contains(p)) {
             PVars.vanishedPlayers.remove(p)
             p.sendMessage("unvanished")
@@ -166,24 +166,22 @@ fun register(handler: CustomHandler) {
         }
         val targetStatsOpt = getPlayerData(target)
         val playerStatsOpt = getPlayerData(player)
-        if (targetStatsOpt.isEmpty || playerStatsOpt.isEmpty) {
+        if (targetStatsOpt == null || playerStatsOpt == null) {
             player.sendMessage("[scarlet]Unknown error")
             return@CommandRunner
         }
-        val targetStats = targetStatsOpt.get()
-        val playerStats = playerStatsOpt.get()
         val amount = Strings.parseInt(args[0])
         if (amount < 1) {
             player.sendMessage("Amount must be > 0")
             return@CommandRunner
         }
-        if (amount > playerStats.balance) {
+        if (amount > playerStatsOpt.balance) {
             Bundle.sendMessage("menu.shop.nomoney", player)
             return@CommandRunner
         }
         val commision = (amount * 0.02f).roundToInt()
-        playerStats.subBalance(amount)
-        targetStats.adjBalance(amount - commision)
+        playerStatsOpt.subBalance(amount)
+        targetStatsOpt.adjBalance(amount - commision)
         target.sendMessage("[green]Player " + player.coloredName() + " [green]give you $[white]" + amount + " [green](commision $[white]" + commision + "[green])")
         player.sendMessage("[green]You give " + target.coloredName() + " [green]$[white]" + amount + " [green](commision $[white]" + commision + "[green])")
     })
@@ -197,7 +195,7 @@ fun register(handler: CustomHandler) {
         }
         globalScope.launch {
             getPlayerData(p)
-                .ifPresent(Consumer { s -> Core.app.post { slot(p, s, Strings.parseInt(a[0])) } })
+                ?.let { s -> Core.app.post { slot(p, s, Strings.parseInt(a[0])) } }
         }
     })
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
@@ -205,8 +203,8 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         globalScope.launch {
-            getPlayerData(p).ifPresent(
-                Consumer { s -> Core.app.post { showShop(s, p) } })
+            getPlayerData(p)?.let(
+                 { s -> Core.app.post { showShop(s, p) } })
         }
     })
     handler.registerCommand("sync", CommandRunner { _: Array<String>, player: Player ->
@@ -277,13 +275,13 @@ fun register(handler: CustomHandler) {
         }
         menu.show(player)
     })
-    handler.registerCommand("test", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("test", "", Permission.Test, CommandRunner { _: Array<String>, p: Player ->
         p.sendMessage("[green]Ok!")
     })
 
     handler.registerCommand("stats", "", CommandRunner { _: Array<String>, p: Player ->
         val sb = StringBuilder("[stat]Stats:\n")
-        getPlayerData(p).ifPresent(Consumer { s ->
+        getPlayerData(p)?.let( { s ->
             s.update(p, false)
             sb.append("Blocks build: ").append(s.blocksBuild).append("\n")
             sb.append("Blocks broken: ").append(s.blocksBroken).append("\n")
@@ -362,7 +360,7 @@ fun register(handler: CustomHandler) {
     handler.registerCommand(
         "ban",
         "<id> <time> <reason...>",
-        Permission.punish,
+        Permission.Punish,
         CommandRunner { a: Array<String>, p: Player ->
             if (Strings.canParseInt(a[0])) {
                 val id = Strings.parseInt(a[0])
@@ -404,7 +402,7 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("link", CommandRunner { _: Array<String>, p: Player ->
         val pdOpt = getPlayerData(p)
-        if (pdOpt.isPresent && pdOpt.get().discordId != null) {
+        if (pdOpt != null && pdOpt.discordId != null) {
             p.sendMessage("Account already linked!")
             return@CommandRunner
         }
@@ -418,13 +416,10 @@ fun register(handler: CustomHandler) {
         Bundle.infoMessage("discord.link", p, PVars.gamemode.botPrefix, code, PVars.discordLink)
     })
 
-    handler.registerCommand("hidden", "<bool>", Permission.admin, CommandRunner { a: Array<String>, p: Player ->
+    handler.registerCommand("hidden", "<bool>", Permission.Admin, CommandRunner { a: Array<String>, p: Player ->
         val i = parseBool(a[0])
-        val idOpt = getPlayerId(p)
-        if (idOpt.isEmpty) {
-            return@CommandRunner
-        }
-        val id: Int = idOpt.get()
+        val idOpt = getPlayerId(p) ?: return@CommandRunner
+        val id: Int = idOpt
         when (i) {
             1 -> {
                 updateAdminHidden(id, true)
@@ -458,7 +453,7 @@ fun register(handler: CustomHandler) {
                 }
                 player.team(Team.get(id));
             });*/
-    handler.registerCommand("artv", "", Permission.artv, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("artv", "", Permission.Artv, CommandRunner { _: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed) {
             Bundle.sendMessage("rtv.error.hexed", p)
             return@CommandRunner
@@ -466,11 +461,11 @@ fun register(handler: CustomHandler) {
         Events.fire(EventType.GameOverEvent(Team.derelict))
     })
 
-    handler.registerCommand("a", "<message...>", Permission.admin, CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("a", "<message...>", Permission.Admin, CommandRunner { arg: Array<String>, p: Player ->
         val raw = "[#" + Pal.adminChat.toString() + "]<ADM> " + Vars.netServer.chatFormatter.format(p, arg[0])
         globalScope.launch {
             Groups.player.each(
-                { pl: Player -> pl.admin || Permission.getPerms(pl).contains(Permission.admin) },
+                { pl: Player -> pl.admin || Permission.getPerms(pl).contains(Permission.Admin) },
                 { a: Player ->
                     Core.app.post {
                         a.sendMessage(raw, p, arg[0])
@@ -484,7 +479,7 @@ fun register(handler: CustomHandler) {
             // player.sendMessage("[scarlet]Nobody is being voted on.");
             Bundle.sendMessage("vote.novoteinprogress", player)
         } else {
-            if (Permission.getPerms(player).contains(Permission.admin) && arg[0].equals("c", ignoreCase = true)) {
+            if (Permission.getPerms(player).contains(Permission.Admin) && arg[0].equals("c", ignoreCase = true)) {
                 // Call.sendMessage(Strings.format("[lightgray]Vote canceled by admin[orange] @[lightgray].", player.name));
                 Bundle.sendMessage("vote.canceledbyadmin", player.coloredName())
                 PVars.currentlyKicking.task.cancel()
@@ -595,10 +590,10 @@ fun register(handler: CustomHandler) {
                     if (found === player) {
                         // player.sendMessage("[scarlet]You can't vote to kick yourself.");
                         Bundle.sendMessage("votekick.kickyouself", player)
-                    } else if (found.admin || perms.contains(Permission.admin)) {
+                    } else if (found.admin || perms.contains(Permission.Admin)) {
                         // player.sendMessage("[scarlet]Did you really expect to be able to kick an admin?");
                         Bundle.sendMessage("votekick.admin", player)
-                    } else if (perms.contains(Permission.votekickImmune)) {
+                    } else if (perms.contains(Permission.VotekickImmune)) {
                         Bundle.sendMessage("votekick.immune", player)
                     } else if (found.isLocal) {
                         // player.sendMessage("[scarlet]Local players cannot be kicked.");
@@ -702,7 +697,7 @@ private fun registerHexedCommands(handler: CustomHandler) {
         handler.registerCommand(
             "join",
             "<player...>",
-            Permission.test,
+            Permission.Test,
             CommandRunner { arg: Array<String>, player: Player ->
                 val sname = Strings.stripColors(arg[0])
                 val player2 = Groups.player.find({ p ->

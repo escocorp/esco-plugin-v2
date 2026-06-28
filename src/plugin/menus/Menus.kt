@@ -21,10 +21,9 @@ import plugin.database.deepSearchNames
 import plugin.database.getPlayerData
 import plugin.database.models.PlayerData
 import plugin.utils.Gamemode
-import plugin.utils.Permission
+import plugin.database.models.Permission
 import plugin.utils.parseTime
 import java.text.MessageFormat
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
 import kotlin.math.roundToInt
@@ -213,7 +212,7 @@ fun showSlot(p: Player, stats: PlayerData, bet: Int) {
         return
     }
 
-    if (stats.lastGambling != null && !stats.lastGambling.get()) {
+    if (stats.lastGambling != null && !stats.lastGambling!!.get()) {
         p.sendMessage("[scarlet]Not so fast!")
         return
     }
@@ -253,7 +252,7 @@ fun showSlot(p: Player, stats: PlayerData, bet: Int) {
     if (stats.lastGambling == null) {
         stats.setLastGambling(Timekeeper.ofSeconds(0.5f))
     } else {
-        stats.lastGambling.reset()
+        stats.lastGambling!!.reset()
     }
 
     if (win > 0) {
@@ -286,8 +285,8 @@ fun showWelcome(p: Player) {
             "[blue]\uE80DDiscord"
         ) { pl: Player -> Call.openURI(pl.con, PVars.discordLink) }
         .add(Bundle.get("menus.dontshow", p.locale)) { pl: Player ->
-            getPlayerData(pl).ifPresent(Consumer { data: PlayerData ->
-                data.prefs.setShowWelcomeMenu(false)
+            getPlayerData(pl)?.let( { data: PlayerData ->
+                data.prefs.showWelcomeMenu = false
                 data.updatePrefs()
             })
         }
@@ -300,8 +299,8 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
     menu.add("[green]Name\n" + other.coloredName()) { pl: Player ->
         Call.infoMessage(pl.con, stats.names.toString("\n"))
     }.row()
-    val pdOpt: Optional<PlayerData> = getPlayerData(other)
-    pdOpt.ifPresent(Consumer { d: PlayerData? ->
+    val pdOpt = getPlayerData(other)
+    pdOpt?.let( { d: PlayerData? ->
         menu.add("ID\n" + d!!.id).row()
     })
     menu.add("Locale\n" + other.locale).row()
@@ -312,9 +311,9 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
         .add("Custom Client\n" + other.con.modclient).row()
         .add("Times Joined\n" + stats.timesJoined).row()
         .add("Times Kicked\n" + stats.timesKicked).row()
-    if (perms.contains(Permission.punish) && pdOpt.isPresent) {
+    if (perms.contains(Permission.Punish) && pdOpt != null) {
         menu.add("[scarlet]Ban") { pl2: Player? ->
-            showBanMenu(pl2!!, pdOpt.get().id, other)
+            showBanMenu(pl2!!, pdOpt.id, other)
         }.row()
         menu.add("[yellow]Mute") { pl2: Player ->
             pl2.sendMessage("WIP")

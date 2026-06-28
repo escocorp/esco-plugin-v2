@@ -15,14 +15,14 @@ class PlayerData(
     var id: Int, var uuid: String?, var discordId: Long?, var prefs: PlayerPrefs, var lastName: String?, // stats
     var playtime: Long, var blocksBuild: Int, var blocksBroken: Int, var balance: Int, var wavesSurvived: Int
 ) {
-    var usid: String? = null
+    var cachedUsid: String? = null
 
     @Transient
     var lastGambling: Timekeeper? = null
 
     fun getUsid(): String? {
-        if (usid != null) {
-            return usid
+        if (cachedUsid != null) {
+            return cachedUsid
         }
         val usidOpt = Database.executeQuery(
             """
@@ -36,7 +36,7 @@ class PlayerData(
             },
             { rs: ResultSet -> rs.getString("usid") }
         )
-        if (usidOpt != null) usid = usidOpt
+        if (usidOpt != null) cachedUsid = usidOpt
         return usidOpt
     }
 

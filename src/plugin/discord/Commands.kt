@@ -25,6 +25,7 @@ import plugin.PVars.version
 import plugin.antigrief.reloadGraylist
 import plugin.database.Database
 import plugin.database.getPlayerData
+import plugin.database.models.Permission
 import plugin.database.models.PlayerData
 import plugin.discord.register.CommandType
 import plugin.discord.register.DiscordCommand
@@ -50,7 +51,7 @@ class Commands {
     @DiscordCommand(
         name = "updgray",
         type = CommandType.ALL,
-        requiredPerm = Permission.editServer,
+        requiredPerm = Permission.EditServer,
         desc = "Update graylist"
     )
     fun updateGraylist(arr: Array<String>, ctx: Context) {
@@ -63,7 +64,7 @@ class Commands {
         args = "[ver]",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.editServer
+        requiredPerm = Permission.EditServer
     )
             /** Downloads the specified plugin version (or the latest if omitted) and replaces the running jar. */
     fun update(arr: Array<String>, ctx: Context) {
@@ -97,11 +98,11 @@ class Commands {
     @DiscordCommand(
         name = "debug",
         desc = "SS",
-        requiredPerm = Permission.editServer
+        requiredPerm = Permission.EditServer
     )
             /** Replies with a diagnostic dump: restart flag, FPS, heap usage, Mindustry version, Java version, and database pool stats. */
     fun debug(arr: Array<String>, ctx: Context) {
-        val pool = Database.dataSource.hikariPoolMXBean
+        val pool = Database.dataSource!!.hikariPoolMXBean
         ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}\nVersion: ${Version.build}\nJava Version: ${Runtime.version()}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version")
     }
 
@@ -109,7 +110,7 @@ class Commands {
         name = "restart",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.editServer
+        requiredPerm = Permission.EditServer
     )
             /** Schedules a server restart, logging the requester and immediately exiting if the server is empty. */
     fun restart(arr: Array<String>, ctx: Context) {
@@ -123,7 +124,7 @@ class Commands {
     @DiscordCommand(
         name = "uploadmap",
         desc = "SS",
-        requiredPerm = Permission.editMaps
+        requiredPerm = Permission.EditMaps
     )
             /** Saves up to four `.msav` map attachments from the invoking message to the custom maps directory and reloads the map list. */
     fun uploadmap(arr: Array<String>, ctx: Context) {
@@ -185,7 +186,7 @@ class Commands {
         val sb = StringBuilder()
         val embed = EmbedBuilder()
         Groups.player.each { p: Player ->
-            getPlayerData(p).ifPresent(Consumer { pd: PlayerData ->
+            getPlayerData(p)?.let( { pd: PlayerData ->
                 sb.append("[").append(pd.id).append("] ")
             })
             sb.append(p.plainName()).append("\n")
@@ -214,7 +215,7 @@ class Commands {
         }
         val player = PVars.linkCodes.get(args[0])
         PVars.linkCodes.remove(args[0])
-        getPlayerData(player).ifPresent(Consumer { p: PlayerData ->
+        getPlayerData(player)?.let( { p: PlayerData ->
             if (p.updateDiscordId(ctx.author.idLong)) ctx.reply("Success!")
             else ctx.reply("Failed")
         })
@@ -294,7 +295,7 @@ class Commands {
         name = "delmap",
         desc = "Delete a custom map from the server",
         args = "<name...>",
-        requiredPerm = Permission.editMaps
+        requiredPerm = Permission.EditMaps
     )
             /** Deletes the first custom map whose name contains the given query, attaches the file in the confirmation embed, and reloads the map list. */
     fun delmap(args: Array<String>, ctx: Context) {
@@ -340,7 +341,7 @@ class Commands {
         name = "reloadbundle",
         desc = "SS",
         type = CommandType.GLOBAL,
-        requiredPerm = Permission.editServer
+        requiredPerm = Permission.EditServer
     )
             /** Reloads the plugin's localization bundle */
     fun reloadBundle(args: Array<String>, ctx: Context) {
@@ -352,7 +353,7 @@ class Commands {
         name = "gc",
         desc = "SS",
         type = CommandType.GLOBAL,
-        requiredPerm = Permission.editServer
+        requiredPerm = Permission.EditServer
     )
             /** Triggers a JVM garbage-collection hint and reports heap usage (in MiB) before and after. */
     fun collectGarbage(args: Array<String>, ctx: Context) {
@@ -366,7 +367,7 @@ class Commands {
         name = "forcerestart",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.editServer
+        requiredPerm = Permission.EditServer
     )
     fun forceRestart(args: Array<String>, ctx: Context) {
         sendLog("Force restarting.")

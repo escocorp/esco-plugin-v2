@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import plugin.PVars
 import plugin.discord.Context
 import plugin.discord.reply
-import plugin.utils.Permission
+import plugin.database.models.Permission
 import plugin.utils.hasRole
 import java.text.MessageFormat
 
@@ -70,7 +70,7 @@ class MessageListener : ListenerAdapter() {
         }
         if (PVars.globalCommands != null && content.startsWith("gc!")) {
             val ctx = Context(message, channel, author, true)
-            if (!ctx.hasPerm(Permission.editServer)) return
+            if (!ctx.hasPerm(Permission.EditServer)) return
             PVars.globalCommands.handleMessage(content, ctx)
         }
     }

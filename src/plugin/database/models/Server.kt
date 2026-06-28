@@ -12,7 +12,7 @@ class Server(
 ) {
 
     companion object {
-        fun getOrCreateServer(): Optional<Server> {
+        fun getOrCreateServer(): Server? {
             val server = executeQuery(
                 """
                 SELECT * FROM servers
@@ -23,7 +23,7 @@ class Server(
                     getServer(rs)
                 })
 
-            if (server.isPresent) {
+            if (server != null) {
                 return server
             }
 

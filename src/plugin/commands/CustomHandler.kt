@@ -11,7 +11,7 @@ import mindustry.Vars
 import mindustry.core.NetServer.InvalidCommandHandler
 import mindustry.gen.Player
 import plugin.Bundle
-import plugin.utils.Permission
+import plugin.database.models.Permission
 
 class CustomHandler {
     var handler: CommandHandler? = null
@@ -53,7 +53,7 @@ class CustomHandler {
         }
     }
 
-    fun getClosest(name: String, player: Player?): CommandHandler.Command? {
+    fun getClosest(name: String, player: Player): CommandHandler.Command? {
         var minDst = 0
         var closest: CommandHandler.Command? = null
         val perms = Permission.getPerms(player)
@@ -86,22 +86,22 @@ class CustomHandler {
     }
 
     fun getCommand(name: String?): CommandData? {
-        return commands.find(Boolf { c: CommandData? -> c!!.name == name })
+        return commands.find { c: CommandData? -> c!!.name == name }
     }
 
-    fun registerCommand(name: String, runner: CommandRunner<Player?>) {
-        registerCommand(name, "", Permission.none, runner)
+    fun registerCommand(name: String, runner: CommandRunner<Player>) {
+        registerCommand(name, "", Permission.None, runner)
     }
 
-    fun registerCommand(name: String, args: String, runner: CommandRunner<Player?>) {
-        registerCommand(name, args, Permission.none, runner)
+    fun registerCommand(name: String, args: String, runner: CommandRunner<Player>) {
+        registerCommand(name, args, Permission.None, runner)
     }
 
-    fun registerCommand(name: String, args: String, perm: Permission?, runner: CommandRunner<Player?>) {
+    fun registerCommand(name: String, args: String, perm: Permission, runner: CommandRunner<Player>) {
         // CommandData cd = new CommandData(name, args, perm);
         commands.add(CommandData(name, args, perm))
 
-        handler!!.register<Player>(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
+        handler!!.register(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
             if (!Permission.getPerms(p).contains(perm)) {
                 //Bundle.sendMessage("noperms", p);
                 val command = getClosest(name, p)
@@ -125,7 +125,7 @@ class CustomHandler {
     }
 
     fun addPseudoCommand(name: String, args: String) {
-        addPseudoCommand(name, args, Permission.none)
+        addPseudoCommand(name, args, Permission.None)
     }
 
     fun addPseudoCommand(name: String, args: String, perm: Permission?) {

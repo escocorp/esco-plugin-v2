@@ -13,7 +13,7 @@ import plugin.database.Database.executeQuery
 import plugin.database.Database.executeQueryList
 import plugin.database.Database.executeUpdate
 import plugin.database.models.*
-import plugin.utils.Permission
+import plugin.database.models.Permission
 import plugin.utils.getUDPAddress
 import java.sql.PreparedStatement
 import java.sql.ResultSet

@@ -95,16 +95,3 @@ fun reloadGraylist() {
         Log.err("Failed to load graylist", e)
     }
 }
-
-fun isGraylisted(isp: String?): Boolean {
-    return Database.executeQuery(
-        """
-                        SELECT EXISTS(
-                            SELECT 1 FROM graylist WHERE isp ILIKE ?
-                        )
-                        
-                        """.trimIndent(),
-        { stmt: PreparedStatement? -> stmt!!.setString(1, isp) },
-        { rs: ResultSet? -> rs!!.getBoolean("exists") }
-    ).orElse(false)
-}

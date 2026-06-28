@@ -40,17 +40,6 @@ public class PEvents {
             });*/
         });
 
-        Events.on(EventType.GameOverEvent.class, (e) -> {
-            if (mapVote != null)
-                mapVote.cancel();
-            History.clear();
-            if (e.winner != Team.derelict)
-                Groups.player.each(p -> {
-                    if (p.team() == e.winner)
-                        getPlayerData(p).ifPresent(PlayerData::adjWins);
-                });
-        });
-
         Events.on(EventType.WorldLoadEvent.class, (e) -> {
             Timer.schedule(() -> {
                 if (gamemode == sandbox) {

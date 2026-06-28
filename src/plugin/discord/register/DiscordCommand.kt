@@ -1,6 +1,6 @@
 package plugin.discord.register
 
-import plugin.utils.Permission
+import plugin.database.models.Permission
 
 /**
  * Marks a function in a command listener class as a Discord bot command.
@@ -16,7 +16,7 @@ import plugin.utils.Permission
  *   (e.g. `"<required> [optional]"`). Leave empty for commands that take no arguments.
  * @property type Which handler(s) this command is registered to; defaults to [CommandType.DEFAULT].
  * @property requiredPerm The minimum [Permission] a caller must hold to execute the command.
- *   Defaults to [Permission.none], meaning anyone can run it.
+ *   Defaults to [Permission.None], meaning anyone can run it.
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
@@ -25,5 +25,5 @@ annotation class DiscordCommand(
     val desc: String,
     val args: String = "",
     val type: CommandType = CommandType.DEFAULT,
-    val requiredPerm: Permission = Permission.none
+    val requiredPerm: Permission = Permission.None
 )

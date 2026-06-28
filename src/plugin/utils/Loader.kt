@@ -108,9 +108,7 @@ object Loader {
         Timer.schedule({
             Groups.player.each { p ->
                 globalScope.launch {
-                    getPlayerData(p).ifPresent { stats ->
-                        stats.update(p, false)
-                    }
+                    getPlayerData(p)?.update(p, false)
                 }
             }
         }, (15 * 60).toFloat(), (15 * 60).toFloat())
@@ -119,7 +117,7 @@ object Loader {
 
     fun loadServerId() {
         val serverOpt = Server.getOrCreateServer()
-        if (serverOpt.isPresent) PVars.serverId = serverOpt.get().id
+        if (serverOpt != null) PVars.serverId = serverOpt.id
         else Log.err("Сannot create/get server record. Server is unstable")
     }
 

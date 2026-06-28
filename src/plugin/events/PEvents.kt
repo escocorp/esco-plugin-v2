@@ -32,6 +32,7 @@ import plugin.PVars.joinDemographics
 import plugin.antigrief.apply
 import plugin.database.*
 import plugin.database.models.Admin
+import plugin.database.models.Permission
 import plugin.database.models.PlayerData
 import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
@@ -120,7 +121,7 @@ fun loadEvents() {
             } else {
                 getAdmin(player)?.let { a: Admin ->
                     app.post {
-                        if (a.perms.contains(Permission.admin) && !a.hidden) player.admin(true)
+                        if (a.perms.contains(Permission.Admin) && !a.hidden) player.admin(true)
                         if (a.perms.size > 1) player.sendMessage("Your permissions " + Permission.seqToString(a.perms))
                     }
                 }
@@ -472,6 +473,14 @@ fun loadEvents() {
             build.configure(attemCode)
             Bundle.label("attem83", 2f, build.x, build.y)
         }
+    })
+
+    Events.on(GameOverEvent::class.java,  { e: GameOverEvent ->
+        if (PVars.mapVote != null) PVars.mapVote.cancel()
+        History.clear()
+        if (e.winner !== Team.derelict) Groups.player.each( { p: Player ->
+            if (p.team() === e.winner) getPlayerData(p)?.let { obj -> obj.adjWins() }
+        })
     })
 }
 

@@ -1,59 +1,64 @@
-package plugin.database;
+package plugin.database
 
-import arc.util.Log;
-import arc.util.Strings;
-import arc.util.Time;
-import org.postgresql.PGConnection;
-import org.postgresql.PGNotification;
+import arc.util.Log
+import arc.util.Strings
+import arc.util.Time
+import mindustry.gen.Player
+import org.postgresql.PGConnection
+import plugin.Bundle
+import plugin.database.Database.dataSource
+import plugin.discord.sendLog
+import plugin.utils.formatTime
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.function.Consumer
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+object BanListener {
+    private
+    var failedTimes: Int = 0
+    private
+    val executor: ExecutorService = Executors.newSingleThreadExecutor()
 
-import static plugin.database.GettersKt.getBan;
-import static plugin.database.GettersKt.getPlayerById;
-import static plugin.discord.BotKt.sendLog;
-import static plugin.utils.UtilsKt.formatTime;
+    fun load() {
+        executor.submit {
+            try {
+                dataSource!!.getConnection().use { con ->
+                    val pgCon = con.unwrap(PGConnection::class.java)
+                    con.createStatement().use { st ->
+                        st.execute("LISTEN new_ban")
+                    }
+                    while (true) {
+                        val notifications = pgCon.notifications
 
-public class BanListener {
-    private static int failedTimes = 0;
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    public static void load() {
-        executor.submit(() -> {
-            try (Connection con = Database.dataSource.getConnection()) {
-                PGConnection pgCon = con.unwrap(PGConnection.class);
-                try (Statement st = con.createStatement()) {
-                    st.execute("LISTEN new_ban");
-                }
-
-                while (true) {
-                    PGNotification[] notifications = pgCon.getNotifications();
-
-                    if (notifications != null)
-                        for (PGNotification notify : notifications) {
-                            String payload = notify.getParameter();
-                            if (!Strings.canParseInt(payload)) continue;
-                            int i = Strings.parseInt(payload);
-                            getBan(i).ifPresent(ban ->
-                                    getPlayerById(ban.playerId).ifPresent(p -> {
-                                        sendMessage("advertise.banned", ban.playerId, p.coloredName(), ban.unbanTime == null ? "never" : formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000), ban.reason);
-                                        ban.kickPlayer(p);
-                                    })
-                            );
+                        if (notifications != null) for (notify in notifications) {
+                            val payload = notify.parameter
+                            if (!Strings.canParseInt(payload)) continue
+                            val i = Strings.parseInt(payload)
+                            getBan(i)?.let { ban ->
+                                getPlayerById(ban.playerId).ifPresent(Consumer { p: Player? ->
+                                    Bundle.sendMessage(
+                                        "advertise.banned",
+                                        ban.playerId,
+                                        p!!.coloredName(),
+                                        if (ban.unbanTime == null) "never" else formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000),
+                                        ban.reason
+                                    )
+                                    ban.kickPlayer(p)
+                                })
+                            }
                         }
 
-                    Thread.sleep(1500);
+                        Thread.sleep(1500)
+                    }
                 }
-            } catch (Exception e) {
-                Log.err(e);
-                sendLog(e.getMessage());
+            } catch (e: Exception) {
+                Log.err(e)
+                sendLog(e.message)
                 //if (failedTimes < 5) {
-                load();
-                failedTimes += 1;
+                load()
+                failedTimes += 1
                 //}
             }
-        });
+        }
     }
 }

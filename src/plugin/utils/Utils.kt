@@ -25,7 +25,8 @@ import plugin.KVars.eventsScope
 import plugin.PVars
 import plugin.PVars.apiAuth
 import plugin.PVars.httpClient
-import plugin.utils.Permission.getPerms
+import plugin.database.models.Permission
+import plugin.database.models.Permission.Companion.getPerms
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

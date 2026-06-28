@@ -12,9 +12,7 @@ import mindustry.net.NetConnection;
 import mindustry.net.Packets;
 import plugin.Bundle;
 import plugin.menus.MenusKt;
-import plugin.utils.Permission;
-
-import static plugin.utils.Permission.getPerms;
+import plugin.database.models.Permission;
 
 public class AdminRequest {
     public static void handle(NetConnection con, AdminRequestCallPacket packet) {
@@ -29,11 +27,11 @@ public class AdminRequest {
 
         Events.fire(new EventType.AdminRequestEvent(player, other, action));
 
-        Seq<Permission> perms = getPerms(player);
+        Seq<Permission> perms = Permission.Companion.getPerms(player);
 
         switch (action) {
             case wave -> {
-                if (!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.Admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
@@ -42,21 +40,21 @@ public class AdminRequest {
             }
             case ban -> {
                 // ban(other, player, "Touch grass", parseTime("10"));
-                if (!perms.contains(Permission.punish)) {
+                if (!perms.contains(Permission.Punish)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
                 player.sendMessage("use /ban or ban by trace menu");
             }
             case kick -> {
-                if (!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.Admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
                 other.kick(Bundle.get("admin.kicked") + " " + player.coloredName());
             }
             case trace -> {
-                if (!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.Admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
@@ -77,7 +75,7 @@ public class AdminRequest {
                 MenusKt.showTrace(player, other, perms);
             }
             case switchTeam -> {
-                if (!perms.contains(Permission.admin)) {
+                if (!perms.contains(Permission.Admin)) {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
