@@ -28,18 +28,6 @@ public class PEvents {
     public static void load() {
         loadEvents();
 
-        Events.on(EventType.ServerLoadEvent.class, (e) -> {
-            Loader.loadAfterStart();
-
-            /*Vars.netServer.admins.addActionFilter(a -> {
-                return true;
-            });*/
-
-            /*Vars.netServer.admins.addChatFilter((player, message) -> {
-                return message;
-            });*/
-        });
-
         Events.on(EventType.WorldLoadEvent.class, (e) -> {
             Timer.schedule(() -> {
                 if (gamemode == sandbox) {

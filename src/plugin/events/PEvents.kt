@@ -41,8 +41,10 @@ import plugin.history.HistoryType
 import plugin.logic.attemCode
 import plugin.logic.isAttem
 import plugin.menus.showWelcome
+import plugin.models.VPNApiResponse
 import plugin.utils.*
 import plugin.utils.Loader.exit
+import plugin.utils.Loader.loadAfterStart
 import java.awt.Color
 import java.util.*
 import java.util.function.Consumer
@@ -481,6 +483,10 @@ fun loadEvents() {
         if (e.winner !== Team.derelict) Groups.player.each( { p: Player ->
             if (p.team() === e.winner) getPlayerData(p)?.let { obj -> obj.adjWins() }
         })
+    })
+
+    Events.on(ServerLoadEvent::class.java, { _: ServerLoadEvent ->
+        loadAfterStart()
     })
 }
 

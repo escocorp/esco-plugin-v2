@@ -27,6 +27,7 @@ import plugin.PVars.apiAuth
 import plugin.PVars.httpClient
 import plugin.database.models.Permission
 import plugin.database.models.Permission.Companion.getPerms
+import plugin.models.VPNApiResponse
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

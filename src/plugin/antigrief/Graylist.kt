@@ -21,8 +21,6 @@ const val ispsUrl = "$baseUrl/isps.txt"
 const val ipsUrl = "$baseUrl/ips.txt"
 const val ipsBlockUrl = "$baseUrl/ips-filter.txt"
 
-const val timeout = 30
-
 val isps = Seq<String>()
 val ips = Seq<String>()
 val ipsBlock = Seq<String>()

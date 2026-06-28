@@ -33,7 +33,7 @@ import plugin.gamemodes.hexed.HexData.ProgressIncreaseEvent;
 
 import static arc.util.Log.info;
 import static mindustry.Vars.*;
-import static plugin.PPlugin.mainClass;
+import static plugin.PPlugin.instance;
 
 public class HexedGamemode {
     @Nullable
@@ -82,7 +82,7 @@ public class HexedGamemode {
         rules.pvpAutoPause = false;
 
         //attempt to load the base schematic from mods/hexed/base.msch, defaulting to a built-in one upon failure.
-        Fi baseFile = mainClass.getConfig().sibling("base.msch");
+        Fi baseFile = instance.getConfig().sibling("base.msch");
         if (baseFile.exists()) {
             try {
                 baseSchematic = Schematics.read(baseFile);
