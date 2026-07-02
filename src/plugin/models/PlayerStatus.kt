@@ -8,7 +8,12 @@ data class PlayerStatus(var frozen: Boolean = false, var vanished: Boolean = fal
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
 
 fun getOrCreatePlayerStatus(player: Player): PlayerStatus {
-    return playerStatuses[player] ?: PlayerStatus()
+    var status = playerStatuses[player]
+    status ?: {
+        status = PlayerStatus()
+        playerStatuses[player] = status
+    }
+    return status!!
 }
 
 fun Player.getStatus(): PlayerStatus {
