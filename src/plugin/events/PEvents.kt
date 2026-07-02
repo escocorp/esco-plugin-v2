@@ -194,7 +194,8 @@ fun loadEvents() {
                 PVars.currentlyKicking.targetId,
                 PVars.currentlyKicking.startedId,
                 "AutoBan: Leave during votekick\n" + PVars.currentlyKicking.reason,
-                (2 * 60 * 60).toLong()
+                (2 * 60 * 60).toLong(),
+                "votekick"
             )
             PVars.currentlyKicking.cancel()
             Bundle.sendMessage("votekick.targetleft")
@@ -339,7 +340,7 @@ fun loadEvents() {
             if (e.breaking) {
                 s.adjBlocksBroken()
                 if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
-                    ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"))
+                    ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"), "antigrief")
                     player.kick("AutoBan: Possible Griefer", 0)
                     player.con.close()
                     antigriefCooldown.reset()

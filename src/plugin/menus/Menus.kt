@@ -342,7 +342,7 @@ fun showBanMenu(p: Player, playerId: Int, target: Player) {
                 pl2.sendMessage("[scarlet]Unknown! 1h 1d 1m 1y perm etc")
                 return@Cons2
             }
-            if (ban(playerId, pl2, reason, timeL)) {
+            if (ban(playerId, pl2, reason, timeL, "menu")) {
                 pl2.sendMessage("[green]Player banned.")
                 target.kick(
                     MessageFormat.format(

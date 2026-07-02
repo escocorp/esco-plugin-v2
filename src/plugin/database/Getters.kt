@@ -5,6 +5,7 @@ import arc.util.Strings
 import arc.util.Time
 import mindustry.gen.Groups
 import mindustry.gen.Player
+import mindustry.logic.LAccess
 import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
@@ -14,11 +15,11 @@ import plugin.database.Database.executeQueryList
 import plugin.database.Database.executeUpdate
 import plugin.database.models.*
 import plugin.database.models.Permission
+import plugin.utils.getTimestamp
 import plugin.utils.getUDPAddress
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
-import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
 
@@ -110,24 +111,26 @@ fun getAdmin(rs: ResultSet): Admin {
 
 // region Ban
 
-fun ban(pid: Int, aid: Int, reason: String?, unban: Long): Boolean {
+fun ban(pid: Int, aid: Int, reason: String?, unban: Long, source: String): Boolean {
     return executeUpdate(
-        "INSERT INTO bans (player_id, admin_id, reason, unban_time) VALUES (?, ?, ?, ?)"
+        "INSERT INTO bans (player_id, admin_id, reason, unban_time, source) VALUES (?, ?, ?, ?, ?)"
     ) { stmt: PreparedStatement ->
         stmt.setInt(1, pid)
         stmt.setInt(2, aid)
         stmt.setString(3, reason)
         stmt.setTimestamp(4, getTimestamp(unban))
+        stmt.setString(5, source)
     }
 }
 
-fun ban(pid: Int, admin: Player, reason: String?, unban: Long): Boolean {
+fun ban(pid: Int, admin: Player, reason: String?, unban: Long, source: String): Boolean {
     return executeUpdate(
         """
-        INSERT INTO bans (player_id, admin_id, reason, unban_time)
+        INSERT INTO bans (player_id, admin_id, reason, unban_time, source)
         VALUES (
             ?,
             (SELECT id FROM players WHERE uuid = ?),
+            ?,
             ?,
             ?
         )
@@ -138,16 +141,18 @@ fun ban(pid: Int, admin: Player, reason: String?, unban: Long): Boolean {
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
         stmt.setTimestamp(4, getTimestamp(unban))
+        stmt.setString(5, source)
     }
 }
 
-fun ban(player: Player, admin: Player, reason: String?, unban: Long): Boolean {
+fun ban(player: Player, admin: Player, reason: String?, unban: Long, source: String): Boolean {
     return executeUpdate(
         """
         INSERT INTO bans (player_id, admin_id, reason, unban_time)
         VALUES (
             (SELECT id FROM players WHERE uuid = ?),
             (SELECT id FROM players WHERE uuid = ?),
+            ?,
             ?,
             ?
         )
@@ -158,15 +163,8 @@ fun ban(player: Player, admin: Player, reason: String?, unban: Long): Boolean {
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
         stmt.setTimestamp(4, getTimestamp(unban))
+        stmt.setString(5, source)
     }
-}
-
-fun getTimestamp(seconds: Long): Timestamp? {
-    if (seconds < 0) return null // перм бан
-
-
-    val millis = seconds * 1000
-    return Timestamp(System.currentTimeMillis() + millis)
 }
 
 fun getBan(id: Int): Ban? {
@@ -226,7 +224,8 @@ fun getBan(rs: ResultSet): Ban {
         rs.getBoolean("active"),
         banTime,
         unbanTime,
-        rs.getString("reason")
+        rs.getString("reason"),
+        rs.getString("source")
     )
 }
 

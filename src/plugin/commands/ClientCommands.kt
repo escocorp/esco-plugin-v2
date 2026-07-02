@@ -371,9 +371,9 @@ fun register(handler: CustomHandler) {
                     return@CommandRunner
                 }
                 val banned: Boolean = if (perm) {
-                    ban(id, p, a[2], -1)
+                    ban(id, p, a[2], -1, "command")
                 } else {
-                    ban(id, p, a[2], time)
+                    ban(id, p, a[2], time, "command")
                 }
                 if (banned) {
                     p.sendMessage("[green]Player banned!")

@@ -37,6 +37,7 @@ import java.net.URI
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
+import java.sql.Timestamp
 import java.util.*
 import java.util.zip.InflaterInputStream
 import javax.imageio.ImageIO
@@ -282,4 +283,12 @@ fun getRoleIDs(roles: List<Role>): List<String> {
 
 fun Member.hasRole(id: String): Boolean {
     return getRoleIDs(this.roles).contains(id)
+}
+
+fun getTimestamp(seconds: Long): Timestamp? {
+    if (seconds < 0) return null // перм бан
+
+
+    val millis = seconds * 1000
+    return Timestamp(System.currentTimeMillis() + millis)
 }

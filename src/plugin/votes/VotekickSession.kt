@@ -60,7 +60,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
             cancel()
 
             sendEmbed(startedId, targetId)
-            if (ban(targetId, startedId, "Votekick: " + reason, NetServer.kickDuration.toLong())) {
+            if (ban(targetId, startedId, "Votekick: " + reason, NetServer.kickDuration.toLong(), "votekick")) {
                 getBan(target)?.let({ b -> b.kickPlayer(target) })
             }
 
