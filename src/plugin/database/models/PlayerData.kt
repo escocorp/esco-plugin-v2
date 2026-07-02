@@ -33,7 +33,7 @@ class PlayerData(
         if (cachedUsid != null) {
             return cachedUsid
         }
-        val usidOpt = Database.executeQuery(
+        val usidOpt = executeQuery(
             """
                         SELECT usid FROM usid_list
                         WHERE player_id = ? AND server = ?
@@ -41,7 +41,7 @@ class PlayerData(
                         """.trimIndent(),
             { stmt: PreparedStatement ->
                 stmt.setInt(1, id)
-                stmt.setInt(2, PVars.serverId)
+                stmt.setInt(2, serverId)
             },
             { rs: ResultSet -> rs.getString("usid") }
         )
@@ -324,7 +324,7 @@ fun getPlayerData(rs: ResultSet): PlayerData {
     val prefs = try {
         PVars.objectMapper.readValue(rs.getString("prefs"), PlayerPrefs::class.java)
     } catch (e: Exception) {
-        arc.util.Log.err(e)
+        Log.err(e)
         PlayerPrefs()
     }
 

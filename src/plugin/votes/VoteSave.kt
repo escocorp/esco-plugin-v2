@@ -1,4 +1,3 @@
 package plugin.votes
 
-class VoteSave {
-}
+class VoteSave

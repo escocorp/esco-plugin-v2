@@ -21,7 +21,7 @@ class PPlugin : Plugin() {
     override fun registerServerCommands(handler: CommandHandler) {
         register(handler)
         PVars.serverCommands = handler
-        Log.info("Registered @ server commands", handler.getCommandList().size)
+        Log.info("Registered @ server commands", handler.commandList.size)
     }
 
     override fun registerClientCommands(handler: CommandHandler) {
@@ -30,7 +30,7 @@ class PPlugin : Plugin() {
         //ClientCommands.register(clientCommands);
         register(PVars.clientCommands)
 
-        Log.info("Registered @ client commands", handler.getCommandList().size)
+        Log.info("Registered @ client commands", handler.commandList.size)
     }
 
     companion object {

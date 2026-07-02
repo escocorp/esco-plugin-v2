@@ -54,8 +54,8 @@ object Loader {
 
         Timer.schedule({
             // ipJoins.clear();
-            if (joinDemographics.size > 7000) joinDemographics.clear();
-        }, 60f, 60f);
+            if (joinDemographics.size > 7000) joinDemographics.clear()
+        }, 60f, 60f)
 
         /*
         if(PVars.gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {

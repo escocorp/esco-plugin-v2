@@ -33,7 +33,7 @@ class MessageListener : ListenerAdapter() {
             if (channel.id == PVars.serverChannelStr && !content.startsWith(PVars.gamemode.botPrefix)) {
                 val username = member.effectiveName
                 Log.info("@: @", username, content)
-                val colorHex: String? = Color(member.colors.primaryRaw).toString()
+                val colorHex: String = Color(member.colors.primaryRaw).toString()
                 val mindustryMessage = MessageFormat.format(
                     "[blue]\uE80D[tan][[[#{0}]{1}[tan]][white]: {2}",
                     colorHex,

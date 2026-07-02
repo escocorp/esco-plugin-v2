@@ -16,7 +16,7 @@ import plugin.database.models.putLog
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-const val baseUrl = "https://raw.githubusercontent.com/escocorp/graylist/refs/heads/main";
+const val baseUrl = "https://raw.githubusercontent.com/escocorp/graylist/refs/heads/main"
 const val ispsUrl = "$baseUrl/isps.txt"
 const val ipsUrl = "$baseUrl/ips.txt"
 const val ipsBlockUrl = "$baseUrl/ips-filter.txt"
@@ -38,7 +38,7 @@ fun apply(p: Player, isp: String?, pd: PlayerData) {
 fun loadGraylist() {
     Timer.schedule({
         reloadGraylist()
-    }, 0f, 30f * 60);
+    }, 0f, 30f * 60)
 
     Reflect.get<ArcNetProvider>(Vars.net, "provider").setConnectFilter { ip ->
         return@setConnectFilter !ipsBlock.contains(ip)
