@@ -40,6 +40,10 @@ import plugin.database.Database.adminsCache
 import plugin.database.Database.playerDataCache
 import plugin.database.models.*
 import plugin.discord.*
+import plugin.discord.Bot.sendJoinMessage
+import plugin.discord.Bot.sendLeaveMessage
+import plugin.discord.Bot.sendLog
+import plugin.discord.Bot.sendServerMessage
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
 import plugin.history.HistoryType

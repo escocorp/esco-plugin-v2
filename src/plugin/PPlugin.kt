@@ -6,6 +6,7 @@ import arc.util.Threads
 import mindustry.mod.Plugin
 import plugin.commands.CustomHandler
 import plugin.commands.register
+import plugin.discord.Bot
 import plugin.utils.Loader.load
 
 class PPlugin : Plugin() {
@@ -13,7 +14,7 @@ class PPlugin : Plugin() {
         instance = this
         load()
 
-        Threads.daemon { load() }
+        Threads.daemon { Bot.load() }
 
         Log.info("Plugin successfully loaded!")
     }

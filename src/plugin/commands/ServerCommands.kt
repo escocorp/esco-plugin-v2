@@ -7,8 +7,8 @@ import mindustry.gen.Call
 import mindustry.gen.Groups
 import plugin.Bundle
 import plugin.PVars
-import plugin.discord.sendLog
-import plugin.discord.sendServerMessage
+import plugin.discord.Bot.sendLog
+import plugin.discord.Bot.sendServerMessage
 import plugin.history.History
 import plugin.patches.Patches
 import plugin.utils.Loader

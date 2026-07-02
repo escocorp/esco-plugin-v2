@@ -18,7 +18,7 @@ import plugin.database.BanListener
 import plugin.database.models.getPlayerData
 import plugin.database.models.Server
 import plugin.database.models.putMessage
-import plugin.discord.sendLog
+import plugin.discord.Bot.sendLog
 import plugin.events.loadEvents
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.HexedGamemode

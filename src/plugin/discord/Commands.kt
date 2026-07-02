@@ -27,6 +27,7 @@ import plugin.database.Database
 import plugin.database.models.getPlayerData
 import plugin.database.models.Permission
 import plugin.database.models.PlayerData
+import plugin.discord.Bot.sendLog
 import plugin.discord.register.CommandType
 import plugin.discord.register.DiscordCommand
 import plugin.utils.*

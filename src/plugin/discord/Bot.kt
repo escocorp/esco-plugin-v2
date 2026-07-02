@@ -15,76 +15,77 @@ import java.awt.Color
 import java.util.*
 
 const val nohornyBanButtonId = "nohornyban"
+object Bot {
+    fun load() {
+        val intents = EnumSet.allOf(GatewayIntent::class.java)
+        try {
+            val jda = JDABuilder.create(PVars.botToken, intents)
+                .addEventListeners(MessageListener())
+                .build()
 
-fun load() {
-    val intents = EnumSet.allOf(GatewayIntent::class.java)
-    try {
-        val jda = JDABuilder.create(PVars.botToken, intents)
-            .addEventListeners(MessageListener())
-            .build()
+            jda.awaitReady()
 
-        jda.awaitReady()
+            PVars.serverGuild = jda.getGuildById(PVars.serverGuildStr)
+            if (PVars.serverGuild != null) {
+                PVars.serverChannel =
+                    PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.serverChannelStr)
+                PVars.logsChannel =
+                    PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.logsChannelStr)
+                PVars.votekicksChannel =
+                    PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.votekicksChannelStr)
+                PVars.nsfwChannel =
+                    PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.nsfwChannelStr)
+                PVars.consoleChannel =
+                    PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.consoleChannelStr)
+            } else {
+                Log.err("Failed to get server guild!")
+            }
 
-        PVars.serverGuild = jda.getGuildById(PVars.serverGuildStr)
-        if (PVars.serverGuild != null) {
-            PVars.serverChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.serverChannelStr)
-            PVars.logsChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.logsChannelStr)
-            PVars.votekicksChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.votekicksChannelStr)
-            PVars.nsfwChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.nsfwChannelStr)
-            PVars.consoleChannel =
-                PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.consoleChannelStr)
-        } else {
-            Log.err("Failed to get server guild!")
+            PVars.discordCommands = CommandHandler(PVars.gamemode.botPrefix)
+            PVars.globalCommands = CommandHandler("gc!")
+            DiscordCommandAnnotationProcessor.registerCommands(Commands(), PVars.discordCommands, PVars.globalCommands)
+
+            Log.info("Registered ${PVars.discordCommands.commandList.size} discord commands")
+            Log.info("Registered ${PVars.globalCommands.commandList.size} global discord commands")
+
+            Log.info("Bot loaded")
+        } catch (e: Exception) {
+            Log.err("Failed to load discord bot!", e)
         }
-
-        PVars.discordCommands = CommandHandler(PVars.gamemode.botPrefix)
-        PVars.globalCommands = CommandHandler("gc!")
-        DiscordCommandAnnotationProcessor.registerCommands(Commands(), PVars.discordCommands, PVars.globalCommands)
-
-        Log.info("Registered ${PVars.discordCommands.commandList.size} discord commands")
-        Log.info("Registered ${PVars.globalCommands.commandList.size} global discord commands")
-
-        Log.info("Bot loaded")
-    } catch (e: Exception) {
-        Log.err("Failed to load discord bot!", e)
     }
-}
 
-fun sendLog(message: String?) {
-    if (PVars.logsChannel != null) PVars.logsChannel.sendMessage("[" + PVars.gamemode.simpleName + "] " + message)
-        .queue()
-}
+    fun sendLog(message: String?) {
+        if (PVars.logsChannel != null) PVars.logsChannel.sendMessage("[" + PVars.gamemode.simpleName + "] " + message)
+            .queue()
+    }
 
-fun sendServerMessage(message: String) {
-    if (PVars.serverChannel == null) return
-    PVars.serverChannel.sendMessage(message).queue()
-}
+    fun sendServerMessage(message: String) {
+        if (PVars.serverChannel == null) return
+        PVars.serverChannel.sendMessage(message).queue()
+    }
 
-fun sendJoinMessage(player: Player, id: Int) {
-    if (PVars.serverChannel == null) return
-    val embed = EmbedBuilder()
-        .setColor(Color.green)
-        .addField("", "[" + id + "] " + player.plainName() + " joined!", false)
-    PVars.serverChannel.sendMessageEmbeds(embed.build()).queue()
-}
+    fun sendJoinMessage(player: Player, id: Int) {
+        if (PVars.serverChannel == null) return
+        val embed = EmbedBuilder()
+            .setColor(Color.green)
+            .addField("", "[" + id + "] " + player.plainName() + " joined!", false)
+        PVars.serverChannel.sendMessageEmbeds(embed.build()).queue()
+    }
 
-fun sendLeaveMessage(player: Player, id: Int) {
-    if (PVars.serverChannel == null) return
-    val embed = EmbedBuilder()
-        .setColor(Color.red)
-        .addField("", "[" + id + "] " + player.plainName() + " left!", false)
-    PVars.serverChannel.sendMessageEmbeds(embed.build()).queue()
-}
+    fun sendLeaveMessage(player: Player, id: Int) {
+        if (PVars.serverChannel == null) return
+        val embed = EmbedBuilder()
+            .setColor(Color.red)
+            .addField("", "[" + id + "] " + player.plainName() + " left!", false)
+        PVars.serverChannel.sendMessageEmbeds(embed.build()).queue()
+    }
 
-fun reply(message: Message, content: String) {
-    message.reply(content).queue()
-}
+    fun reply(message: Message, content: String) {
+        message.reply(content).queue()
+    }
 
-fun sendConsoleMessage(message: String) {
-    if (PVars.consoleChannel == null) return
-    PVars.consoleChannel.sendMessage(message).submit()
+    fun sendConsoleMessage(message: String) {
+        if (PVars.consoleChannel == null) return
+        PVars.consoleChannel.sendMessage(message).submit()
+    }
 }
