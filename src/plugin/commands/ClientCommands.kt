@@ -3,7 +3,6 @@ package plugin.commands
 import arc.Core
 import arc.Events
 import arc.func.Boolf
-import arc.func.Intc
 import arc.math.Mathf
 import arc.struct.ObjectIntMap
 import arc.struct.ObjectMap
@@ -14,6 +13,7 @@ import arc.util.Time
 import arc.util.Timekeeper
 import arc.util.Timer
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
@@ -32,9 +32,7 @@ import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
-import plugin.database.*
-import plugin.database.models.Permission
-import plugin.database.models.PlayerData
+import plugin.database.models.*
 import plugin.gamemodes.crawlerarena.CVars
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.Hex
@@ -74,21 +72,21 @@ fun register(handler: CustomHandler) {
             }, 0.1f + (i / 10f))
         }
     })
-    handler.registerCommand("savereplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("savereplay", "<name>", Permission.Test) { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
         file.parent().mkdirs()
         file.writeBytes(saveReplay(History.history, Vars.state.map.name()))
 
         p.sendMessage("Done!")
-    })
+    }
     handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
         if (!file.exists()) {
             p.sendMessage("File doesn't exist!")
             return@CommandRunner
         }
-        val replay = ProtoBuf.decodeFromByteArray<Replay>(
+        @OptIn(ExperimentalSerializationApi::class) val replay = ProtoBuf.decodeFromByteArray<Replay>(
             file.readBytes()
         )
         p.sendMessage("total actions: ${replay.actions.size}")
@@ -117,11 +115,11 @@ fun register(handler: CustomHandler) {
         }
     })
 
-    handler.registerCommand("hub", CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("hub") { _: Array<String>, p: Player ->
         Call.connect(p.con, hubIp, hubPort)
-    })
+    }
 
-    handler.registerCommand("testmenus", "", Permission.Test, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("testmenus", "", Permission.Test) { _: Array<String>, p: Player ->
         val menu = ScrollableMenu(p.coloredName(), "Hi!")
         for (i in 0..15) {
             menu.add("Button $i") { pl2: Player ->
@@ -129,21 +127,21 @@ fun register(handler: CustomHandler) {
             }
         }
         menu.show(p)
-    })
+    }
 
-    handler.registerCommand("testtextmenus", "", Permission.Test, CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("testtextmenus", "", Permission.Test) { _: Array<String>, p: Player ->
         val menu = ScrollableTextMenu(p.coloredName())
         for (i in 0..15) {
             menu.add("[gold][[[white]$i[gold]][stat] - meow")
         }
         menu.show(p)
-    })
+    }
 
-    handler.registerCommand("maps", "", CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("maps", "") { _: Array<String>, p: Player ->
         Vars.maps.customMaps().each { m: Map ->
             p.sendMessage("${m.name()} : ${m.author()}")
         }
-    })
+    }
     handler.registerCommand("vanish", "", Permission.Vanish, CommandRunner { _: Array<String>, p: Player ->
         if (PVars.vanishedPlayers.contains(p)) {
             PVars.vanishedPlayers.remove(p)
@@ -203,8 +201,7 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         globalScope.launch {
-            getPlayerData(p)?.let(
-                 { s -> Core.app.post { showShop(s, p) } })
+            getPlayerData(p)?.let { s -> Core.app.post { showShop(s, p) } }
         }
     })
     handler.registerCommand("sync", CommandRunner { _: Array<String>, player: Player ->
@@ -261,7 +258,7 @@ fun register(handler: CustomHandler) {
         player.sendMessage(resp)
     })
 
-    handler.registerCommand("help", "", CommandRunner { _: Array<String>, player: Player ->
+    handler.registerCommand("help", "") { _: Array<String>, player: Player ->
         val perms = Permission.getPerms(player)
         val menu = ScrollableTextMenu("Help")
         for (i in 0..<handler.commands.size) {
@@ -274,23 +271,23 @@ fun register(handler: CustomHandler) {
             )
         }
         menu.show(player)
-    })
-    handler.registerCommand("test", "", Permission.Test, CommandRunner { _: Array<String>, p: Player ->
+    }
+    handler.registerCommand("test", "", Permission.Test) { _: Array<String>, p: Player ->
         p.sendMessage("[green]Ok!")
-    })
+    }
 
-    handler.registerCommand("stats", "", CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("stats", "") { _: Array<String>, p: Player ->
         val sb = StringBuilder("[stat]Stats:\n")
-        getPlayerData(p)?.let( { s ->
+        getPlayerData(p)?.let { s ->
             s.update(p, false)
             sb.append("Blocks build: ").append(s.blocksBuild).append("\n")
             sb.append("Blocks broken: ").append(s.blocksBroken).append("\n")
             sb.append("Waves survived: ").append(s.wavesSurvived).append("\n")
             sb.append("Balance: [green]$[]").append(s.balance).append("\n")
             sb.append("Playtime: ").append(formatTime(s.playtime))
-        })
+        }
         p.sendMessage(sb.toString())
-    })
+    }
 
     handler.registerCommand("vnw", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed) {
@@ -385,7 +382,7 @@ fun register(handler: CustomHandler) {
             }
         })
 
-    handler.registerCommand("history", CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("history") { _: Array<String>, p: Player ->
         if (PVars.historyPlayers.contains(p)) {
             PVars.historyPlayers.remove(p)
             p.sendMessage("[scarlet]Disabled")
@@ -394,11 +391,11 @@ fun register(handler: CustomHandler) {
             PVars.historyPlayers.add(p)
             p.sendMessage("[green]Enabled!")
         }
-    })
+    }
 
-    handler.registerCommand("discord", CommandRunner { _: Array<String>, p: Player ->
+    handler.registerCommand("discord") { _: Array<String>, p: Player ->
         Call.openURI(p.con, PVars.discordLink)
-    })
+    }
 
     handler.registerCommand("link", CommandRunner { _: Array<String>, p: Player ->
         val pdOpt = getPlayerData(p)
@@ -461,7 +458,7 @@ fun register(handler: CustomHandler) {
         Events.fire(EventType.GameOverEvent(Team.derelict))
     })
 
-    handler.registerCommand("a", "<message...>", Permission.Admin, CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("a", "<message...>", Permission.Admin) { arg: Array<String>, p: Player ->
         val raw = "[#" + Pal.adminChat.toString() + "]<ADM> " + Vars.netServer.chatFormatter.format(p, arg[0])
         globalScope.launch {
             Groups.player.each(
@@ -472,7 +469,7 @@ fun register(handler: CustomHandler) {
                     }
                 })
         }
-    })
+    }
 
     handler.registerCommand("vote", "<y/n/c>", CommandRunner { arg: Array<String>, player: Player ->
         if (PVars.currentlyKicking == null) {
@@ -635,87 +632,63 @@ fun register(handler: CustomHandler) {
 private fun registerHexedCommands(handler: CustomHandler) {
     handler.registerCommand(
         "spectate",
-        "",
-        CommandRunner { _: Array<String>, player: Player ->
-            if (player.team() === Team.derelict) {
-                player.sendMessage("[scarlet]You're already spectating.")
-            } else {
-                hexedGamemode.killTiles(player.team())
-                player.unit().kill()
-                player.team(Team.derelict)
-            }
-        })
+        ""
+    ) { _: Array<String>, player: Player ->
+        if (player.team() === Team.derelict) {
+            player.sendMessage("[scarlet]You're already spectating.")
+        } else {
+            hexedGamemode.killTiles(player.team())
+            player.unit().kill()
+            player.team(Team.derelict)
+        }
+    }
 
     handler.registerCommand(
         "captured",
-        "",
-        CommandRunner { _: Array<String>, player: Player ->
-            if (player.team() === Team.derelict) {
-                player.sendMessage("[scarlet]You're spectating.")
-            } else {
-                player.sendMessage("[lightgray]You've captured[accent] " + hexedGamemode.data.getControlled(player).size + "[] hexes.")
-            }
-        })
+        ""
+    ) { _: Array<String>, player: Player ->
+        if (player.team() === Team.derelict) {
+            player.sendMessage("[scarlet]You're spectating.")
+        } else {
+            player.sendMessage("[lightgray]You've captured[accent] " + hexedGamemode.data.getControlled(player).size + "[] hexes.")
+        }
+    }
 
     handler.registerCommand(
         "leaderboard",
-        "",
-        CommandRunner { _: Array<String>, player: Player ->
-            player.sendMessage(hexedGamemode.getLeaderboard())
-        })
+        ""
+    ) { _: Array<String>, player: Player ->
+        player.sendMessage(hexedGamemode.getLeaderboard())
+    }
 
     handler.registerCommand(
         "hexstatus",
-        "",
-        CommandRunner { _: Array<String>, player: Player ->
-            val hex: Hex? = hexedGamemode.data.data(player).location
-            if (hex != null) {
-                hex.updateController()
-                val builder = java.lang.StringBuilder()
-                builder.append("| [lightgray]Hex #").append(hex.id).append("[]\n")
-                builder.append("| [lightgray]Owner:[] ")
-                    .append(
-                        if (hex.controller != null && hexedGamemode.data.getPlayer(hex.controller) != null) hexedGamemode.data.getPlayer(
-                            hex.controller
-                        ).name else "<none>"
-                    )
-                    .append("\n")
-                for (data in Vars.state.teams.getActive()) {
-                    if (hex.getProgressPercent(data.team) > 0) {
-                        builder.append("|> [accent]").append(hexedGamemode.data.getPlayer(data.team).name)
-                            .append("[lightgray]: ").append(hex.getProgressPercent(data.team).toInt())
-                            .append("% captured\n")
-                    }
+        ""
+    ) { _: Array<String>, player: Player ->
+        val hex: Hex? = hexedGamemode.data.data(player).location
+        if (hex != null) {
+            hex.updateController()
+            val builder = java.lang.StringBuilder()
+            builder.append("| [lightgray]Hex #").append(hex.id).append("[]\n")
+            builder.append("| [lightgray]Owner:[] ")
+                .append(
+                    if (hex.controller != null && hexedGamemode.data.getPlayer(hex.controller) != null) hexedGamemode.data.getPlayer(
+                        hex.controller
+                    ).name else "<none>"
+                )
+                .append("\n")
+            for (data in Vars.state.teams.getActive()) {
+                if (hex.getProgressPercent(data.team) > 0) {
+                    builder.append("|> [accent]").append(hexedGamemode.data.getPlayer(data.team).name)
+                        .append("[lightgray]: ").append(hex.getProgressPercent(data.team).toInt())
+                        .append("% captured\n")
                 }
-                player.sendMessage(builder.toString())
-            } else {
-                player.sendMessage("[scarlet]No hex found.")
             }
-        })
-
-    if (false)
-        handler.registerCommand(
-            "join",
-            "<player...>",
-            Permission.Test,
-            CommandRunner { arg: Array<String>, player: Player ->
-                val sname = Strings.stripColors(arg[0])
-                val player2 = Groups.player.find({ p ->
-                    return@find p.plainName().contains(sname, ignoreCase = true)
-                })
-                if (player2 == null) {
-                    player.sendBundle("votekick.playernotfound", sname)
-                    return@CommandRunner
-                }
-                val oldTeam = player.team()
-                val newTeam = player2.team()
-                /*val oldTeamPlayers = Groups.player.find({
-                    return@find it.team() == oldTeam && it.uuid() != player.uuid()
-                })
-                if(oldTeamPlayers == null) {
-                    HexedGamemode.hexedGamemode.killTiles(oldTeam)
-                }*/
-            })
+            player.sendMessage(builder.toString())
+        } else {
+            player.sendMessage("[scarlet]No hex found.")
+        }
+    }
 }
 
 private fun registerCrawlerArenaCommands(handler: CustomHandler) {
@@ -784,13 +757,11 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                 Bundle.sendMessage("crawler.commands.give.player-not-found", player)
                 return@CommandRunner
             }
-
-            val amount: Float
-            if (args[0].equals("all", ignoreCase = true)) {
-                amount = CrawlerArenaGamemode.money.get(player.uuid(), 0f)
+            val amount: Float = if (args[0].equals("all", ignoreCase = true)) {
+                CrawlerArenaGamemode.money.get(player.uuid(), 0f)
             } else {
                 try {
-                    amount = args[0].toInt().toFloat()
+                    args[0].toInt().toFloat()
                 } catch (_: java.lang.NumberFormatException) {
                     Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
                     return@CommandRunner
@@ -815,19 +786,18 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
         })
 
     handler.registerCommand(
-        "info",
-        CommandRunner { _: Array<String>, player: Player -> Bundle.sendMessage("crawler.commands.info", player) })
+        "info"
+    ) { _: Array<String>, player: Player -> Bundle.sendMessage("crawler.commands.info", player) }
 
     handler.registerCommand(
         "upgrades",
         "[page]",
         CommandRunner { args: Array<String>, player: Player ->
-            val page: Int
-            if (args.isEmpty()) {
-                page = 1
+            val page: Int = if (args.isEmpty()) {
+                1
             } else {
                 try {
-                    page = args[0].toInt()
+                    args[0].toInt()
                 } catch (_: java.lang.NumberFormatException) {
                     Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
                     return@CommandRunner
@@ -853,12 +823,12 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
             val upgrades = java.lang.StringBuilder(Bundle.get("crawler.commands.upgrades.header", player.locale))
 
             upgrades.append(Bundle.get("crawler.commands.upgrades.page", player.locale, page, maxPage)).append("\n")
-            sortedUnitCosts.each(Intc { cost: Int ->
+            sortedUnitCosts.each { cost: Int ->
                 val type = unitCostsCopy.findKey(cost)
                 upgrades.append("[gold] - [accent]").append(type.name).append(" [lightgray](").append(cost)
                     .append(")\n")
                 unitCostsCopy.remove(type)
-            })
+            }
             player.sendMessage(upgrades.toString())
         })
 

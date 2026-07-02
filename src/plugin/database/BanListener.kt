@@ -7,6 +7,8 @@ import mindustry.gen.Player
 import org.postgresql.PGConnection
 import plugin.Bundle
 import plugin.database.Database.dataSource
+import plugin.database.models.getBan
+import plugin.database.models.getPlayerById
 import plugin.discord.sendLog
 import plugin.utils.formatTime
 import java.util.concurrent.ExecutorService

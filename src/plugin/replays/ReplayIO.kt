@@ -2,6 +2,7 @@ package plugin.replays
 
 import arc.struct.LongMap
 import arc.util.Timer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
@@ -11,6 +12,7 @@ import mindustry.gen.Call
 import plugin.history.HistoryStack
 import plugin.history.HistoryType
 
+@OptIn(ExperimentalSerializationApi::class)
 fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
     val map = HashMap<Long, ReplayStack>()
     history.forEach { entry ->

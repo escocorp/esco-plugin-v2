@@ -15,7 +15,7 @@ import plugin.PVars.joinDemographics
 import plugin.PVars.serverCommands
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
-import plugin.database.getPlayerData
+import plugin.database.models.getPlayerData
 import plugin.database.models.Server
 import plugin.database.models.putMessage
 import plugin.discord.sendLog

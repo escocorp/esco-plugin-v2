@@ -4,12 +4,21 @@ import arc.struct.ObjectMap
 import arc.util.Log
 import arc.util.Time
 import arc.util.Timekeeper
+import mindustry.gen.Groups
 import mindustry.gen.Player
 import org.postgresql.util.PGobject
 import plugin.PVars
+import plugin.PVars.serverId
 import plugin.database.Database
+import plugin.database.Database.executeQuery
+import plugin.database.Database.executeQueryList
+import plugin.database.Database.logExpectedCacheMiss
+import plugin.database.Database.playerDataCache
+import plugin.utils.getUDPAddress
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.sql.SQLException
+import java.util.Optional
 
 class PlayerData(
     var id: Int, var uuid: String?, var discordId: Long?, var prefs: PlayerPrefs, var lastName: String?, // stats
@@ -147,3 +156,199 @@ class PlayerData(
         }
     }
 }
+
+
+// region PlayerData
+
+fun deepSearchNames(player: Player): List<String> {
+    return executeQueryList(
+        """
+                SELECT DISTINCT p.last_name
+                FROM players p
+                LEFT JOIN usid_list u ON u.player_id = p.id
+                LEFT JOIN connections c ON c.player_id = p.id
+                WHERE p.last_ip = ?
+                   OR u.usid = ?
+                   OR c.address = ?
+                
+                """.trimIndent(),
+        { stmt: PreparedStatement ->
+            stmt.setString(1, player.ip())
+            stmt.setString(2, player.usid())
+            stmt.setString(3, player.ip())
+        },
+        { rs: ResultSet -> rs.getString("last_name") }
+    )
+}
+
+fun deepSearch(player: Player): List<PlayerData> {
+    return executeQueryList(
+        """
+                SELECT DISTINCT p.*
+                FROM players p
+                LEFT JOIN usid_list u ON u.player_id = p.id
+                LEFT JOIN connections c ON c.player_id = p.id
+                WHERE p.last_ip = ?
+                   OR u.usid = ?
+                   OR c.address = ?
+                
+                """.trimIndent(),
+        { stmt: PreparedStatement ->
+            stmt.setString(1, player.ip())
+            stmt.setString(2, player.usid())
+            stmt.setString(3, player.ip())
+        },
+        { rs: ResultSet -> getPlayerData(rs) }
+    )
+}
+
+fun getPlayerById(id: Int): Optional<Player> {
+    val pd = getPlayerData(id)
+    var p: Player? = null
+    if (pd != null) {
+        p = Groups.player.find { player: Player -> player.uuid() == pd.uuid }
+    }
+    return Optional.ofNullable<Player>(p)
+}
+
+fun getOrCreatePlayerData(p: Player): PlayerData? {
+    if (playerDataCache.containsKey(p)) {
+        return playerDataCache.get(p)
+    }
+
+    val pd = executeQuery(
+        """
+                        WITH update_players AS (
+                            INSERT INTO players (uuid, last_name, last_ip, locale, color)
+                            VALUES (?, ?, ?::INET, ?, ?)
+                            ON CONFLICT (uuid) DO UPDATE SET
+                                last_name = EXCLUDED.last_name,
+                                last_ip   = EXCLUDED.last_ip,
+                                color     = EXCLUDED.color,
+                                locale    = EXCLUDED.locale,
+                                last_seen = NOW()
+                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs, playtime, blocks_build, blocks_broken, waves_survived, balance
+                        ),
+                        insert_usid AS (
+                            INSERT INTO usid_list (player_id, usid, server)
+                            SELECT id, ?, ?
+                            FROM update_players
+                            ON CONFLICT DO NOTHING
+                        ),
+                        insert_connection AS (
+                            INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
+                            SELECT last_name, last_ip, ?::INET, ?, id
+                            FROM update_players
+                        ),
+                        insert_stats AS (
+                            INSERT INTO statistics (player_id)
+                            SELECT id
+                            FROM update_players
+                            ON CONFLICT (player_id) DO NOTHING
+                        )
+                        SELECT *
+                        FROM update_players;
+                        
+                        """.trimIndent(),
+        { stmt: PreparedStatement ->
+            stmt.setString(1, p.uuid())
+            stmt.setString(2, p.name())
+            stmt.setString(3, p.ip())
+            stmt.setString(4, p.locale)
+            stmt.setString(5, p.color.toString())
+            stmt.setString(6, p.usid())
+            stmt.setInt(7, serverId)
+            stmt.setString(8, getUDPAddress(p))
+            stmt.setInt(9, serverId)
+        },
+        { rs: ResultSet -> getPlayerData(rs) }
+    )
+    if (!playerDataCache.containsKey(p) && pd != null) playerDataCache.put(p, pd)
+    return pd
+}
+
+fun getPlayerData(id: Int): PlayerData? {
+    return executeQuery(
+        "SELECT * FROM players WHERE id = ?",
+        { stmt: PreparedStatement -> stmt.setInt(1, id) },
+        { rs: ResultSet -> getPlayerData(rs) }
+    )
+}
+
+fun getPlayerData(player: Player): PlayerData? {
+    if (playerDataCache.containsKey(player)) return playerDataCache.get(player)
+    logExpectedCacheMiss(player, "playerDataCache")
+
+    return executeQuery(
+        "SELECT * FROM players WHERE uuid = ?",
+        { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
+        { rs: ResultSet -> getPlayerData(rs) }
+    )
+}
+
+/**
+ * no cache
+ * */
+fun getPlayerData(uuid: String): PlayerData? {
+    return executeQuery(
+        "SELECT * FROM players WHERE uuid = ?",
+        { stmt: PreparedStatement -> stmt.setString(1, uuid) },
+        { rs: ResultSet -> getPlayerData(rs) }
+    )
+}
+
+fun getPlayerId(player: Player): Int? {
+    if (playerDataCache.containsKey(player)) return playerDataCache.get(player).id
+    logExpectedCacheMiss(player, "playerDataCache(id)")
+
+    return executeQuery(
+        "SELECT id FROM players WHERE uuid = ?",
+        { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
+        { rs: ResultSet -> rs.getInt("id") }
+    )
+}
+
+/*
+* No caching!!!
+* */
+fun getPlayerId(uuid: String): Int? {
+    return executeQuery(
+        "SELECT id FROM players WHERE uuid = ?",
+        { stmt: PreparedStatement -> stmt.setString(1, uuid) },
+        { rs: ResultSet -> rs.getInt("id") }
+    )
+}
+
+@Throws(SQLException::class)
+fun getPlayerData(rs: ResultSet): PlayerData {
+    val prefs = try {
+        PVars.objectMapper.readValue(rs.getString("prefs"), PlayerPrefs::class.java)
+    } catch (e: Exception) {
+        arc.util.Log.err(e)
+        PlayerPrefs()
+    }
+
+    val discordIdRaw = rs.getLong("discord_id")
+    val discordId: Long? = if (rs.wasNull()) null else discordIdRaw
+
+    return PlayerData(
+        rs.getInt("id"),
+        rs.getString("uuid"),
+        discordId,
+        prefs,
+        rs.getString("last_name"),
+        rs.getLong("playtime"),
+        rs.getInt("blocks_build"),
+        rs.getInt("blocks_broken"),
+        rs.getInt("balance"),
+        rs.getInt("waves_survived"),
+    )
+}
+
+private fun ensureJoinTimeTracked(player: Player) {
+    if (!PlayerData.joinTime.containsKey(player.uuid())) {
+        PlayerData.setJoinTime(player)
+    }
+}
+
+// endregion

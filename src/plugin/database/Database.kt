@@ -1,15 +1,44 @@
 package plugin.database
 
+import arc.struct.ObjectMap
 import arc.util.Log
+import arc.util.Time
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import mindustry.gen.Player
 import plugin.PVars.*
+import plugin.database.models.Admin
+import plugin.database.models.PlayerData
+import plugin.database.models.putLog
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
 object Database {
     val dataSource: HikariDataSource? = createDataSource()
+
+    @JvmField
+    var adminsCache = ObjectMap<Player, Admin>()
+
+    @JvmField
+    var playerDataCache = ObjectMap<Player, PlayerData>()
+
+    private val cacheMissLogCooldown = ObjectMap<String, Long>()
+    private const val CACHE_MISS_LOG_COOLDOWN_MS = 60_000L
+
+    fun logExpectedCacheMiss(player: Player, cacheName: String) {
+        // During gameplay these caches should usually be warmed on connect.
+        val key = "$cacheName:${player.uuid()}"
+        val now = Time.millis()
+        val last = cacheMissLogCooldown.get(key, 0L)
+        if (now - last < CACHE_MISS_LOG_COOLDOWN_MS) return
+
+        cacheMissLogCooldown.put(key, now)
+        putLog(
+            "cache_miss",
+            "Expected warm cache miss in $cacheName for uuid=${player.uuid()} name=${player.plainName()} id=${player.id} connected=${player.con?.isConnected ?: false}"
+        )
+    }
 
     private fun createDataSource(): HikariDataSource? {
         return try {

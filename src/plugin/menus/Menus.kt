@@ -16,9 +16,9 @@ import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock.CoreBuild
 import plugin.Bundle
 import plugin.PVars
-import plugin.database.ban
-import plugin.database.deepSearchNames
-import plugin.database.getPlayerData
+import plugin.database.models.ban
+import plugin.database.models.deepSearchNames
+import plugin.database.models.getPlayerData
 import plugin.database.models.PlayerData
 import plugin.utils.Gamemode
 import plugin.database.models.Permission

@@ -1,5 +1,8 @@
 package plugin.database.models
 
+import arc.util.Strings
+import mindustry.net.Administration
+import mindustry.net.Administration.PlayerAction
 import plugin.PVars
 import plugin.database.Database.executeUpdate
 import java.sql.Timestamp
@@ -71,3 +74,58 @@ class Log {
         }
     }
 }
+
+
+// region Log
+
+fun putLog(type: String, message: String) {
+    PVars.logsBuffer.add(Log(null, type, message))
+}
+
+fun putLog(pid: Int, type: String, message: String) {
+    PVars.logsBuffer.add(Log(pid, type, message))
+}
+
+fun putLog(action: PlayerAction, pd: PlayerData) {
+    val message: String?
+    val type = action.type
+
+    val tile = action.tile ?: return
+    if (tile.block().isAir) return
+
+    message = when (type) {
+        Administration.ActionType.breakBlock -> Strings.format(
+            "Player break block @ at @ @",
+            tile.block().name,
+            tile.x,
+            tile.y
+        )
+
+        Administration.ActionType.placeBlock -> Strings.format(
+            "Player placed block @ at @ @",
+            action.block,
+            tile.x,
+            tile.y
+        )
+
+        Administration.ActionType.rotate -> Strings.format(
+            "Player rotated block @ at @ @",
+            tile.block().name,
+            tile.x,
+            tile.y
+        )
+
+        Administration.ActionType.configure -> Strings.format(
+            "Player configured block @ at @ @",
+            tile.block().name,
+            tile.x,
+            tile.y
+        )
+
+        else -> return
+    }
+
+    putLog(pd.id, "action", message)
+}
+
+// endregion

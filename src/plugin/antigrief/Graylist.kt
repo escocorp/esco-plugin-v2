@@ -12,7 +12,7 @@ import plugin.Bundle
 import plugin.PVars
 import plugin.database.Database
 import plugin.database.models.PlayerData
-import plugin.database.putLog
+import plugin.database.models.putLog
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 

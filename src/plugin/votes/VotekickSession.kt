@@ -10,9 +10,9 @@ import mindustry.net.Administration.PlayerInfo
 import net.dv8tion.jda.api.EmbedBuilder
 import plugin.Bundle
 import plugin.PVars
-import plugin.database.ban
-import plugin.database.getBan
-import plugin.database.getPlayerId
+import plugin.database.models.ban
+import plugin.database.models.getBan
+import plugin.database.models.getPlayerId
 import java.awt.Color
 import java.text.MessageFormat
 

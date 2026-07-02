@@ -35,9 +35,20 @@ import plugin.PVars
 import plugin.PVars.joinDemographics
 import plugin.antigrief.apply
 import plugin.database.*
+import plugin.database.Database.adminsCache
+import plugin.database.Database.playerDataCache
 import plugin.database.models.Admin
 import plugin.database.models.Permission
 import plugin.database.models.PlayerData
+import plugin.database.models.ban
+import plugin.database.models.createOrGetMapStats
+import plugin.database.models.getAdmin
+import plugin.database.models.getBan
+import plugin.database.models.getOrCreatePlayerData
+import plugin.database.models.getPlayerData
+import plugin.database.models.getPlayerId
+import plugin.database.models.putLog
+import plugin.database.models.updateMapStats
 import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
@@ -526,9 +537,6 @@ fun loadEvents() {
 }
 
 fun purgeData(p: Player) {
-    getPlayerId(p)?.let { id: Int ->
-        mutesCache.remove(id)
-    }
     Permission.cache.remove(p)
     playerDataCache.remove(p)
     adminsCache.remove(p)

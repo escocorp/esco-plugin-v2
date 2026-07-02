@@ -24,7 +24,7 @@ import plugin.PVars.globalExecutor
 import plugin.PVars.version
 import plugin.antigrief.reloadGraylist
 import plugin.database.Database
-import plugin.database.getPlayerData
+import plugin.database.models.getPlayerData
 import plugin.database.models.Permission
 import plugin.database.models.PlayerData
 import plugin.discord.register.CommandType
