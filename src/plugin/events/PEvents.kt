@@ -6,6 +6,7 @@ import arc.func.Cons
 import arc.struct.ObjectMap
 import arc.util.Log
 import arc.util.Strings
+import arc.util.Timekeeper
 import arc.util.Timer
 import com.xpdustry.nohorny.client.ClassificationEvent
 import com.xpdustry.nohorny.common.MindustryImageRenderer
@@ -13,6 +14,8 @@ import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.content.Blocks
+import mindustry.content.Items
+import mindustry.content.UnitTypes
 import mindustry.game.EventType.*
 import mindustry.game.Team
 import mindustry.gen.Call
@@ -49,17 +52,19 @@ import java.awt.Color
 import java.util.*
 import java.util.function.Consumer
 
+var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
+
 fun loadEvents() {
-    Events.on(ConnectPacketEvent::class.java, { e ->
+    Events.on(ConnectPacketEvent::class.java) { e ->
         val region = e.packet.uuid.hashCode()
         val cachedRegion = joinDemographics.get(region)
         if (cachedRegion == null) joinDemographics.put(region, e.packet.uuid)
         else if (cachedRegion != e.packet.uuid) {
             Vars.netServer.admins.blacklistDos(e.connection.address)
             Log.info("Blacklisting IP @ due to suspicious UUIDs", e.connection.address)
-            sendLog($"Blacklisting ${e.connection.address} due to suspicious UUIDs")
+            sendLog("Blacklisting ${e.connection.address} due to suspicious UUIDs")
         }
-    });
+    }
     Events.on(PlayerConnect::class.java) { e: PlayerConnect ->  // pre-connect
         val player = e.player
 
@@ -323,9 +328,7 @@ fun loadEvents() {
 
     Events.on(HexData.HexCaptureEvent::class.java) { e ->
         val hex = e.hex
-        Vars.world.tile(hex.x, hex.y)?.let { tile ->
-            tile.setNet(Blocks.coreShard, e.player.team(), 1)
-        }
+        Vars.world.tile(hex.x, hex.y)?.setNet(Blocks.coreShard, e.player.team(), 1)
     }
 
     Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
@@ -335,11 +338,11 @@ fun loadEvents() {
         if (player != null) getPlayerData(player)?.let { s ->
             if (e.breaking) {
                 s.adjBlocksBroken()
-                if (PEvents.antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
+                if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
                     ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"))
                     player.kick("AutoBan: Possible Griefer", 0)
                     player.con.close()
-                    PEvents.antigriefCooldown.reset()
+                    antigriefCooldown.reset()
                 }
             } else s.adjBlocksBuild()
         }
@@ -445,7 +448,7 @@ fun loadEvents() {
         History.write(
             e.tile,
             null,
-            Optional.empty<Int>(),
+            Optional.empty(),
             HistoryType.destroyBlock,
             e.tile.block(),
             null,
@@ -454,7 +457,7 @@ fun loadEvents() {
         )
     })
 
-    Events.on(WaveEvent::class.java, Cons { e: WaveEvent ->
+    Events.on(WaveEvent::class.java) { _: WaveEvent ->
         // Groups.player.each(Cons { p: Player -> getPlayerData(p).ifPresent(Consumer { obj: PlayerStats? -> obj!!.adjWavesSurvived() }) })
         Groups.player.each { p ->
             eventsScope.launch {
@@ -465,7 +468,7 @@ fun loadEvents() {
                 }
             }
         }
-    })
+    }
 
     Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
         if (e.tile == null || e.tile.build == null) return@Cons
@@ -477,21 +480,48 @@ fun loadEvents() {
         }
     })
 
-    Events.on(GameOverEvent::class.java,  { e: GameOverEvent ->
+    Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
         if (PVars.mapVote != null) PVars.mapVote.cancel()
         History.clear()
-        if (e.winner !== Team.derelict) Groups.player.each( { p: Player ->
-            if (p.team() === e.winner) getPlayerData(p)?.let { obj -> obj.adjWins() }
-        })
-    })
+        if (e.winner !== Team.derelict) Groups.player.each { p: Player ->
+            if (p.team() === e.winner) getPlayerData(p)?.adjWins()
+        }
+    }
 
-    Events.on(ServerLoadEvent::class.java, { _: ServerLoadEvent ->
+    Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
         loadAfterStart()
-    })
+    }
+
+    Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
+        Timer.schedule({
+            if (PVars.gamemode == Gamemode.sandbox) {
+                Vars.state.rules.unitDamageMultiplier = 0f
+                Vars.state.rules.blockDamageMultiplier = 0f
+                Vars.state.rules.unitHealthMultiplier = 0.1f
+                Vars.state.rules.blockHealthMultiplier = 0.1f
+                Vars.state.rules.coreCapture = false
+            } else if (PVars.gamemode == Gamemode.campaign) {
+                val core = Vars.state.rules.defaultTeam.core() ?: return@schedule
+                val items = core.items
+                items.add(Items.copper, 500)
+                items.add(Items.silicon, 300)
+                items.add(Items.graphite, 250)
+                items.add(Items.coal, 1500)
+                items.add(Items.metaglass, 65)
+                items.add(Items.lead, 350)
+                for (i in 0..4) UnitTypes.mono.spawn(core.team(), core.x, core.y)
+            }
+        }, 1f)
+    }
+
+    Events.on(TapEvent::class.java) { e: TapEvent ->
+        if (e.player == null || e.tile == null || !PVars.historyPlayers.contains(e.player)) return@on
+        Call.setHudText(e.player.con, History.getMessage(e.tile.pos()))
+    }
 }
 
 fun purgeData(p: Player) {
-    getPlayerId(p)?.let { id: Int? ->
+    getPlayerId(p)?.let { id: Int ->
         mutesCache.remove(id)
     }
     Permission.cache.remove(p)

@@ -1,10 +1,9 @@
-package plugin.ai;
+package plugin.ai
 
-import mindustry.entities.units.AIController;
+import mindustry.entities.units.AIController
 
-public class DumbAI extends AIController {
-    @Override
-    public void updateMovement() {
+class DumbAI : AIController() {
+    override fun updateMovement() {
         // nothing
     }
 }

@@ -48,6 +48,7 @@ repositories {
 
 val mindustryVersion = "v158.1"
 val jabelVersion = "93fde537c7"
+var nohornyVersion = "4.0.0-beta.7"
 
 val useLatest = false
 
@@ -81,7 +82,9 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    compileOnly(files("nohorny-client.jar"))
+    //compileOnly(files("nohorny-client.jar"))
+    compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
+    compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -90,9 +93,7 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(
-            org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-        )
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(javaVersion.toString()))
     }
 }
 
@@ -163,8 +164,4 @@ tasks.jar {
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-kotlin {
-    jvmToolchain(17)
 }

@@ -17,7 +17,7 @@ import plugin.database.BanListener
 import plugin.database.getPlayerData
 import plugin.database.models.Server
 import plugin.discord.sendLog
-import plugin.events.PEvents
+import plugin.events.loadEvents
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.HexedGamemode
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
@@ -36,7 +36,7 @@ object Loader {
         Config.load()
         Bundle.load()
         Patches.load()
-        PEvents.load()
+        loadEvents()
         MapPreview.loadColors()
         loadServerId()
         loadLogging()
