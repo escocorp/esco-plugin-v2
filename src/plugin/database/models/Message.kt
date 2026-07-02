@@ -35,7 +35,7 @@ fun getMessage(rs: ResultSet): Message {
 fun putMessage(playerId: Int, unformatted: String, formatted: String, timestamp: Instant): Boolean {
     return executeUpdate(
         """
-                INSERT INTO message (player_id, unformatted, formatted, timestamp)
+                INSERT INTO messages (player_id, unformatted, formatted, timestamp)
                 VALUES (?, ?, ?, ?)
             """.trimIndent(),
         { stmt ->

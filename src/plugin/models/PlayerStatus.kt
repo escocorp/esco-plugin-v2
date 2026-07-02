@@ -13,7 +13,7 @@ fun getOrCreatePlayerStatus(player: Player): PlayerStatus {
         status = PlayerStatus()
         playerStatuses[player] = status
     }
-    return status!!
+    return status
 }
 
 fun Player.getStatus(): PlayerStatus {
