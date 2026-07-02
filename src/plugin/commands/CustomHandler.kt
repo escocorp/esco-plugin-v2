@@ -15,7 +15,7 @@ import plugin.database.models.Permission
 
 class CustomHandler {
     var handler: CommandHandler? = null
-    val commands: Seq<CommandData?> = Seq<CommandData?>()
+    val commands: Seq<CommandData> = Seq<CommandData>()
 
     constructor(handler: CommandHandler) {
         this.handler = handler
