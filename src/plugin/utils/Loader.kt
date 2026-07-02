@@ -9,6 +9,7 @@ import mindustry.net.Administration
 import plugin.Bundle
 import plugin.Config
 import plugin.KVars.globalScope
+import plugin.KVars.messageBuffer
 import plugin.PVars
 import plugin.PVars.joinDemographics
 import plugin.PVars.serverCommands
@@ -16,6 +17,7 @@ import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
 import plugin.database.getPlayerData
 import plugin.database.models.Server
+import plugin.database.models.putMessage
 import plugin.discord.sendLog
 import plugin.events.loadEvents
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
@@ -39,7 +41,6 @@ object Loader {
         loadEvents()
         MapPreview.loadColors()
         loadServerId()
-        loadLogging()
         loadTimers()
         loadGamemode()
         BanListener.load()
@@ -112,7 +113,15 @@ object Loader {
                 }
             }
         }, (15 * 60).toFloat(), (15 * 60).toFloat())
-        if (PVars.lokiLoggingEnabled) Timer.schedule({ pushLogs() }, 0f, (5 * 60).toFloat())
+
+        Timer.schedule({
+            saveLogs()
+            saveMessages()
+        }, (5 * 60).toFloat(), (5 * 60).toFloat())
+
+        if (PVars.lokiLoggingEnabled) Timer.schedule({
+            pushLogs()
+        }, 0f, (5 * 60).toFloat())
     }
 
     fun loadServerId() {
@@ -121,18 +130,25 @@ object Loader {
         else Log.err("Сannot create/get server record. Server is unstable")
     }
 
-    fun loadLogging() {
-        val time = (5 * 60).toFloat()
-        Timer.schedule({ saveLogs() }, time, time)
-    }
-
     fun saveLogs() {
+        if(PVars.logsBuffer.isEmpty) return
         Log.info("Saving @ logs", PVars.logsBuffer.size)
 
         while (PVars.logsBuffer.size > 0) {
             val log = PVars.logsBuffer.pop()
             globalScope.launch {
                 log.write()
+            }
+        }
+    }
+
+    fun saveMessages() {
+        if(messageBuffer.isEmpty) return
+        Log.info("Saving @ messages", messageBuffer.size)
+        while (messageBuffer.size > 0) {
+            val message = messageBuffer.pop()
+            globalScope.launch {
+                putMessage(message.playerId, message.unformatted, message.formatted, message.timestamp)
             }
         }
     }

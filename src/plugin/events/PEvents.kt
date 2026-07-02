@@ -30,6 +30,7 @@ import plugin.Bundle
 import plugin.KVars
 import plugin.KVars.eventsScope
 import plugin.KVars.mapStats
+import plugin.KVars.messageBuffer
 import plugin.PVars
 import plugin.PVars.joinDemographics
 import plugin.antigrief.apply
@@ -44,6 +45,7 @@ import plugin.history.HistoryType
 import plugin.logic.attemCode
 import plugin.logic.isAttem
 import plugin.menus.showWelcome
+import plugin.models.ChatMessageData
 import plugin.models.VPNApiResponse
 import plugin.utils.*
 import plugin.utils.Loader.exit
@@ -51,6 +53,8 @@ import plugin.utils.Loader.loadAfterStart
 import java.awt.Color
 import java.util.*
 import java.util.function.Consumer
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
 
@@ -220,8 +224,8 @@ fun loadEvents() {
         val player = e.player
         val message = e.message
 
-        getPlayerData(player)?.let { pd: PlayerData? ->
-            putLog(pd!!.id, "event", "Player sent message $message")
+        getPlayerData(player)?.let { pd: PlayerData ->
+            messageBuffer.add(ChatMessageData(pd.id, message, Strings.stripColors(message), Clock.System.now()))
         }
         if (!message.startsWith("/")) {
             val content =
