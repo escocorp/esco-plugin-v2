@@ -1,5 +1,3 @@
-# СЛИЛ КОД ПЛАГИНА - ЖИРДЯЙ
-## Альфа жирный кстати
 ## Chaos of shitcode | Хаос говнокода
 ### Please, don't use it without permission!!!!! | Не используйте плагин без разрешения от kukoldiki aka grely.
 
