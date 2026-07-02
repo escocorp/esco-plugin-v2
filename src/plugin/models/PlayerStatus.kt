@@ -9,7 +9,7 @@ private val playerStatuses = hashMapOf<Player, PlayerStatus>()
 
 fun getOrCreatePlayerStatus(player: Player): PlayerStatus {
     var status = playerStatuses[player]
-    status ?: {
+    if (status == null) {
         status = PlayerStatus()
         playerStatuses[player] = status
     }
