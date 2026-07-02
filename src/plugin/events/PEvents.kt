@@ -52,6 +52,7 @@ import plugin.logic.isAttem
 import plugin.menus.showWelcome
 import plugin.models.ChatMessageData
 import plugin.models.VPNApiResponse
+import plugin.models.freeze
 import plugin.models.getStatus
 import plugin.models.purgePlayerStatus
 import plugin.utils.*
@@ -102,8 +103,7 @@ fun loadEvents() {
                                 "You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink,
                                 0
                             )*/
-                            player.getStatus().frozen = true
-                            player.name = "$frozenTag ${player.coloredName()}"
+                            player.freeze()
 
                             player.sendBundle("antivpn", discordLink)
                             Bundle.infoMessage("antivpn", player, discordLink)
