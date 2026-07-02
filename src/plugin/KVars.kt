@@ -23,4 +23,6 @@ object KVars {
 
     const val buildsBaseUrl = "https://builds.larzed.icu"
     const val buildsLatestTxtUrl = "$buildsBaseUrl/latest.txt"
+
+    const val frozenTag = "[white]<\uF7B5>[]"
 }

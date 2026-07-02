@@ -29,26 +29,16 @@ import net.dv8tion.jda.api.utils.FileUpload
 import plugin.Bundle
 import plugin.KVars
 import plugin.KVars.eventsScope
+import plugin.KVars.frozenTag
 import plugin.KVars.mapStats
 import plugin.KVars.messageBuffer
 import plugin.PVars
+import plugin.PVars.discordLink
 import plugin.PVars.joinDemographics
 import plugin.antigrief.apply
-import plugin.database.*
 import plugin.database.Database.adminsCache
 import plugin.database.Database.playerDataCache
-import plugin.database.models.Admin
-import plugin.database.models.Permission
-import plugin.database.models.PlayerData
-import plugin.database.models.ban
-import plugin.database.models.createOrGetMapStats
-import plugin.database.models.getAdmin
-import plugin.database.models.getBan
-import plugin.database.models.getOrCreatePlayerData
-import plugin.database.models.getPlayerData
-import plugin.database.models.getPlayerId
-import plugin.database.models.putLog
-import plugin.database.models.updateMapStats
+import plugin.database.models.*
 import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
@@ -58,6 +48,7 @@ import plugin.logic.isAttem
 import plugin.menus.showWelcome
 import plugin.models.ChatMessageData
 import plugin.models.VPNApiResponse
+import plugin.models.getStatus
 import plugin.utils.*
 import plugin.utils.Loader.exit
 import plugin.utils.Loader.loadAfterStart
@@ -65,7 +56,6 @@ import java.awt.Color
 import java.util.*
 import java.util.function.Consumer
 import kotlin.time.Clock
-import kotlin.time.Instant
 
 var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
 
@@ -95,12 +85,6 @@ fun loadEvents() {
             pd.getUsid()?.let { u: String ->
                 if (u != player.usid()) {
                     putLog(pd.id, "system", "Possible account thief")
-                    /*app.post {
-                        player.kick(
-                            "Failed to get player data.\nUsid in database is different from current!\nPlease contact us.\nDiscord: " + PVars.discordLink,
-                            0
-                        )
-                    }*/
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             }
@@ -109,10 +93,15 @@ fun loadEvents() {
                     if (resp.anon && pd.discordId == null) {
                         putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
                         app.post {
-                            player.kick(
+                            /*player.kick(
                                 "You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink,
                                 0
-                            )
+                            )*/
+                            player.getStatus().frozen = true
+                            player.name = "$frozenTag ${player.coloredName()}"
+
+                            player.sendBundle("antivpn", discordLink)
+                            Bundle.infoMessage("antivpn", player, discordLink)
                         }
                     }
                     //AntiFimoz.apply(resp.isp, player);
@@ -506,6 +495,14 @@ fun loadEvents() {
 
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
         loadAfterStart()
+        Vars.netServer.admins.addActionFilter { filter ->
+            val status = filter.player.getStatus()
+            return@addActionFilter !status.frozen
+        }
+        Vars.netServer.admins.addChatFilter { player, message ->
+            val status = player.getStatus()
+            return@addChatFilter if (status.frozen) null else message
+        }
     }
 
     Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
