@@ -2,7 +2,7 @@ package plugin.models
 
 import mindustry.gen.Player
 
-data class PlayerStatus(var frozen: Boolean = false, var vanished: Boolean = false)
+data class PlayerStatus(var frozen: Boolean = false, var vanished: Boolean = false, var schemeSizeUser: Boolean = false, var foosUser: Boolean = false, var agzamModUser: Boolean = false)
 
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
 

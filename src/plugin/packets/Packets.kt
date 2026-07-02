@@ -9,6 +9,7 @@ import mindustry.gen.SendChatMessageCallPacket
 import mindustry.io.JsonIO
 import mindustry.net.NetConnection
 import plugin.PVars
+import plugin.models.getStatus
 
 object Packets {
     fun load() {
@@ -27,10 +28,12 @@ object Packets {
         Vars.netServer.addPacketHandler("MySubtitle") { target: Player, args: String ->
             PVars.SSUsers.put(target.id, args)
             Call.clientPacketReliable("Subtitles", JsonIO.write(PVars.SSUsers))
+
+            target.getStatus().schemeSizeUser = true
         }
         // agzam mod
         Vars.netServer.addBinaryPacketHandler("agzam4.cmd-sug") { player, bs ->
-
+            player.getStatus().agzamModUser = true
         }
     }
 }

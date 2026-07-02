@@ -49,6 +49,7 @@ import plugin.menus.showWelcome
 import plugin.models.ChatMessageData
 import plugin.models.VPNApiResponse
 import plugin.models.getStatus
+import plugin.models.purgePlayerStatus
 import plugin.utils.*
 import plugin.utils.Loader.exit
 import plugin.utils.Loader.loadAfterStart
@@ -540,6 +541,7 @@ fun purgeData(p: Player) {
     // PlayerStats.purge(p)
     PVars.historyPlayers.remove(p)
     PVars.vanishedPlayers.remove(p)
+    purgePlayerStatus(p)
 
     if (PVars.linkCodes.containsValue(
             p,

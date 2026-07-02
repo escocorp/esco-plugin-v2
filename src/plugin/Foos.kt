@@ -10,6 +10,7 @@ import mindustry.net.Administration.Config
 import plugin.PVars.clientCommands
 import plugin.commands.CustomHandler
 import plugin.database.models.Permission.Companion.getPerms
+import plugin.models.getStatus
 
 object Foos {
     private val sb = StringBuilder()
@@ -30,6 +31,8 @@ object Foos {
             Call.clientPacketReliable(player.con, "fooCheck", version)
             enableTransmissions(player)
             sendCommands(player)
+
+            player.getStatus().foosUser = true
         }
 
         /** @since v1 Client transmission forwarding */
