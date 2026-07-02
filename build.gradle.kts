@@ -6,8 +6,14 @@ plugins {
 
 version = "1.0"
 
+val javaVersion = 25
+
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
+}
+
+kotlin {
+    jvmToolchain(javaVersion)
 }
 
 sourceSets.main {
