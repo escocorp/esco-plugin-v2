@@ -389,7 +389,7 @@ fun register(handler: CustomHandler) {
             Call.hideHudText(p.con)
         } else {
             PVars.historyPlayers.add(p)
-            p.sendMessage("[green]Enabled!")
+            p.sendMessage("[green]Enabled! Tap on tile to see history!.")
         }
     }
 

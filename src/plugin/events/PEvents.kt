@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.utils.FileUpload
 import plugin.Bundle
 import plugin.KVars
 import plugin.KVars.eventsScope
-import plugin.KVars.frozenTag
 import plugin.KVars.mapStats
 import plugin.KVars.messageBuffer
 import plugin.PVars
@@ -373,8 +372,8 @@ fun loadEvents() {
             History.write(
                 tile,
                 name,
-                Optional.ofNullable(pid),
-                HistoryType.buildBlock,
+                pid,
+                HistoryType.BuildBlock,
                 tile.block(),
                 unit.type(),
                 actorTeam,
@@ -399,8 +398,8 @@ fun loadEvents() {
             History.write(
                 tile,
                 name,
-                Optional.ofNullable(pid),
-                HistoryType.breakBlock,
+                pid,
+                HistoryType.BreakBlock,
                 tile.block(),
                 unit.type(),
                 actorTeam,
@@ -423,8 +422,8 @@ fun loadEvents() {
             History.write(
                 build.tile,
                 name,
-                Optional.ofNullable(pid),
-                HistoryType.rotate,
+                pid,
+                HistoryType.Rotate,
                 build.block,
                 null,
                 player.team(),
@@ -442,8 +441,8 @@ fun loadEvents() {
             History.write(
                 build.tile,
                 name,
-                Optional.ofNullable(getPlayerId(player)),
-                HistoryType.configure,
+                getPlayerId(player),
+                HistoryType.Configure,
                 build.block,
                 null,
                 player.team(),
@@ -458,8 +457,8 @@ fun loadEvents() {
         History.write(
             e.tile,
             null,
-            Optional.empty(),
-            HistoryType.destroyBlock,
+            null,
+            HistoryType.DestroyBlock,
             e.tile.block(),
             null,
             e.tile.team(),

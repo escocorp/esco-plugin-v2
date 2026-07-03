@@ -1,19 +1,19 @@
-package plugin.history;
+package plugin.history
 
-import arc.struct.Seq;
+import arc.struct.Seq
 
-public class HistoryStack {
-    public Seq<HistoryRecord> stack = new Seq<>();
+class HistoryStack {
+    var stack: Seq<HistoryRecord> = Seq<HistoryRecord>()
 
-    public int size() {
-        return stack.size;
+    fun size(): Int {
+        return stack.size
     }
 
-    public void add(HistoryRecord record) {
-        stack.add(record);
+    fun add(record: HistoryRecord) {
+        stack.add(record)
     }
 
-    public void removeFirst() {
-        stack.remove(0);
+    fun removeFirst() {
+        stack.remove(0)
     }
 }

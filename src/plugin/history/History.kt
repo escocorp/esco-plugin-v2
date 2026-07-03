@@ -1,76 +1,77 @@
-package plugin.history;
+package plugin.history
 
-import arc.math.geom.Point2;
-import arc.struct.LongMap;
-import mindustry.game.Team;
-import mindustry.type.UnitType;
-import mindustry.world.Block;
-import mindustry.world.Tile;
+import arc.func.Cons
+import arc.math.geom.Point2
+import arc.struct.LongMap
+import mindustry.game.Team
+import mindustry.type.UnitType
+import mindustry.world.Block
+import mindustry.world.Tile
+import java.util.*
 
-import java.util.Optional;
+object History {
+    val history: LongMap<HistoryStack> = LongMap<HistoryStack>()
 
-public class History {
-    public static final LongMap<HistoryStack> history = new LongMap<>();
-
-    public static String getMessage(int pos) {
-        StringBuilder sb = new StringBuilder();
+    fun getMessage(pos: Int): String {
+        val sb = StringBuilder()
         // Point2 pos2 = Point2.unpack(pos);
-        int x = Point2.x(pos), y = Point2.y(pos); // int int
+        val x = Point2.x(pos).toInt()
+        val y = Point2.y(pos).toInt() // int int
 
-        sb.append("[" + x + "] " + "[" + y + "]");
+        sb.append("[$x] [$y]")
 
 
-        HistoryStack stack = history.get(pos); // long
+        val stack = history.get(pos.toLong()) // long
         //stack.stack.each(s->{sb.append("\n").append(s.getMessage());});
-        if (stack != null)
-            for (int i = 0; i < stack.size(); i++) {
-                sb.append("\n").append(stack.stack.get(i).getMessage());
-            }
+        if (stack != null) for (i in 0..<stack.size()) {
+            sb.append("\n").append(stack.stack.get(i).getMessage())
+        }
 
-        return sb.toString();
+        return sb.toString()
     }
 
-    public static void write(Tile tile,
-                             String playerName,
-                             Optional<Integer> playerId,
-                             HistoryType type,
-                             Block block,
-                             UnitType unit,
-                             Team team,
-                             int rotation) {
+    fun write(
+        tile: Tile?,
+        playerName: String?,
+        playerId: Int?,
+        type: HistoryType,
+        block: Block,
+        unit: UnitType?,
+        team: Team,
+        rotation: Int
+    ) {
+        if (tile == null) return
 
-        if (tile == null) return;
+        val time = System.currentTimeMillis()
 
-        long time = System.currentTimeMillis();
+        val record = HistoryRecord(playerName, playerId, type, block, unit, time, false, team, rotation)
 
-        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, time, false, team, rotation);
-
-        tile.getLinkedTiles(t -> {
-            long pos = t.pos();
-            if (t.isCenter()) {
-                addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation));
+        tile.getLinkedTiles { t: Tile ->
+            val pos = t.pos().toLong()
+            if (t.isCenter) {
+                addTile(pos, HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation))
             } else {
-                addTile(pos, record);
+                addTile(pos, record)
             }
-        });
+        }
     }
 
-    private static void addTile(long pos, HistoryRecord record) {
-        HistoryStack stack = history.get(pos);
+    private fun addTile(pos: Long, record: HistoryRecord) {
+        var stack = history.get(pos)
 
         if (stack == null) {
-            stack = new HistoryStack();
-            history.put(pos, stack);
+            stack = HistoryStack()
+            history.put(pos, stack)
         }
 
         if (stack.size() >= 6) {
-            stack.removeFirst();
+            stack.removeFirst()
         }
 
-        stack.add(record);
+        stack.add(record)
     }
 
-    public static void clear() {
-        history.clear();
+    fun clear() {
+        history.clear()
     }
 }

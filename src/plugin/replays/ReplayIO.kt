@@ -20,15 +20,15 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
         val value = entry.value
         val stack = ReplayStack()
         value.stack.forEach { r ->
-            if (r.center()) {
+            if (r.center) {
                 var unitId: Short? = null
                 r.unit?.let { u ->
                     unitId = u.id
                 }
                 stack.add(
                     ReplayRecord(
-                        r.playerName(),
-                        r.playerId.orElse(null),
+                        r.playerName,
+                        r.playerId,
                         r.type.ordinal,
                         r.block.id,
                         unitId,
@@ -74,12 +74,12 @@ private fun applyEvent(event: ReplayEvent) {
     val tile = Vars.world.tile(event.pos)
     tile ?: return
     when (event.record.type) {
-        HistoryType.buildBlock.ordinal -> {
+        HistoryType.BuildBlock.ordinal -> {
             tile.setNet(Vars.content.block(record.blockId.toInt()), Team.get(record.team), record.rotation)
         }
 
-        HistoryType.destroyBlock.ordinal,
-        HistoryType.breakBlock.ordinal -> {
+        HistoryType.DestroyBlock.ordinal,
+        HistoryType.BreakBlock.ordinal -> {
             tile.setNet(Blocks.air)
         }
     }

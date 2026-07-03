@@ -103,9 +103,9 @@ object Loader {
         Timer.schedule({
             if (!Groups.player.isEmpty) Bundle.sendMessage("advertise.discord", PVars.discordLink)
         }, (15 * 60).toFloat(), (15 * 60).toFloat())
-        Timer.schedule({
+        /*Timer.schedule({
             if (!Groups.player.isEmpty) Bundle.sendMessage("advertise.reports", PVars.discordLink)
-        }, (15 * 60).toFloat(), (35 * 60).toFloat())
+        }, (15 * 60).toFloat(), (35 * 60).toFloat())*/
         Timer.schedule({
             Groups.player.each { p ->
                 globalScope.launch {
@@ -119,9 +119,10 @@ object Loader {
             saveMessages()
         }, (5 * 60).toFloat(), (5 * 60).toFloat())
 
-        if (PVars.lokiLoggingEnabled) Timer.schedule({
-            pushLogs()
-        }, 0f, (5 * 60).toFloat())
+        if (PVars.lokiLoggingEnabled)
+            Timer.schedule({
+                pushLogs()
+            }, 0f, (5 * 60).toFloat())
     }
 
     fun loadServerId() {
