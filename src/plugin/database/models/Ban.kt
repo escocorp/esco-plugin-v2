@@ -22,8 +22,7 @@ class Ban(
     var active: Boolean,
     val banTime: Instant,
     val unbanTime: Instant?,
-    val reason: String,
-    val source: String
+    val reason: String
 ) {
 
     fun kickPlayer(player: Player) {
@@ -162,8 +161,7 @@ fun getBan(rs: ResultSet): Ban {
         rs.getBoolean("active"),
         banTime,
         unbanTime,
-        rs.getString("reason"),
-        rs.getString("source")
+        rs.getString("reason")
     )
 }
 
