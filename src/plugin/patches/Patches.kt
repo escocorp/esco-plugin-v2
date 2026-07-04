@@ -91,7 +91,7 @@ object Patches {
                 false
             )
 
-            sendConsoleMessage(cleanText.replace("\u001B\\[[;\\d]*m".toRegex(), ""))
+            sendConsoleMessage(cleanText.replace("\u001B\\[[;\\d]*m".toRegex(), "").take(1999))
             if (Administration.Config.logging.bool()) {
                 logToFile(cleanText)
             }
