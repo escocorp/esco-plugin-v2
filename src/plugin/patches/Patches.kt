@@ -58,10 +58,10 @@ object Patches {
         }
         loadLogger()
 
-        Core.app.removeListener(Vars.netServer)
+        /*Core.app.removeListener(Vars.netServer)
         Vars.netServer.dispose()
         Vars.netServer = NetServerPatched()
-        Core.app.addListener(Vars.netServer)
+        Core.app.addListener(Vars.netServer)*/
     }
 
     fun despawnUnits() {
