@@ -1,6 +1,7 @@
 package plugin.utils
 
 import arc.Core
+import arc.Events
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
@@ -19,11 +20,12 @@ import plugin.database.models.getPlayerData
 import plugin.database.models.Server
 import plugin.database.models.putMessage
 import plugin.discord.Bot.sendLog
+import plugin.events.EscoPluginLoadEvent
 import plugin.events.loadEvents
-import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
+/*import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.HexedGamemode
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
-import plugin.gamemodes.tdf.TDGamemode
+import plugin.gamemodes.tdf.TDGamemode*/
 import plugin.menus.Menu
 import plugin.menus.TextMenu
 import plugin.menus.loadMenus
@@ -42,7 +44,7 @@ object Loader {
         MapPreview.loadColors()
         loadServerId()
         loadTimers()
-        loadGamemode()
+        // loadGamemode()
         BanListener.load()
         Menu.load()
         TextMenu.load()
@@ -71,6 +73,8 @@ object Loader {
             Core.settings.put("autorestarted", false)
         }*/
 
+        Events.fire(EscoPluginLoadEvent())
+
         Log.debug("Loader: OK!")
     }
 
@@ -85,7 +89,7 @@ object Loader {
         }*/
     }
 
-    fun loadGamemode() {
+    /*fun loadGamemode() {
         when (PVars.gamemode) {
             Gamemode.tdefense -> TDGamemode.load()
             Gamemode.hexed -> {
@@ -97,7 +101,7 @@ object Loader {
             Gamemode.crawlerArena -> CrawlerArenaGamemode.init()
             else -> {}
         }
-    }
+    }*/
 
     fun loadTimers() {
         Timer.schedule({
