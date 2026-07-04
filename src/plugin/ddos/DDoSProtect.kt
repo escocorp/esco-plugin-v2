@@ -22,7 +22,7 @@ object DDoSProtect {
 
         if (!attackActive) {
             attackActive = true
-            Bot.sendLog("# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
+            Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
         }
 
         if(pd == null) {
@@ -41,7 +41,7 @@ object DDoSProtect {
             System.currentTimeMillis() - lastBotTime >= ATTACK_TIMEOUT) {
 
             attackActive = false
-            Bot.sendLog("Bot attack ended✅✅✅✅. Total bots caught: $botsKicked")
+            Bot.sendLog("\n# Bot attack ended✅✅✅✅. Total bots caught: $botsKicked")
 
             botsKicked = 0
         }
