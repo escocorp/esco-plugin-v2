@@ -479,13 +479,16 @@ fun loadEvents() {
         }
     }
 
-    Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
-        if (e.tile == null || e.tile.build == null) return@Cons
-        val build = e.tile.build
-        if (build is LogicBlock.LogicBuild && isAttem(build.code)) {
-            // build.updateCode(attemText)
-            build.configure(attemCode)
-            Bundle.label("attem83", 2f, build.x, build.y)
+    Events.on(BlockBuildEndEvent::class.java, Cons { e ->
+        val build = e.tile?.build as? LogicBlock.LogicBuild ?: return@Cons
+
+        eventsScope.launch { // The regex can be slow
+            if (!isAttem(build.code)) return@launch
+
+            app.post {
+                build.configure(attemCode)
+                Bundle.label("attem83", 2f, build.x, build.y)
+            }
         }
     })
 
