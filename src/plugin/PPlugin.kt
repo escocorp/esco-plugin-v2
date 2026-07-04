@@ -1,5 +1,6 @@
 package plugin
 
+import arc.Events
 import arc.util.CommandHandler
 import arc.util.Log
 import arc.util.Threads
@@ -7,6 +8,7 @@ import mindustry.mod.Plugin
 import plugin.commands.CustomHandler
 import plugin.commands.register
 import plugin.discord.Bot
+import plugin.events.RegisterEscoCommandsEvent
 import plugin.utils.Loader.load
 
 class PPlugin : Plugin() {
@@ -30,6 +32,8 @@ class PPlugin : Plugin() {
         Foos.init()
         //ClientCommands.register(clientCommands);
         register(PVars.clientCommands)
+
+        Events.fire(RegisterEscoCommandsEvent(PVars.clientCommands))
 
         Log.info("Registered @ client commands", handler.commandList.size)
     }
