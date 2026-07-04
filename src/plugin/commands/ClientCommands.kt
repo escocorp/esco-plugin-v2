@@ -33,10 +33,10 @@ import plugin.PVars
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.models.*
-import plugin.gamemodes.crawlerarena.CVars
+/*import plugin.gamemodes.crawlerarena.CVars
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.Hex
-import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
+import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode*/
 import plugin.history.History
 import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
@@ -621,14 +621,8 @@ fun register(handler: CustomHandler) {
                 }
             }
         })
-    when (PVars.gamemode) {
-        Gamemode.hexed -> registerHexedCommands(handler)
-        Gamemode.crawlerArena -> registerCrawlerArenaCommands(handler)
-
-        else -> {}
-    }
 }
-
+/*
 private fun registerHexedCommands(handler: CustomHandler) {
     handler.registerCommand(
         "spectate",
@@ -845,3 +839,4 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
             player.sendMessage(type.name + (" - ") + (cost))
         })
 }
+ */

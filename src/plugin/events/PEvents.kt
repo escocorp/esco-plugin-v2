@@ -43,7 +43,7 @@ import plugin.discord.Bot.sendJoinMessage
 import plugin.discord.Bot.sendLeaveMessage
 import plugin.discord.Bot.sendLog
 import plugin.discord.Bot.sendServerMessage
-import plugin.gamemodes.hexed.HexData
+// import plugin.gamemodes.hexed.HexData
 import plugin.history.History
 import plugin.history.HistoryType
 import plugin.logic.attemCode
@@ -335,10 +335,10 @@ fun loadEvents() {
         message.queue()
     }
 
-    Events.on(HexData.HexCaptureEvent::class.java) { e ->
+    /*Events.on(HexData.HexCaptureEvent::class.java) { e ->
         val hex = e.hex
         Vars.world.tile(hex.x, hex.y)?.setNet(Blocks.coreShard, e.player.team(), 1)
-    }
+    }*/
 
     Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
         if (e.tile == null || e.unit == null) return@Cons
