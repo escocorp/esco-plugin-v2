@@ -26,7 +26,6 @@ public enum Gamemode {
     }
 
     Gamemode(String simpleName, String botPrefix, int waveCost, int blockCost, int winCost) {
-        this.optimized = optimized;
         this.simpleName = simpleName;
         this.botPrefix = botPrefix;
         this.blockCost = blockCost;

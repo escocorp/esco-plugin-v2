@@ -4,6 +4,8 @@ import arc.func.Cons2
 import mindustry.Vars
 import mindustry.gen.AdminRequestCallPacket
 import mindustry.gen.Call
+import mindustry.gen.ClientSnapshotCallPacket
+import mindustry.gen.PingCallPacket
 import mindustry.gen.Player
 import mindustry.gen.SendChatMessageCallPacket
 import mindustry.io.JsonIO
@@ -12,13 +14,21 @@ import plugin.PVars
 import plugin.models.getStatus
 
 object Packets {
+    val lastPingMap = mutableMapOf<String, Long>()
+
     fun load() {
         Vars.net.handleServer(
-            AdminRequestCallPacket::class.java,
-            Cons2 { con: NetConnection?, packet: AdminRequestCallPacket -> AdminRequest.handle(con, packet) })
+            AdminRequestCallPacket::class.java
+        ) { con: NetConnection, packet: AdminRequestCallPacket -> AdminRequest.handle(con, packet) }
         Vars.net.handleServer(
-            SendChatMessageCallPacket::class.java,
-            Cons2 { con: NetConnection?, packet: SendChatMessageCallPacket -> SendChatMessage.handle(con, packet) })
+            SendChatMessageCallPacket::class.java
+        ) { con: NetConnection, packet: SendChatMessageCallPacket -> SendChatMessage.handle(con, packet) }
+
+        Vars.net.handleServer(
+            ClientSnapshotCallPacket::class.java
+        ) { con, packet ->
+            handleClientSnapshot(con, packet)
+        }
 
         loadCustom()
     }

@@ -286,6 +286,10 @@ fun getPlayerData(player: Player): PlayerData? {
     )
 }
 
+fun Player.getData(): PlayerData? {
+    return getPlayerData(this)
+}
+
 /**
  * no cache
  * */

@@ -38,6 +38,7 @@ import plugin.antigrief.apply
 import plugin.database.Database.adminsCache
 import plugin.database.Database.playerDataCache
 import plugin.database.models.*
+import plugin.ddos.DDoSProtect
 import plugin.discord.*
 import plugin.discord.Bot.sendJoinMessage
 import plugin.discord.Bot.sendLeaveMessage
@@ -179,8 +180,7 @@ fun loadEvents() {
         // simple bot check
         Timer.schedule({
             if (player.con.isConnected && player.con.lastReceivedClientSnapshot == -1) {
-                putLog(pd.id, "system", "Player detected as bot")
-                player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 0)
+                DDoSProtect.handleBot(player, pd)
             }
         }, 2f)
     }

@@ -6,6 +6,7 @@ import arc.struct.Seq;
 import arc.util.CommandHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mindustry.gen.Player;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import plugin.commands.CustomHandler;
@@ -32,6 +33,7 @@ public class PVars {
     public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, nsfwChannelStr, consoleChannelStr, ownerRoleId;
     public static Guild serverGuild;
     public static TextChannel serverChannel, logsChannel, votekicksChannel, nsfwChannel, consoleChannel;
+    public static JDA jda;
 
     public static String dbHost, dbPort, dbPassword, dbUser, db;
 

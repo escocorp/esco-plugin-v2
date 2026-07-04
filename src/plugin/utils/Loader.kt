@@ -19,6 +19,7 @@ import plugin.database.BanListener
 import plugin.database.models.getPlayerData
 import plugin.database.models.Server
 import plugin.database.models.putMessage
+import plugin.ddos.DDoSProtect
 import plugin.discord.Bot.sendLog
 import plugin.events.EscoPluginLoadEvent
 import plugin.events.loadEvents
@@ -127,6 +128,10 @@ object Loader {
             Timer.schedule({
                 pushLogs()
             }, 0f, (5 * 60).toFloat())
+
+        Timer.schedule({
+            DDoSProtect.update()
+        }, 30f, 10f)
     }
 
     fun loadServerId() {
