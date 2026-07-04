@@ -15,6 +15,7 @@ import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Unit
+import mindustry.io.JsonIO
 import mindustry.net.Administration
 import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock
@@ -58,10 +59,12 @@ object Patches {
         }
         loadLogger()
 
-        /*Core.app.removeListener(Vars.netServer)
-        Vars.netServer.dispose()
+        Core.app.removeListener(Vars.netServer)
+        val old = Vars.netServer
         Vars.netServer = NetServerPatched()
-        Core.app.addListener(Vars.netServer)*/
+        JsonIO.json.copyFields(old, Vars.netServer)
+        Vars.netServer.dispose()
+        Core.app.addListener(Vars.netServer)
     }
 
     fun despawnUnits() {
