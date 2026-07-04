@@ -1,5 +1,5 @@
 ## Chaos of shitcode | Хаос говнокода
-### Please, don't use it without permission!!!!! | Не используйте плагин без разрешения от kukoldiki aka grely.
+### Please, don't use it without permission on servers please. | Не используйте плагин без разрешения на публичных серверах, пожалуйста.
 
 ### Сборка
 
