@@ -123,6 +123,9 @@ class CustomHandler {
         // addPseudoCommand("votekick", "[player] [reason...]");
         // addPseudoCommand("vote", "<y/n/c>");
         // addPseudoCommand("sync", "");
+        handler?.commandList?.each { command ->
+            addPseudoCommand(command.text, command.paramText ?: "")
+        }
     }
 
     fun addPseudoCommand(name: String, args: String) {
