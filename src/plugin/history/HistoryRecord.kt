@@ -1,5 +1,6 @@
 package plugin.history
 
+import arc.util.Log
 import mindustry.game.Team
 import mindustry.type.UnitType
 import mindustry.world.Block
@@ -24,11 +25,13 @@ data class HistoryRecord(
 
             HistoryType.BuildBlock -> "$actor [green]built [white]${block.emoji()}"
 
-            HistoryType.Configure -> "$actor [tan]configured [white]${block.emoji()}" + configAsString(
-                configAfter,
-                block
-            ).let { cfg ->
-                if (cfg.isNullOrBlank()) "" else " [lightgray]to $cfg"
+            HistoryType.Configure -> {
+                val cfg = configAsString(configAfter, block)
+
+                Log.info("CONFIG RAW IZ $cfg (${configAfter?.javaClass})")
+
+                "$actor [tan]configured [white]${block.emoji()}" +
+                        if (cfg.isNullOrBlank()) "" else " [lightgray]to $cfg"
             }
 
             HistoryType.DestroyBlock -> "[white]${team.emoji}${block.emoji()} [red]destroyed"
