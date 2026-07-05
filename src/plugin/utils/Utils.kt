@@ -24,6 +24,7 @@ import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
 import mindustry.world.Block
+import mindustry.world.blocks.power.PowerNode
 import mindustry.world.blocks.units.UnitFactory
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
@@ -322,7 +323,7 @@ fun configAsString(config: Any?, block: Block): String? {
 
         is String -> config
 
-        is Point2 -> "[${config.x}, ${config.y}]"
+        is Point2 -> config.toString()
 
         is Array<*> -> {
             val points = config.filterIsInstance<Point2>()
@@ -330,7 +331,7 @@ fun configAsString(config: Any?, block: Block): String? {
             if (points.isEmpty()) return null
 
             points.joinToString(prefix = "[", postfix = "]") {
-                "[${it.x}, ${it.y}]"
+                it.toString()
             }
         }
 
@@ -342,6 +343,8 @@ fun configAsString(config: Any?, block: Block): String? {
                     return "[scarlet]ERR"
                 }
                 return plans[config].unit.emoji()
+            } else if(block is PowerNode) {
+                return Point2.unpack(config).toString()
             }
             null
         }
