@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
+import mindustry.ai.UnitCommand
 import mindustry.content.Blocks
 import mindustry.core.GameState
 import mindustry.ctype.Content
@@ -346,6 +347,10 @@ fun configAsString(config: Any?, block: Block): String {
                 return plans[config].unit.emoji()
             }
             null
+        }
+
+        is UnitCommand -> {
+            return config.emoji.toString()
         }
 
         else -> null
