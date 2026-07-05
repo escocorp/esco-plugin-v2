@@ -42,6 +42,7 @@ import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
 import plugin.menus.slot
+import plugin.models.getStatus
 import plugin.replays.Replay
 import plugin.replays.playReplay
 import plugin.replays.saveReplay
@@ -143,13 +144,14 @@ fun register(handler: CustomHandler) {
         }
     }
     handler.registerCommand("vanish", "", Permission.Vanish, CommandRunner { _: Array<String>, p: Player ->
-        if (PVars.vanishedPlayers.contains(p)) {
-            PVars.vanishedPlayers.remove(p)
+        val status = p.getStatus()
+        if (status.vanished) {
+            status.vanished = false
             p.sendMessage("unvanished")
             return@CommandRunner
         }
         p.sendMessage("vanished")
-        PVars.vanishedPlayers.add(p)
+        status.vanished = true
         Call.playerDisconnect(p.id)
     })
     handler.registerCommand("pay", "<amount> <playername...>", CommandRunner { args: Array<String>, player: Player ->
@@ -383,12 +385,13 @@ fun register(handler: CustomHandler) {
         })
 
     handler.registerCommand("history") { _: Array<String>, p: Player ->
-        if (PVars.historyPlayers.contains(p)) {
-            PVars.historyPlayers.remove(p)
+        val status = p.getStatus()
+        if (status.historyEnabled) {
+            status.historyEnabled = false
             p.sendMessage("[scarlet]Disabled")
             Call.hideHudText(p.con)
         } else {
-            PVars.historyPlayers.add(p)
+            status.historyEnabled = true
             p.sendMessage("[green]Enabled! Tap on tile to see history!.")
         }
     }

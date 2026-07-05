@@ -535,7 +535,7 @@ fun loadEvents() {
     }
 
     Events.on(TapEvent::class.java) { e: TapEvent ->
-        if (e.player == null || e.tile == null || !PVars.historyPlayers.contains(e.player)) return@on
+        if (e.player == null || e.tile == null || !e.player.getStatus().historyEnabled) return@on
         Call.setHudText(e.player.con, History.getMessage(e.tile.pos()))
     }
 }
@@ -544,9 +544,6 @@ fun purgeData(p: Player) {
     Permission.cache.remove(p)
     playerDataCache.remove(p)
     adminsCache.remove(p)
-    // PlayerStats.purge(p)
-    PVars.historyPlayers.remove(p)
-    PVars.vanishedPlayers.remove(p)
     purgePlayerStatus(p)
 
     if (PVars.linkCodes.containsValue(

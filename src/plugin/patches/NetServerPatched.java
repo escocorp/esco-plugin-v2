@@ -20,13 +20,14 @@ import mindustry.gen.Syncc;
 import mindustry.io.TypeIO;
 import mindustry.logic.GlobalVars;
 import mindustry.net.Administration;
+import plugin.models.PlayerStatus;
+import plugin.models.PlayerStatusKt;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
 import static mindustry.Vars.*;
-import static plugin.PVars.vanishedPlayers;
 
 public class NetServerPatched extends NetServer {
 
@@ -143,10 +144,7 @@ public class NetServerPatched extends NetServer {
                 connection.syncTime = Time.millis();
 
                 try {
-                    if (vanishedPlayers.isEmpty())
-                        super.writeEntitySnapshot(player);
-                    else
-                        writeEntitySnapshot(player);
+                    writeEntitySnapshot(player);
                 } catch (IOException e) {
                     Log.err(e);
                 }
@@ -268,7 +266,7 @@ public class NetServerPatched extends NetServer {
             if (entity.isSyncHidden(player)) {
                 hiddenIds.add(entity.id());
                 continue;
-            } else if (entity instanceof Player p && player != p && vanishedPlayers.contains(p)) {
+            } else if (entity instanceof Player p && player != p && PlayerStatusKt.getOrCreatePlayerStatus(p).getVanished()) {
                 hiddenIds.add(entity.id());
                 continue;
             }
