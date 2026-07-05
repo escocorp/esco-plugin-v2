@@ -534,7 +534,6 @@ fun loadEvents() {
                 build.rotation
             )
         }
-
     }
 
     Events.on(GameOverEvent::class.java) { e: GameOverEvent ->

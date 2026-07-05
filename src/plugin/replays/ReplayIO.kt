@@ -14,34 +14,49 @@ import plugin.history.HistoryType
 
 @OptIn(ExperimentalSerializationApi::class)
 fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
+
+    val players = ArrayList<ReplayPlayer>()
+    val playerIndexMap = HashMap<Int, Int>() // playerId -> local replay id
+
     val map = HashMap<Long, ReplayStack>()
+
     history.forEach { entry ->
-        val key = entry.key
-        val value = entry.value
         val stack = ReplayStack()
-        value.stack.forEach { r ->
-            if (r.center) {
-                var unitId: Short? = null
-                r.unit?.let { u ->
-                    unitId = u.id
+
+        entry.value.stack.forEach { r ->
+            if (!r.center) return@forEach
+
+            val dbId = r.playerId
+
+            val index = if (dbId == null) {
+                null
+            } else {
+                playerIndexMap.getOrPut(dbId) {
+                    val newIndex = players.size
+                    players.add(ReplayPlayer(r.playerName, dbId))
+                    newIndex
                 }
-                stack.add(
-                    ReplayRecord(
-                        r.playerName,
-                        r.playerId,
-                        r.type.ordinal,
-                        r.block.id,
-                        unitId,
-                        r.time,
-                        r.team.id,
-                        r.rotation
-                    )
-                )
             }
+
+            stack.add(
+                ReplayRecord(
+                    playerIndex = index,
+                    type = r.type.ordinal,
+                    blockId = r.block.id,
+                    unitId = r.unit?.id,
+                    time = r.time,
+                    team = r.team.id,
+                    rotation = r.rotation
+                )
+            )
         }
-        map[key] = stack
+
+        map[entry.key] = stack
     }
-    return ProtoBuf.encodeToByteArray(Replay(mapName, map))
+
+    return ProtoBuf.encodeToByteArray(
+        Replay(mapName, players, map)
+    )
 }
 
 fun playReplay(replay: HashMap<Long, ReplayStack>) {
