@@ -5,5 +5,7 @@ enum class HistoryType {
     BreakBlock,
     BuildBlock,
     DestroyBlock, // when block DESTROYED
-    Configure;
+    Configure,
+    PayloadPickup, // when block picked up by unit
+    PayloadDrop; // when block placed by unit
 }

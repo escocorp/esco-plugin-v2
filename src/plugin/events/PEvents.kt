@@ -13,7 +13,6 @@ import com.xpdustry.nohorny.common.MindustryImageRenderer
 import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
-import mindustry.content.Blocks
 import mindustry.content.Items
 import mindustry.content.UnitTypes
 import mindustry.game.EventType.*
@@ -59,7 +58,6 @@ import plugin.utils.*
 import plugin.utils.Loader.exit
 import plugin.utils.Loader.loadAfterStart
 import java.awt.Color
-import java.util.*
 import java.util.function.Consumer
 import kotlin.time.Clock
 
@@ -492,6 +490,52 @@ fun loadEvents() {
             }
         }
     })
+
+    Events.on(PickupEvent::class.java) { e ->
+        e.build ?: return@on
+        e.unit ?: return@on
+
+        val player: Player? = e.unit.player
+        val build = e.build
+        val name = player?.coloredName()
+        val pid = if(player == null) null else getPlayerId(player)
+        eventsScope.launch {
+            History.write(
+                build.tile,
+                name,
+                pid,
+                HistoryType.PayloadPickup,
+                build.block,
+                e.unit.type,
+                e.unit.team(),
+                build.rotation
+            )
+        }
+    }
+
+    // DRY
+    Events.on(PayloadDropEvent::class.java) { e ->
+        e.build ?: return@on
+        e.unit ?: return@on
+
+        val player: Player? = e.unit.player
+        val build = e.build
+        val name = player?.coloredName()
+        val pid = if(player == null) null else getPlayerId(player)
+        eventsScope.launch {
+            History.write(
+                build.tile,
+                name,
+                pid,
+                HistoryType.PayloadDrop,
+                build.block,
+                e.unit.type,
+                e.unit.team(),
+                build.rotation
+            )
+        }
+
+    }
 
     Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
         if (PVars.mapVote != null) PVars.mapVote.cancel()
