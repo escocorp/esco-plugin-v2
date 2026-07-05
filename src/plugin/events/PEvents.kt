@@ -437,7 +437,6 @@ fun loadEvents() {
         val player = e.player
         val build = e.tile
         val name = player.coloredName()
-        val before = e.tile.config()
         eventsScope.launch {
             History.write(
                 build.tile,
@@ -448,7 +447,6 @@ fun loadEvents() {
                 null,
                 player.team(),
                 build.rotation,
-                before,
                 e.value
             )
         }
