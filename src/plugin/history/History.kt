@@ -39,19 +39,18 @@ object History {
         unit: UnitType?,
         team: Team,
         rotation: Int,
-        configBefore: Any? = null,
         configAfter: Any? = null,
     ) {
         if (tile == null) return
 
         val time = System.currentTimeMillis()
 
-        val record = HistoryRecord(playerName, playerId, type, block, unit, time, false, team, rotation, configBefore, configAfter)
+        val record = HistoryRecord(playerName, playerId, type, block, unit, time, false, team, rotation, configAfter)
 
         tile.getLinkedTiles { t: Tile ->
             val pos = t.pos().toLong()
             if (t.isCenter) {
-                addTile(pos, HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation, configBefore, configAfter))
+                addTile(pos, HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation, configAfter))
             } else {
                 addTile(pos, record)
             }

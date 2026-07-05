@@ -9,7 +9,7 @@ import plugin.utils.formatAgo
 data class HistoryRecord(
     val playerName: String?, val playerId: Int?, val type: HistoryType, val block: Block,
     val unit: UnitType?, val time: Long, val center: Boolean, val team: Team, val rotation: Int,
-    val configBefore: Any?, val configAfter: Any?
+    val configAfter: Any?
 ) {
     fun getMessage(): String {
         var actor = "[white]" + (playerName ?: unit?.emoji() ?: "unknown")
@@ -27,10 +27,8 @@ data class HistoryRecord(
             HistoryType.BuildBlock ->
                 "$actor [green]built [white]${block.emoji()}"
 
-            HistoryType.Configure -> {
-                var config = "[lightgray]${configAsString(configBefore)} -> ${configAsString(configAfter)}"
-                return "$actor [tan]configured [white]${block.emoji()} $config"
-            }
+            HistoryType.Configure ->
+                "$actor [tan]configured [white]${block.emoji()} [lightgray]to ${configAsString(configAfter, block)}"
 
             HistoryType.DestroyBlock ->
                 "[white]${team.emoji}${block.emoji()} [red]destroyed"

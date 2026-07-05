@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
+import mindustry.content.Blocks
 import mindustry.core.GameState
 import mindustry.ctype.Content
 import mindustry.ctype.UnlockableContent
@@ -22,6 +23,7 @@ import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
 import mindustry.world.Block
+import mindustry.world.blocks.units.UnitFactory
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import plugin.Bundle
@@ -313,25 +315,41 @@ fun formatAgo(time: Long): String {
     }
 }
 
-fun configAsString(config: Any?): String {
-    var str: String? = null
-    if(config is UnlockableContent) {
-        str = config.emoji()
-    } else if(config is String) {
-        str = config
-    } else if(config is Point2) {
-        str = "[${config.x}, ${config.y}]"
-    } else if (config is Array<*>) {
-        if (config.all { it is Point2 }) {
-            @Suppress("UNCHECKED_CAST")
-            val points = config as Array<Point2>
-            str += "["
-            points.forEach { point ->
-                str+= "[${point.x}, ${point.y}], "
+fun configAsString(config: Any?, block: Block): String {
+    val result = when (config) {
+        is UnlockableContent -> config.emoji()
+
+        is String -> config
+
+        is Point2 -> "[${config.x}, ${config.y}]"
+
+        is Array<*> -> {
+            if (config.all { it is Point2 }) {
+                @Suppress("UNCHECKED_CAST")
+                val points = config as Array<Point2>
+                points.joinToString(
+                    prefix = "[",
+                    postfix = "]"
+                ) { "[${it.x}, ${it.y}]" }
+            } else {
+                null
             }
-            str += "]"
         }
+
+        is Int -> {
+            if (block is UnitFactory) {
+                val plans = block.plans
+                if (config > plans.size) {
+                    Log.err("config index out of bounds: config=$config, plansSize=${plans.size}")
+                    return "[scarlet]ERR"
+                }
+                return plans[config].unit.emoji()
+            }
+            null
+        }
+
+        else -> null
     }
-    Log.debug(config?.javaClass?.simpleName)
-    return str ?: "nothing"
+
+    return result ?: "nothing"
 }
