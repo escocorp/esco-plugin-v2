@@ -316,8 +316,8 @@ fun formatAgo(time: Long): String {
     }
 }
 
-fun configAsString(config: Any?, block: Block): String {
-    val result = when (config) {
+fun configAsString(config: Any?, block: Block): String? {
+    var result = when (config) {
         is UnlockableContent -> config.emoji()
 
         is String -> config
@@ -356,5 +356,9 @@ fun configAsString(config: Any?, block: Block): String {
         else -> null
     }
 
-    return result ?: "nothing"
+    if(result == null && block is UnitFactory) {
+        result = "default"
+    }
+
+    return result
 }

@@ -18,23 +18,22 @@ data class HistoryRecord(
         val ago = "[lightgray][${formatAgo(time)}] "
 
         return ago + when (type) {
-            HistoryType.Rotate ->
-                "$actor [tan]rotated [white]${block.emoji()}"
+            HistoryType.Rotate -> "$actor [tan]rotated [white]${block.emoji()}"
 
-            HistoryType.BreakBlock ->
-                "$actor [red]broken [white]${block.emoji()}"
+            HistoryType.BreakBlock -> "$actor [red]broken [white]${block.emoji()}"
 
-            HistoryType.BuildBlock ->
-                "$actor [green]built [white]${block.emoji()}"
+            HistoryType.BuildBlock -> "$actor [green]built [white]${block.emoji()}"
 
-            HistoryType.Configure ->
-                "$actor [tan]configured [white]${block.emoji()} [lightgray]to ${configAsString(configAfter, block)}"
+            HistoryType.Configure -> "$actor [tan]configured [white]${block.emoji()}" + configAsString(
+                configAfter,
+                block
+            ).let { cfg ->
+                if (cfg.isNullOrBlank()) "" else " [lightgray]to $cfg"
+            }
 
-            HistoryType.DestroyBlock ->
-                "[white]${team.emoji}${block.emoji()} [red]destroyed"
+            HistoryType.DestroyBlock -> "[white]${team.emoji}${block.emoji()} [red]destroyed"
 
-            else ->
-                "$actor [tan]${type.name} [white]${block.emoji()}"
+            else -> "$actor [tan]${type.name} [white]${block.emoji()}"
         }
     }
 }
