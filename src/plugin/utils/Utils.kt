@@ -332,5 +332,6 @@ fun configAsString(config: Any?): String {
             str += "]"
         }
     }
+    Log.debug(config?.javaClass?.simpleName)
     return str ?: "nothing"
 }

@@ -19,7 +19,7 @@ data class HistoryRecord(
 
         return ago + when (type) {
             HistoryType.Rotate ->
-                "$actor [tan]rotated ${block.emoji()}"
+                "$actor [tan]rotated [white]${block.emoji()}"
 
             HistoryType.BreakBlock ->
                 "$actor [red]broken [white]${block.emoji()}"
