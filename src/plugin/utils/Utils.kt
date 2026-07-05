@@ -325,15 +325,12 @@ fun configAsString(config: Any?, block: Block): String? {
         is Point2 -> "[${config.x}, ${config.y}]"
 
         is Array<*> -> {
-            if (config.all { it is Point2 }) {
-                @Suppress("UNCHECKED_CAST")
-                val points = config as Array<Point2>
-                points.joinToString(
-                    prefix = "[",
-                    postfix = "]"
-                ) { "[${it.x}, ${it.y}]" }
-            } else {
-                null
+            val points = config.filterIsInstance<Point2>()
+
+            if (points.isEmpty()) return null
+
+            points.joinToString(prefix = "[", postfix = "]") {
+                "[${it.x}, ${it.y}]"
             }
         }
 
