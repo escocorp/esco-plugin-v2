@@ -1,4 +1,4 @@
-package plugin.models
+package plugin.model
 
 import kotlin.time.Instant
 

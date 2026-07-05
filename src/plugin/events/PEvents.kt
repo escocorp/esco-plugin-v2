@@ -49,11 +49,11 @@ import plugin.history.HistoryType
 import plugin.logic.attemCode
 import plugin.logic.isAttem
 import plugin.menus.showWelcome
-import plugin.models.ChatMessageData
-import plugin.models.VPNApiResponse
-import plugin.models.freeze
-import plugin.models.getStatus
-import plugin.models.purgePlayerStatus
+import plugin.model.ChatMessageData
+import plugin.model.VPNApiResponse
+import plugin.model.freeze
+import plugin.model.getStatus
+import plugin.model.purgePlayerStatus
 import plugin.utils.*
 import plugin.utils.Loader.exit
 import plugin.utils.Loader.loadAfterStart

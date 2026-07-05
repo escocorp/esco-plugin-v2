@@ -1,17 +1,15 @@
 package plugin.packets
 
-import arc.func.Cons2
 import mindustry.Vars
 import mindustry.gen.AdminRequestCallPacket
 import mindustry.gen.Call
 import mindustry.gen.ClientSnapshotCallPacket
-import mindustry.gen.PingCallPacket
 import mindustry.gen.Player
 import mindustry.gen.SendChatMessageCallPacket
 import mindustry.io.JsonIO
 import mindustry.net.NetConnection
 import plugin.PVars
-import plugin.models.getStatus
+import plugin.model.getStatus
 
 object Packets {
     val lastPingMap = mutableMapOf<String, Long>()

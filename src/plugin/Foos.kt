@@ -10,7 +10,7 @@ import mindustry.net.Administration.Config
 import plugin.PVars.clientCommands
 import plugin.commands.CustomHandler
 import plugin.database.models.Permission.Companion.getPerms
-import plugin.models.getStatus
+import plugin.model.getStatus
 
 object Foos {
     private val sb = StringBuilder()

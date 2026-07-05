@@ -13,6 +13,9 @@ import plugin.PVars
 import plugin.database.models.ban
 import plugin.database.models.getBan
 import plugin.database.models.getPlayerId
+import plugin.model.freeze
+import plugin.model.getStatus
+import plugin.model.unfreeze
 import java.awt.Color
 import java.text.MessageFormat
 
@@ -35,6 +38,8 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
         if (id != null) startedId = id
         id = getPlayerId(target)
         if (id != null) targetId = id
+
+        target.freeze()
     }
 
     fun vote(player: Player, d: Int) {
@@ -66,6 +71,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
 
             return true
         }
+        target.unfreeze()
         return false
     }
 

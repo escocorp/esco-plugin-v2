@@ -15,9 +15,7 @@ import mindustry.Vars
 import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
 import mindustry.ai.UnitCommand
-import mindustry.content.Blocks
 import mindustry.core.GameState
-import mindustry.ctype.Content
 import mindustry.ctype.UnlockableContent
 import mindustry.gen.Groups
 import mindustry.gen.Player
@@ -35,7 +33,7 @@ import plugin.PVars.apiAuth
 import plugin.PVars.httpClient
 import plugin.database.models.Permission
 import plugin.database.models.Permission.Companion.getPerms
-import plugin.models.VPNApiResponse
+import plugin.model.VPNApiResponse
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

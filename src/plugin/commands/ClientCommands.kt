@@ -2,9 +2,6 @@ package plugin.commands
 
 import arc.Core
 import arc.Events
-import arc.func.Boolf
-import arc.math.Mathf
-import arc.struct.ObjectIntMap
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
@@ -22,11 +19,9 @@ import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
-import mindustry.gen.Unit
 import mindustry.graphics.Pal
 import mindustry.maps.Map
 import mindustry.net.Administration
-import mindustry.type.UnitType
 import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
@@ -42,7 +37,7 @@ import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
 import plugin.menus.slot
-import plugin.models.getStatus
+import plugin.model.getStatus
 import plugin.replays.Replay
 import plugin.replays.playReplay
 import plugin.replays.saveReplay

@@ -1,4 +1,4 @@
-package plugin.models
+package plugin.model
 
 import mindustry.gen.Player
 import plugin.KVars.frozenTag
@@ -24,7 +24,19 @@ fun Player.freeze(): PlayerStatus {
     val status = this.getStatus()
 
     status.frozen = true
-    this.name = "$frozenTag ${this.coloredName()}"
+    if(!this.name.contains(frozenTag))
+        this.name = "$frozenTag ${this.coloredName()}"
+
+    // this.sendMessage("Your frozen!")
+
+    return status
+}
+
+fun Player.unfreeze(): PlayerStatus {
+    val status = this.getStatus()
+
+    status.frozen = false
+    this.name = this.coloredName().replace(frozenTag, "").trim()
 
     return status
 }

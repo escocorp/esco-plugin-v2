@@ -20,8 +20,7 @@ import mindustry.gen.Syncc;
 import mindustry.io.TypeIO;
 import mindustry.logic.GlobalVars;
 import mindustry.net.Administration;
-import plugin.models.PlayerStatus;
-import plugin.models.PlayerStatusKt;
+import plugin.model.PlayerStatusKt;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
