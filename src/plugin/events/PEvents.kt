@@ -437,6 +437,8 @@ fun loadEvents() {
         val player = e.player
         val build = e.tile
         val name = player.coloredName()
+        val before = e.tile.config()
+        val after = e.value
         eventsScope.launch {
             History.write(
                 build.tile,

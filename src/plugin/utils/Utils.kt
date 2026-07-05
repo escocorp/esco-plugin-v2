@@ -4,6 +4,7 @@ import arc.Core
 import arc.Events
 import arc.files.Fi
 import arc.func.Cons
+import arc.math.geom.Point2
 import arc.net.Connection
 import arc.util.Http
 import arc.util.Log
@@ -14,10 +15,13 @@ import mindustry.Vars
 import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
 import mindustry.core.GameState
+import mindustry.ctype.Content
+import mindustry.ctype.UnlockableContent
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
+import mindustry.world.Block
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import plugin.Bundle
@@ -291,4 +295,42 @@ fun getTimestamp(seconds: Long): Timestamp? {
 
     val millis = seconds * 1000
     return Timestamp(System.currentTimeMillis() + millis)
+}
+
+fun formatAgo(time: Long): String {
+    val diff = (System.currentTimeMillis() - time).coerceAtLeast(0)
+
+    val seconds = diff / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val days = hours / 24
+
+    return when {
+        days > 0 -> "${days}d ago"
+        hours > 0 -> "${hours}h ago"
+        minutes > 0 -> "${minutes}min ago"
+        else -> "${seconds}sec ago"
+    }
+}
+
+fun configAsString(config: Any?): String {
+    var str: String? = null
+    if(config is UnlockableContent) {
+        str = config.emoji()
+    } else if(config is String) {
+        str = config
+    } else if(config is Point2) {
+        str = "[${config.x}, ${config.y}]"
+    } else if (config is Array<*>) {
+        if (config.all { it is Point2 }) {
+            @Suppress("UNCHECKED_CAST")
+            val points = config as Array<Point2>
+            str += "["
+            points.forEach { point ->
+                str+= "[${point.x}, ${point.y}], "
+            }
+            str += "]"
+        }
+    }
+    return str ?: "nothing"
 }
