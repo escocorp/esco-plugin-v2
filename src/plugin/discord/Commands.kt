@@ -338,32 +338,32 @@ class Commands {
     )
     fun ver(args: Array<String>, ctx: Context) {
         globalExecutor.submit {
-            ctx.replyServer("Current: $version  Latest: ${httpGetString(buildsLatestTxtUrl)}")
+            ctx.reply("Current: $version  Latest: ${httpGetString(buildsLatestTxtUrl)}")
         }
     }
 
     @DiscordCommand(
         name = "reloadbundle",
         desc = "SS",
-        type = CommandType.GLOBAL,
+        type = CommandType.ALL,
         requiredPerm = Permission.EditServer
     )
     fun reloadBundle(args: Array<String>, ctx: Context) {
         Bundle.load()
-        ctx.replyServer("IDK, reloaded probably")
+        ctx.reply("IDK, reloaded probably")
     }
 
     @DiscordCommand(
         name = "gc",
         desc = "SS",
-        type = CommandType.GLOBAL,
+        type = CommandType.ALL,
         requiredPerm = Permission.EditServer
     )
     fun collectGarbage(args: Array<String>, ctx: Context) {
         val before = Core.app.javaHeap / 1024 / 1024
         System.gc()
         val after = Core.app.javaHeap / 1024 / 1024
-        ctx.replyServer("Before: $before\nAfter: $after\nDiff: ${before - after}")
+        ctx.reply("Before: $before\nAfter: $after\nDiff: ${before - after}")
     }
 
     @DiscordCommand(

@@ -21,12 +21,8 @@ class Context(var message: Message, var channel: MessageChannelUnion, var author
         return has
     }
 
-    fun reply(content: String?) {
-        message.reply("[" + PVars.gamemode.name + "] " + content).queue()
-    }
-
-    fun replyServer(content: String?) {
-        message.reply("[" + PVars.gamemode.simpleName + "] " + content).queue()
+    fun reply(content: String) {
+        message.reply((if(global) "[${PVars.gamemode.name}]" else "") + content).queue()
     }
 
     fun replyEmbed(embed: MessageEmbed) {
