@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import plugin.commands.CustomHandler;
 import plugin.database.models.Log;
+import plugin.s3.S3;
 import plugin.utils.Gamemode;
 import plugin.votes.VoteMap;
 import plugin.votes.VoteWave;
@@ -70,4 +71,7 @@ public class PVars {
     public static final int hubPort = 6568;
 
     public static ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();
+
+    public static String S3BaseUrl, S3AccessKey, S3SecretKey;
+    public static S3 S3;
 }

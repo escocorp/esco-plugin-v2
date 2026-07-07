@@ -32,6 +32,7 @@ import plugin.menus.TextMenu
 import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
+import plugin.s3.S3
 import kotlin.system.exitProcess
 
 object Loader {
@@ -50,6 +51,7 @@ object Loader {
         Menu.load()
         TextMenu.load()
         loadGraylist()
+        PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
 
         PVars.version = getResource("version")!!.readString()
 

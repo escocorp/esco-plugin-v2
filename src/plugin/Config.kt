@@ -38,6 +38,11 @@ object Config {
         PVars.nsfwChannelStr = getEnv("NSFW_ID")
         PVars.consoleChannelStr = getEnv("CONSOLE_ID")
         PVars.ownerRoleId = getEnv("OWNER_ROLE_ID")
+
+        // S3
+        PVars.S3BaseUrl = getEnv("S3_URL")
+        PVars.S3AccessKey = getEnv("S3_ACCESS_KEY")
+        PVars.S3SecretKey = getEnv("S3_SECRET_KEY")
     }
 
 

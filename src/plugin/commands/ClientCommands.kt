@@ -45,6 +45,10 @@ import plugin.utils.*
 import plugin.votes.VoteMap
 import plugin.votes.VoteWave
 import plugin.votes.VotekickSession
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -69,12 +73,19 @@ fun register(handler: CustomHandler) {
         }
     })
     handler.registerCommand("savereplay", "<name>", Permission.Test) { arg: Array<String>, p: Player ->
-        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
+        /*val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
         file.parent().mkdirs()
         file.writeBytes(saveReplay(History.history, Vars.state.map.name()))
 
-        p.sendMessage("Done!")
+        p.sendMessage("Done!")*/
+        val mapName = Vars.state.map.name()
+        val date = ZonedDateTime.now(ZoneOffset.UTC)
+            .format(DateTimeFormatter.ofPattern("mm-HH-dd-MM-yyyy"))
+
+
+        PVars.S3.putObject("replays", "$mapName-${date}.replay", saveReplay(History.history, mapName))
+        p.sendMessage("[green]Done!")
     }
     handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
