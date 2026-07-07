@@ -72,7 +72,7 @@ fun register(handler: CustomHandler) {
             }, 0.1f + (i / 10f))
         }
     })
-    handler.registerCommand("savereplay", "<name>", Permission.Test) { arg: Array<String>, p: Player ->
+    handler.registerCommand("savereplay", "", Permission.Test) { arg: Array<String>, p: Player ->
         /*val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
         file.parent().mkdirs()
@@ -81,11 +81,11 @@ fun register(handler: CustomHandler) {
         p.sendMessage("Done!")*/
         val mapName = Vars.state.map.name()
         val date = ZonedDateTime.now(ZoneOffset.UTC)
-            .format(DateTimeFormatter.ofPattern("mm-HH-dd-MM-yyyy"))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
+        val name = "$mapName-${date}.replay"
 
-
-        PVars.S3.putObject("replays", "$mapName-${date}.replay", saveReplay(History.history, mapName))
-        p.sendMessage("[green]Done!")
+        PVars.S3.putObject("replays", name, saveReplay(History.history, mapName))
+        p.sendMessage("[green]Done! Saved with name $name")
     }
     handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")

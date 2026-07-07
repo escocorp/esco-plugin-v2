@@ -53,19 +53,19 @@ object Config {
     private fun getEnv(name: String, def: String?): String? {
         var value = dotenv.get(name)
         if (value != null && !value.isEmpty()) {
-            Log.debug(".env @ = @", name, value)
+            // Log.debug(".env @ = @", name, value)
             return value
         }
 
         value = System.getenv(name)
         if (value != null && !value.isEmpty()) {
-            Log.debug("ENV @ = @", name, value)
+            // Log.debug("ENV @ = @", name, value)
             return value
         }
 
         value = System.getProperty(name)
         if (value != null && !value.isEmpty()) {
-            Log.debug("-D @ = @", name, value)
+            // Log.debug("-D @ = @", name, value)
             return value
         }
 

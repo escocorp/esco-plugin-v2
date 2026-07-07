@@ -54,10 +54,14 @@ import plugin.model.VPNApiResponse
 import plugin.model.freeze
 import plugin.model.getStatus
 import plugin.model.purgePlayerStatus
+import plugin.replays.saveReplay
 import plugin.utils.*
 import plugin.utils.Loader.exit
 import plugin.utils.Loader.loadAfterStart
 import java.awt.Color
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import kotlin.time.Clock
 
@@ -538,6 +542,20 @@ fun loadEvents() {
 
     Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
         if (PVars.mapVote != null) PVars.mapVote.cancel()
+
+        val oldHistory = History.history
+
+        eventsScope.launch {
+            val mapName = Vars.state.map.name()
+            val date = ZonedDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
+            val name = "$mapName-${date}.replay"
+
+            PVars.S3.putObject("replays", name, saveReplay(oldHistory, mapName))
+
+            Log.info("New replay saved with name ${name}!")
+        }
+
         History.clear()
         if (e.winner !== Team.derelict) Groups.player.each { p: Player ->
             if (p.team() === e.winner) getPlayerData(p)?.adjWins()
