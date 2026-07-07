@@ -39,30 +39,31 @@ object Loader {
 
     @JvmStatic
     fun load() {
-        Config.load()
-        Bundle.load()
-        Patches.load()
-        loadEvents()
-        MapPreview.loadColors()
-        loadServerId()
-        loadTimers()
-        // loadGamemode()
-        BanListener.load()
-        Menu.load()
-        TextMenu.load()
-        loadGraylist()
-        PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
+        try {
+            Config.load()
+            Bundle.load()
+            Patches.load()
+            loadEvents()
+            MapPreview.loadColors()
+            loadServerId()
+            loadTimers()
+            // loadGamemode()
+            BanListener.load()
+            Menu.load()
+            TextMenu.load()
+            loadGraylist()
+            PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
 
-        PVars.version = getResource("version")!!.readString()
+            PVars.version = getResource("version")!!.readString()
 
-        loadMenus()
+            loadMenus()
 
-        Timer.schedule({
-            // ipJoins.clear();
-            if (joinDemographics.size > 7000) joinDemographics.clear()
-        }, 60f, 60f)
+            Timer.schedule({
+                // ipJoins.clear();
+                if (joinDemographics.size > 7000) joinDemographics.clear()
+            }, 60f, 60f)
 
-        /*
+            /*
         if(PVars.gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {
             if(state.isGame) {
                 Vars.net.closeServer()
@@ -75,6 +76,10 @@ object Loader {
 
             Core.settings.put("autorestarted", false)
         }*/
+
+        } catch (e: Exception) {
+            Log.err(e)
+        }
 
         Events.fire(EscoPluginLoadEvent())
 
