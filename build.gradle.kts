@@ -85,6 +85,9 @@ dependencies {
     //compileOnly(files("nohorny-client.jar"))
     compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
     compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
+
+    implementation(platform("software.amazon.awssdk:bom:2.27.21"))
+    implementation("software.amazon.awssdk:s3")
 }
 
 tasks.withType<JavaCompile>().configureEach {
