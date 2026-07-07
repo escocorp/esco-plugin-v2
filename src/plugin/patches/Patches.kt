@@ -13,6 +13,7 @@ import mindustry.ctype.Content
 import mindustry.game.EventType.GameOverEvent
 import mindustry.game.Team
 import mindustry.gen.Call
+import mindustry.gen.EntityMapping
 import mindustry.gen.Groups
 import mindustry.gen.Unit
 import mindustry.io.JsonIO

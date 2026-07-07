@@ -31,6 +31,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
             if (!checkPass()) {
                 //Call.sendMessage(Strings.format("[lightgray]Vote failed. Not enough votes to kick[orange] @[lightgray].", target.name));
                 Bundle.sendMessage("votekick.failed", target.coloredName())
+                target.unfreeze()
                 cancel()
             }
         }, NetServer.voteDuration)
@@ -71,7 +72,6 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
 
             return true
         }
-        target.unfreeze()
         return false
     }
 
