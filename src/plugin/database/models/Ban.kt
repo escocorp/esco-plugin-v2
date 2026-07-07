@@ -57,7 +57,10 @@ fun ban(pid: Int, aid: Int, reason: String?, unban: Long, source: String): Boole
         stmt.setInt(1, pid)
         stmt.setInt(2, aid)
         stmt.setString(3, reason)
-        stmt.setObject(4, getUnbanTime(unban)?.toJavaInstant())
+        stmt.setTimestamp(
+            4,
+            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) }
+        )
         stmt.setString(5, source)
     }
 }
@@ -79,7 +82,10 @@ fun ban(pid: Int, admin: Player, reason: String?, unban: Long, source: String): 
         stmt.setInt(1, pid)
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
-        stmt.setObject(4, getUnbanTime(unban)?.toJavaInstant())
+        stmt.setTimestamp(
+            4,
+            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) }
+        )
         stmt.setString(5, source)
     }
 }
@@ -101,7 +107,10 @@ fun ban(player: Player, admin: Player, reason: String?, unban: Long, source: Str
         stmt.setString(1, player.uuid())
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
-        stmt.setObject(4, getUnbanTime(unban)?.toJavaInstant())
+        stmt.setTimestamp(
+            4,
+            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) }
+        )
         stmt.setString(5, source)
     }
 }
