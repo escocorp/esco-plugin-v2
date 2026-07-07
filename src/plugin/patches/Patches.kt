@@ -59,12 +59,12 @@ object Patches {
         }
         loadLogger()
 
-        Core.app.removeListener(Vars.netServer)
+        /*Core.app.removeListener(Vars.netServer)
         val old = Vars.netServer
         Vars.netServer = NetServerPatched()
         JsonIO.json.copyFields(old, Vars.netServer)
         Vars.netServer.dispose()
-        Core.app.addListener(Vars.netServer)
+        Core.app.addListener(Vars.netServer)*/
     }
 
     fun despawnUnits() {
