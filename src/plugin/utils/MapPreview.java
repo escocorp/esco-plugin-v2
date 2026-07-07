@@ -77,6 +77,7 @@ public class MapPreview {
         return image;
     }
 
+    @Deprecated
     public static byte[] parseMap(Map map) {
         try {
             return parseImage(generatePreview(map));
@@ -86,10 +87,12 @@ public class MapPreview {
         }
     }
 
+    @Deprecated
     public static BufferedImage generatePreview(Map map) throws IOException {
         return generatePreview(map.file.read(8192));
     }
 
+    @Deprecated
     public static BufferedImage generatePreview(InputStream input) throws IOException {
         BufferedImage var12;
         try {
@@ -119,7 +122,7 @@ public class MapPreview {
                 };
                 version.readRegion("content", stream, counter, version::readContentHeader);
                 if (version.version >= 11) {
-                    version.readRegion("content", stream, counter, version::skipContentPatches);
+                    // version.readRegion("content", stream, counter, version::skipContentPatches);
                 }
                 version.readRegion("preview_map", stream, counter, in -> version.readMap(in, new WorldContext() {
                     public void resize(int widthx, int heightx) {
