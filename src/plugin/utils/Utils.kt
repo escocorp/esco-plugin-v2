@@ -43,10 +43,12 @@ import java.net.URI
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
-import java.sql.Timestamp
 import java.util.*
 import java.util.zip.InflaterInputStream
 import javax.imageio.ImageIO
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
@@ -291,12 +293,11 @@ fun Member.hasRole(id: String): Boolean {
     return getRoleIDs(this.roles).contains(id)
 }
 
-fun getTimestamp(seconds: Long): Timestamp? {
-    if (seconds < 0) return null // перм бан
 
+fun getUnbanTime(seconds: Long): Instant? {
+    if (seconds < 0) return null // perm ban
 
-    val millis = seconds * 1000
-    return Timestamp(System.currentTimeMillis() + millis)
+    return Clock.System.now() + seconds.seconds
 }
 
 fun formatAgo(time: Long): String {

@@ -1,6 +1,5 @@
 package plugin.database.models
 
-import arc.util.Time
 import mindustry.gen.Player
 import plugin.Bundle
 import plugin.PVars.discordLink
@@ -8,12 +7,15 @@ import plugin.PVars.serverId
 import plugin.database.Database.executeQuery
 import plugin.database.Database.executeUpdate
 import plugin.utils.formatTime
-import plugin.utils.getTimestamp
+import plugin.utils.getUnbanTime
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.sql.Timestamp
 import java.text.MessageFormat
 import java.time.Instant
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
 
 class Ban(
     val id: Int,
@@ -29,7 +31,7 @@ class Ban(
         val time = if (unbanTime == null) {
             "Never (perm-ban)"
         } else {
-            formatTime((unbanTime.toEpochMilli() - Time.millis()) / 1000)
+            formatTime(unbanTime.epochSecond - Clock.System.now().epochSeconds)
         }
 
         player.kick(
@@ -55,7 +57,7 @@ fun ban(pid: Int, aid: Int, reason: String?, unban: Long, source: String): Boole
         stmt.setInt(1, pid)
         stmt.setInt(2, aid)
         stmt.setString(3, reason)
-        stmt.setTimestamp(4, getTimestamp(unban))
+        stmt.setObject(4, getUnbanTime(unban)?.toJavaInstant())
         stmt.setString(5, source)
     }
 }
@@ -77,7 +79,7 @@ fun ban(pid: Int, admin: Player, reason: String?, unban: Long, source: String): 
         stmt.setInt(1, pid)
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
-        stmt.setTimestamp(4, getTimestamp(unban))
+        stmt.setObject(4, getUnbanTime(unban)?.toJavaInstant())
         stmt.setString(5, source)
     }
 }
@@ -99,7 +101,7 @@ fun ban(player: Player, admin: Player, reason: String?, unban: Long, source: Str
         stmt.setString(1, player.uuid())
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
-        stmt.setTimestamp(4, getTimestamp(unban))
+        stmt.setObject(4, getUnbanTime(unban)?.toJavaInstant())
         stmt.setString(5, source)
     }
 }
