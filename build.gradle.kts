@@ -46,7 +46,7 @@ repositories {
     }
 }
 
-val mindustryVersion = "v158.1"
+val mindustryVersion = "v159"
 val jabelVersion = "93fde537c7"
 var nohornyVersion = "4.0.0-beta.7"
 
@@ -64,7 +64,7 @@ dependencies {
             "Anuken:Mindustry:$mindustryVersion"
     )
 
-    implementation("org.postgresql:postgresql:42.7.11")
+    implementation("org.postgresql:postgresql:42.7.12")
     implementation("com.zaxxer:HikariCP:7.1.0")
 
     implementation("org.slf4j:slf4j-api:2.0.18")
@@ -74,7 +74,7 @@ dependencies {
 
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
 
-    implementation("net.dv8tion:JDA:6.4.2") {
+    implementation("net.dv8tion:JDA:6.5.0") {
         exclude(module = "opus-java")
     }
 
