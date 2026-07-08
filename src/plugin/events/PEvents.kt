@@ -543,7 +543,7 @@ fun loadEvents() {
     Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
         if (PVars.mapVote != null) PVars.mapVote.cancel()
 
-        val oldHistory = History.history
+        val oldHistory = History.copy()
 
         eventsScope.launch {
             val mapName = Vars.state.map.name()
