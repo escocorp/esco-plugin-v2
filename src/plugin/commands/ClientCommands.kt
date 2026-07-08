@@ -84,7 +84,7 @@ fun register(handler: CustomHandler) {
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
         val name = "$mapName-${date}.replay"
 
-        PVars.S3.putObject("replays", name, saveReplay(History.history, mapName))
+        PVars.S3.putObject("replays", name, saveReplay(History.copy(), mapName))
         p.sendMessage("[green]Done! Saved with name $name")
     }
     handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->

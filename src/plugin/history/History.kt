@@ -20,14 +20,30 @@ object History {
 
         sb.append("[$x] [$y]")
 
-
-        val stack = history.get(pos.toLong()) // long
-        //stack.stack.each(s->{sb.append("\n").append(s.getMessage());});
-        if (stack != null) for (i in 0..<stack.size()) {
-            sb.append("\n").append(stack.stack.get(i).getMessage())
+        synchronized(history) {
+            val stack = history.get(pos.toLong()) // long
+            //stack.stack.each(s->{sb.append("\n").append(s.getMessage());});
+            if (stack != null) for (i in 0..<stack.size()) {
+                sb.append("\n").append(stack.stack.get(i).getMessage())
+            }
         }
 
         return sb.toString()
+    }
+
+    fun copy(): LongMap<HistoryStack> {
+        return synchronized(history) {
+            val copyMap = LongMap<HistoryStack>(history.size)
+            history.forEach { entry ->
+                val originalStack = entry.value
+                if (originalStack != null) {
+                    val stackCopy = HistoryStack()
+                    stackCopy.stack.addAll(originalStack.stack)
+                    copyMap.put(entry.key, stackCopy)
+                }
+            }
+            copyMap
+        }
     }
 
     fun write(
@@ -58,21 +74,25 @@ object History {
     }
 
     private fun addTile(pos: Long, record: HistoryRecord) {
-        var stack = history.get(pos)
+        synchronized(history) {
+            var stack = history.get(pos)
 
-        if (stack == null) {
-            stack = HistoryStack()
-            history.put(pos, stack)
+            if (stack == null) {
+                stack = HistoryStack()
+                history.put(pos, stack)
+            }
+
+            if (stack.size() >= 6) {
+                stack.removeFirst()
+            }
+
+            stack.add(record)
         }
-
-        if (stack.size() >= 6) {
-            stack.removeFirst()
-        }
-
-        stack.add(record)
     }
 
     fun clear() {
-        history.clear()
+        synchronized(history) {
+            history.clear()
+        }
     }
 }
