@@ -158,3 +158,4 @@ gradle-app.setting
 Thumbs.db
 android/libs/
 /tools/generatedClasses/
+/.ai/
