@@ -300,22 +300,8 @@ fun getUnbanTime(seconds: Long): Instant? {
     return Clock.System.now() + seconds.seconds
 }
 
-/**
- * Sanitizes a message from Discord for display in Mindustry in-game chat.
- * Strips/resolves Mindustry color codes, Discord markdown, and other special chars
- * that could be used to manipulate the chat display or exploit color formatting.
- */
 fun sanitizeDiscordMessage(message: String): String {
-    return message
-        // Strip Mindustry color codes like [red], [#ff0000], [white], etc.
-        .replace(Regex("""\[[^\]]*]"""), "")
-        // Strip Discord markdown bold/italic/underline
-        .replace(Regex("""[*_~`|]{1,3}"""), "")
-        // Escape backslash to prevent escape sequence abuse
-        .replace("\\", "\\\\")
-        // Limit length
-        .take(200)
-        .trim()
+    return Strings.stripColors(message.replace("\\", "\\\\").take(200)).trim()
 }
 
 fun formatAgo(time: Long): String {
