@@ -87,7 +87,7 @@ fun register(handler: CustomHandler) {
         PVars.S3.putObject("replays", name, saveReplay(History.copy(), mapName))
         p.sendMessage("[green]Done! Saved with name $name")
     }
-    handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
+    /*handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
         if (!file.exists()) {
             p.sendMessage("File doesn't exist!")
@@ -98,7 +98,7 @@ fun register(handler: CustomHandler) {
         )
         p.sendMessage("total actions: ${replay.actions.size}")
         playReplay(replay.actions)
-    })
+    })*/
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
         if (arg.isEmpty()) {
             getPlayerData(p)?.let { pd: PlayerData ->

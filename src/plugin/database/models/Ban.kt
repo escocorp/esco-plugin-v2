@@ -93,7 +93,7 @@ fun ban(pid: Int, admin: Player, reason: String?, unban: Long, source: String): 
 fun ban(player: Player, admin: Player, reason: String?, unban: Long, source: String): Boolean {
     return executeUpdate(
         """
-        INSERT INTO bans (player_id, admin_id, reason, unban_time)
+        INSERT INTO bans (player_id, admin_id, reason, unban_time, source)
         VALUES (
             (SELECT id FROM players WHERE uuid = ?),
             (SELECT id FROM players WHERE uuid = ?),

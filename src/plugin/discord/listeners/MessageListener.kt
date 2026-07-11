@@ -39,7 +39,7 @@ class MessageListener : ListenerAdapter() {
                     colorHex,
                     username,
                     content
-                )
+                ).take(50)
                 Call.sendMessage(mindustryMessage)
             }
         }
