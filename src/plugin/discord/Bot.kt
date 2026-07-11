@@ -57,13 +57,13 @@ object Bot {
     }
 
     fun sendLog(message: String?) {
-        if (PVars.logsChannel != null) PVars.logsChannel.sendMessage("[" + PVars.gamemode.simpleName + "] " + message)
+        if (PVars.logsChannel != null) PVars.logsChannel.sendMessage(("[" + PVars.gamemode.simpleName + "] " + message).take(2000))
             .queue()
     }
 
     fun sendServerMessage(message: String) {
         if (PVars.serverChannel == null) return
-        PVars.serverChannel.sendMessage(message).queue()
+        PVars.serverChannel.sendMessage(message.take(2000)).queue()
     }
 
     fun sendJoinMessage(player: Player, id: Int) {
@@ -83,11 +83,11 @@ object Bot {
     }
 
     fun reply(message: Message, content: String) {
-        message.reply(content).queue()
+        message.reply(content.take(2000)).queue()
     }
 
     fun sendConsoleMessage(message: String) {
         if (PVars.consoleChannel == null) return
-        PVars.consoleChannel.sendMessage(message).submit()
+        PVars.consoleChannel.sendMessage(message.take(2000)).submit()
     }
 }

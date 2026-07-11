@@ -5,23 +5,26 @@ import plugin.PVars
 import plugin.database.models.PlayerData
 import plugin.database.models.putLog
 import plugin.discord.Bot
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicBoolean
 
 object DDoSProtect {
     private const val ATTACK_TIMEOUT = 2 * 60 * 1000L
 
-    val lastPing = mutableMapOf<String, Long>()
+    val lastPing = ConcurrentHashMap<String, Long>()
 
-    private var botsKicked = 0
-    private var lastBotTime = 0L
-    private var attackActive = false
+    private val botsKicked = AtomicInteger(0)
+    private val lastBotTime = AtomicLong(0L)
+    private val attackActive = AtomicBoolean(false)
 
     fun handleBot(player: Player, pd: PlayerData?): Boolean {
         player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 5)
 
-        lastBotTime = System.currentTimeMillis()
+        lastBotTime.set(System.currentTimeMillis())
 
-        if (!attackActive) {
-            attackActive = true
+        if (!attackActive.getAndSet(true)) {
             Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
         }
 
@@ -31,19 +34,18 @@ object DDoSProtect {
             putLog(pd.id, "ddosprotect", "Player ${player.uuid()} detected as bot!")
         }
 
-        botsKicked++
+        botsKicked.incrementAndGet()
 
         return true
     }
 
     fun update() {
-        if (attackActive &&
-            System.currentTimeMillis() - lastBotTime >= ATTACK_TIMEOUT) {
+        if (attackActive.get() &&
+            System.currentTimeMillis() - lastBotTime.get() >= ATTACK_TIMEOUT) {
 
-            attackActive = false
-            Bot.sendLog("\n# Bot attack ended✅✅✅✅. Total bots caught: $botsKicked")
-
-            botsKicked = 0
+            attackActive.set(false)
+            val total = botsKicked.getAndSet(0)
+            Bot.sendLog("\n# Bot attack ended✅✅✅✅. Total bots caught: $total")
         }
     }
 }

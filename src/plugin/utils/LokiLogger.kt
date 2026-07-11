@@ -3,6 +3,7 @@ package plugin.utils
 import arc.util.Http
 import arc.util.Log
 import plugin.PVars.*
+import java.util.concurrent.CopyOnWriteArrayList
 
 data class LogEntry(
     val level: String,
@@ -10,7 +11,7 @@ data class LogEntry(
     val ts: Long = now()
 )
 
-val logs = mutableListOf<LogEntry>()
+val logs = CopyOnWriteArrayList<LogEntry>()
 
 fun addLog(level: String, message: String) {
     logs.add(LogEntry(level, message))
@@ -19,7 +20,14 @@ fun addLog(level: String, message: String) {
 fun pushLogs() {
     if (logs.isEmpty()) return
 
-    val grouped = logs.groupBy { it.level }
+    // Snapshot current logs atomically and clear them
+    val snapshot = mutableListOf<LogEntry>()
+    snapshot.addAll(logs)
+    logs.clear()
+
+    if (snapshot.isEmpty()) return
+
+    val grouped = snapshot.groupBy { it.level }
 
     val sb = StringBuilder()
     sb.append("""{"streams":[""")
@@ -50,8 +58,6 @@ fun pushLogs() {
     sb.append("]}")
 
     send(sb.toString())
-
-    logs.clear()
 }
 
 fun stripAnsi(str: String): String {
