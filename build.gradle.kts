@@ -64,7 +64,7 @@ dependencies {
             "Anuken:Mindustry:$mindustryVersion"
     )
 
-    implementation("org.postgresql:postgresql:42.7.12")
+    implementation("org.postgresql:postgresql:42.7.13")
     implementation("com.zaxxer:HikariCP:7.1.0")
 
     implementation("org.slf4j:slf4j-api:2.0.18")
