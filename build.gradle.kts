@@ -86,7 +86,7 @@ dependencies {
     compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
     compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
 
-    implementation(platform("software.amazon.awssdk:bom:2.27.21"))
+    implementation(platform("software.amazon.awssdk:bom:2.47.5"))
     implementation("software.amazon.awssdk:s3")
 }
 
