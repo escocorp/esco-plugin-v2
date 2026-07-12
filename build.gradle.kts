@@ -70,7 +70,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.18")
     implementation("org.slf4j:slf4j-simple:2.0.18")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")
 
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
 
