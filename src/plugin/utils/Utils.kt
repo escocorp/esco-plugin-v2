@@ -398,6 +398,6 @@ fun parseShape(
     }
 }
 
-fun String.parseShape(centerX: Int, centerY: Int, fill: Char = '#'): List<Point2> {
+fun String.toShape(centerX: Int, centerY: Int, fill: Char = '#'): List<Point2> {
     return parseShape(this, centerX, centerY, fill)
 }

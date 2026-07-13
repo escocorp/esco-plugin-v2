@@ -362,6 +362,12 @@ fun register(handler: CustomHandler) {
         PVars.mapVote.vote(p, i)
     })
 
+    handler.registerCommand("grelo", "", Permission.EditServer) { _: Array<String>, p: Player ->
+        val status = p.getStatus()
+        status.greloMode = !status.greloMode
+        p.sendMessage("New is ${status.greloMode}")
+    }
+
     handler.registerCommand(
         "ban",
         "<id> <time> <reason...>",

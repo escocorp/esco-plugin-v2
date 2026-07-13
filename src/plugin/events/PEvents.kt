@@ -13,6 +13,7 @@ import com.xpdustry.nohorny.common.MindustryImageRenderer
 import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
+import mindustry.content.Fx
 import mindustry.content.Items
 import mindustry.content.UnitTypes
 import mindustry.game.EventType.*
@@ -603,6 +604,23 @@ fun loadEvents() {
     Events.on(TapEvent::class.java) { e: TapEvent ->
         if (e.player == null || e.tile == null || !e.player.getStatus().historyEnabled) return@on
         Call.setHudText(e.player.con, History.getMessage(e.tile.pos()))
+    }
+
+    val zov = "#####  #\n" +
+            "    #  #\n" +
+            "########\n" +
+            "#   #\n" +
+            "#   ####"
+
+    Events.run(Trigger.update::class.java) {
+        Groups.player.each { p ->
+            if(p.getStatus().greloMode) {
+                val e = zov.toShape((p.unit().aimX/8).toInt(), (p.unit().aimY()/8).toInt())
+                e.forEach {
+                    Call.effect(Fx.mine, (it.x*8).toFloat(), (it.y*8).toFloat(), 0.toFloat(), arc.graphics.Color.red)
+                }
+            }
+        }
     }
 }
 
