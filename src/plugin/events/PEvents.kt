@@ -612,7 +612,7 @@ fun loadEvents() {
             "#   #\n" +
             "#   ####"
 
-    Events.run(Trigger.update::class.java) {
+    Events.run(Trigger.update) {
         Groups.player.each { p ->
             if(p.getStatus().greloMode) {
                 val e = zov.toShape((p.unit().aimX/8).toInt(), (p.unit().aimY()/8).toInt());
