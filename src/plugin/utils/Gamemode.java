@@ -1,8 +1,8 @@
 package plugin.utils;
 
 public enum Gamemode {
-    idk(),
-    survival("survival", "srv!", 5, 50, 500),
+    unknown(),
+    survival("survival", "srv!", 5, 30, 500),
     sandbox("sandbox", "snd!", 0, 10, 0),
     attack("attack", "atk!", 0, 10, 1000),
     pvp("pvp", "pvp!", 0, 10, 600),
@@ -36,6 +36,6 @@ public enum Gamemode {
     public static Gamemode parseGamemode(String name) {
         for (Gamemode g : values())
             if (g.name().equals(name)) return g;
-        return idk;
+        return unknown;
     }
 }

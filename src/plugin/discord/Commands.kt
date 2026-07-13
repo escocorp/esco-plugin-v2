@@ -31,6 +31,7 @@ import plugin.database.models.PlayerData
 import plugin.discord.Bot.sendLog
 import plugin.discord.register.CommandType
 import plugin.discord.register.DiscordCommand
+import plugin.maps.MapPreview
 import plugin.utils.*
 import java.awt.Color
 import java.io.File

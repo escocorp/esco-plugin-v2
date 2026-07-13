@@ -37,8 +37,7 @@ public class Menu {
     }
 
     public Menu add(String text) {
-        return add(text, (p) -> {
-        });
+        return add(text, (p) -> {});
     }
 
     public Menu show(Player player) {

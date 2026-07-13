@@ -5,6 +5,7 @@ import arc.Events
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
+import mindustry.Vars
 import mindustry.gen.Groups
 import mindustry.net.Administration
 import plugin.Bundle
@@ -13,7 +14,6 @@ import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
 import plugin.PVars.joinDemographics
-import plugin.PVars.serverCommands
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
 import plugin.database.models.getPlayerData
@@ -23,6 +23,8 @@ import plugin.ddos.DDoSProtect
 import plugin.discord.Bot.sendLog
 import plugin.events.EscoPluginLoadEvent
 import plugin.events.loadEvents
+import plugin.maps.EscoMapProvider
+import plugin.maps.MapPreview
 /*import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.HexedGamemode
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
@@ -54,7 +56,9 @@ object Loader {
             loadGraylist()
             PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
 
-            PVars.version = getResource("version")!!.readString()
+            PVars.version = getResource("version")?.readString() ?: ""
+
+            Vars.maps.setMapProvider(EscoMapProvider())
 
             loadMenus()
 

@@ -1,4 +1,4 @@
-package plugin.utils;
+package plugin.maps;
 
 import arc.files.Fi;
 import arc.struct.StringMap;
@@ -14,6 +14,7 @@ import mindustry.maps.Map;
 import mindustry.type.Item;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.OreBlock;
+import plugin.utils.UtilsKt;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

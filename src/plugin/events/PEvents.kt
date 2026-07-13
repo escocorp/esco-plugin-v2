@@ -170,7 +170,7 @@ fun loadEvents() {
             putLog(pd.id, "event", "Player joined!")
         }
 
-        Log.info("[@] Player @ joined [@]", pd.id, player.plainName(), player.uuid())
+        Log.info("[@] Player @ joined [@] (@)", pd.id, player.plainName(), player.uuid(), player.ip())
         app.post {
             sendJoinMessage(player, pd.id)
 
@@ -189,16 +189,20 @@ fun loadEvents() {
 
     Events.on(PlayerLeave::class.java) { e ->
         val player = e.player
-        if (player != null /* how? */) PVars.SSUsers.remove(player.id)
+        PVars.SSUsers.remove(player.id)
 
-        val pd = getPlayerData(player!!)
+        val pd = getPlayerData(player)
+        var pid: Int? = null
         if (pd != null) {
             // val pd = pdOpt.get()
+            pid = pd.id
             Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
-            Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid())
             sendLeaveMessage(player, pd.id)
             putLog(pd.id, "event", "Player disconnected")
         }
+
+        Log.info("[@] Player @ left [@] (@)", pid, player.plainName(), player.uuid(), player.ip())
+
         if (PVars.currentlyKicking != null && PVars.currentlyKicking.target == player) {
             ban(
                 PVars.currentlyKicking.targetId,

@@ -17,7 +17,6 @@ import plugin.votes.VoteMap;
 import plugin.votes.VoteWave;
 import plugin.votes.VotekickSession;
 
-import java.lang.management.ManagementFactory;
 import java.net.http.HttpClient;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -26,7 +25,7 @@ import java.util.concurrent.Executors;
 public class PVars {
     public static int serverId;
     public static String version = "unknown";
-    public static Gamemode gamemode = Gamemode.idk;
+    public static Gamemode gamemode = Gamemode.unknown;
     public static String bundleApi, vpnApi, apiAuth, lokiApi;
     public static boolean lokiLoggingEnabled;
 
