@@ -616,9 +616,9 @@ fun loadEvents() {
         Groups.player.each { p ->
             if(p.getStatus().greloMode) {
                 val e = zov.toShape((p.unit().aimX/8).toInt(), (p.unit().aimY()/8).toInt());
-                Log.info("${e.size} ${p.plainName()}")
+                // Log.info("${e.size} ${p.plainName()}")
                 e.forEach {
-                    Log.info("${it.x}x${it.y}")
+                    // Log.info("${it.x}x${it.y}")
                     Call.effect(Fx.mine, (it.x*8).toFloat(), (it.y*8).toFloat(), 0.toFloat(), arc.graphics.Color.red)
                 }
             }
