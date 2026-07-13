@@ -365,3 +365,39 @@ fun configAsString(config: Any?, block: Block): String? {
 
     return result
 }
+
+fun parseShape(
+    shape: String,
+    centerX: Int,
+    centerY: Int,
+    fill: Char = '#'
+): List<Point2> {
+    val lines = shape.trimIndent().lines()
+
+    val width = lines.maxOf { it.length }
+    val height = lines.size
+
+    val startX = centerX - width / 2
+    val startY = centerY - height / 2
+
+    return buildList {
+        for (y in lines.indices) {
+            val line = lines[y]
+
+            for (x in line.indices) {
+                if (line[x] == fill) {
+                    add(
+                        Point2(
+                            startX + x,
+                            startY + (height - 1 - y)
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun String.parseShape(centerX: Int, centerY: Int, fill: Char = '#'): List<Point2> {
+    return parseShape(this, centerX, centerY, fill)
+}

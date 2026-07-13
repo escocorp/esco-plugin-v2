@@ -14,7 +14,7 @@ import plugin.Bundle
 import plugin.database.models.Permission
 
 class CustomHandler {
-    var handler: CommandHandler? = null
+    var handler: CommandHandler
     val commands: Seq<CommandData> = Seq<CommandData>()
 
     constructor(handler: CommandHandler) {
@@ -102,7 +102,7 @@ class CustomHandler {
         // CommandData cd = new CommandData(name, args, perm);
         commands.add(CommandData(name, args, perm))
 
-        handler!!.register(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
+        handler.register(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
             if (!Permission.getPerms(p).contains(perm)) {
                 //Bundle.sendMessage("noperms", p);
                 val command = getClosest(name, p)
@@ -123,7 +123,7 @@ class CustomHandler {
         // addPseudoCommand("votekick", "[player] [reason...]");
         // addPseudoCommand("vote", "<y/n/c>");
         // addPseudoCommand("sync", "");
-        handler?.commandList?.each { command ->
+        handler.commandList?.each { command ->
             addPseudoCommand(command.text, command.paramText ?: "")
         }
     }
