@@ -3,6 +3,7 @@ package plugin.menus;
 import arc.Events;
 import arc.func.Cons2;
 import arc.struct.ObjectMap;
+import arc.struct.Seq;
 import arc.util.Timer;
 import mindustry.game.EventType;
 import mindustry.gen.Call;
@@ -73,8 +74,13 @@ public class TextMenu {
 
     public static void load() {
         Events.on(EventType.PlayerLeave.class, e -> {
+            Seq<Integer> toRemove = new Seq<>();
             menus.each((id, menu) -> {
-                if (menu.player == e.player) menu.cancel();
+                if (menu.player == e.player) toRemove.add(id);
+            });
+            toRemove.each(id -> {
+                TextMenu menu = menus.get(id);
+                if (menu != null) menu.cancel();
             });
         });
 
