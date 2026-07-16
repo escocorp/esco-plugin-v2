@@ -73,9 +73,11 @@ public class Menu {
 
     public static void load() {
         Events.on(EventType.PlayerLeave.class, e -> {
+            Seq<Integer> toRemove = new Seq<>();
             menus.each((id, menu) -> {
-                if (menu.player == e.player) menus.remove(id);
+                if (menu.player == e.player) toRemove.add(id);
             });
+            toRemove.each(menus::remove);
         });
 
         Events.on(EventType.MenuOptionChooseEvent.class, (e) -> {
