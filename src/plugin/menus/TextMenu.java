@@ -3,6 +3,7 @@ package plugin.menus;
 import arc.Events;
 import arc.func.Cons2;
 import arc.struct.ObjectMap;
+import arc.util.Timer;
 import mindustry.game.EventType;
 import mindustry.gen.Call;
 import mindustry.gen.Player;
@@ -20,6 +21,7 @@ public class TextMenu {
     String title = "No title", message = "Write here", defMessage = "";
     int len = 32;
     boolean numeric = false;
+    Timer.Task invalidTimer = null;
 
     TextMenu(Cons2<Player, String> handler) {
         this.handler = handler;
@@ -59,32 +61,37 @@ public class TextMenu {
 
         menus.put(id, this);
 
+        invalidTimer = Timer.schedule(this::cancel, 60f);
+
         return this;
+    }
+
+    void cancel() {
+        menus.remove(id);
+        if(invalidTimer != null) {
+            invalidTimer.cancel();
+            invalidTimer = null;
+        }
     }
 
     public static void load() {
         Events.on(EventType.PlayerLeave.class, e -> {
             menus.each((id, menu) -> {
-                if (menu.player == e.player) menus.remove(id);
+                if (menu.player == e.player) menu.cancel();
             });
         });
 
         Events.on(EventType.TextInputEvent.class, (e) -> {
-            int id = e.textInputId;
             Player player = e.player;
             String text = e.text;
 
-            TextMenu menu = menus.get(id);
-            if (menu == null) {
-                player.sendMessage("[scarlet]Unknown input!");
-                return;
-            }
-            if (menu.player != player) {
+            TextMenu menu = menus.get(e.textInputId);
+            if (menu == null || menu.player != player) {
                 player.sendMessage("[scarlet]Unknown input!");
                 return;
             }
 
-            menus.remove(id);
+            menu.cancel();
             menu.handler.get(player, text);
         });
     }
