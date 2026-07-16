@@ -89,6 +89,7 @@ public class Menu {
             int option = e.option;
             if (option == -1) {
                 player.sendMessage("[red]Closed.");
+                menus.remove(e.menuId);
                 return;
             }
             if (option > menu.handlers.size) {
