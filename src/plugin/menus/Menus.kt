@@ -71,25 +71,18 @@ fun showShop(stats: PlayerData, p: Player) {
     )
 
     menu.add(Bundle.get("units", p.locale)) { pl ->
-        val unitMenu =
-            ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
-
-        unitCosts.forEach(Consumer { en: ObjectIntMap.Entry<UnitType> ->
-            val type = en.key
-            val cost = if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value
-            unitMenu.add(type.emoji() + "\n[green]$[lightgray]" + cost) { pl: Player ->
-                if (cost > stats.balance) {
-                    Bundle.sendMessage("menu.shop.nomoney", pl)
-                    return@add
-                }
-                type.spawn(pl.team(), pl.x, pl.y)
-                stats.subBalance(cost)
-                //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
-                Bundle.label("menu.shop.unitbuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
-            }
-        })
-
-        unitMenu.show(pl)
+        val countMenu = Menu("Select count", "Please, select units count.")
+        countMenu.add("1") {
+            buyUnits(stats, p, 1)
+        }
+        countMenu.add("5") {
+            buyUnits(stats, p, 5)
+        }
+        countMenu.add("10") {
+            buyUnits(stats, p, 10)
+        }
+        countMenu.row().add("[red]Close")
+        countMenu.show(pl)
     }
     menu.add(Bundle.get("items", p.locale)) { pl ->
         val itemMenu =
@@ -132,6 +125,31 @@ fun showShop(stats: PlayerData, p: Player) {
     }
 
     menu.show(p)
+}
+
+fun buyUnits(stats: PlayerData, p: Player, count: Int) {
+    val unitMenu =
+        ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+
+    unitCosts.forEach(Consumer { en: ObjectIntMap.Entry<UnitType> ->
+        val type = en.key
+        val cost = (if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value) * count
+        unitMenu.add(type.emoji() + "\n[green]$[lightgray]" + cost) { pl: Player ->
+            if (cost > stats.balance) {
+                Bundle.sendMessage("menu.shop.nomoney", pl)
+                return@add
+            }
+
+            for(i in 0 until count)
+                type.spawn(pl.team(), pl.x, pl.y)
+            stats.subBalance(cost)
+
+            //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
+            Bundle.label("menu.shop.unitbuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
+        }
+    })
+
+    unitMenu.show(p)
 }
 
 @Deprecated("Use showShop instead")

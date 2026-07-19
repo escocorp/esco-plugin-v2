@@ -99,7 +99,8 @@ fun register(handler: CustomHandler) {
         p.sendMessage("total actions: ${replay.actions.size}")
         playReplay(replay.actions)
     })*/
-    handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
+
+    /*handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
         if (arg.isEmpty()) {
             getPlayerData(p)?.let { pd: PlayerData ->
                 pd.prefs.customName = ""
@@ -120,7 +121,7 @@ fun register(handler: CustomHandler) {
                 Core.app.post { p.name(name) }
             }
         }
-    })
+    })*/
 
     handler.registerCommand("hub") { _: Array<String>, p: Player ->
         Call.connect(p.con, hubIp, hubPort)
@@ -145,10 +146,14 @@ fun register(handler: CustomHandler) {
     }
 
     handler.registerCommand("maps", "") { _: Array<String>, p: Player ->
-        Vars.maps.customMaps().each { m: Map ->
-            p.sendMessage("${m.name()} : ${m.author()}")
+        val menu = ScrollableMenu("Maps", rowPerItems = 2)
+        val maps = Vars.maps.customMaps()
+        for (map in maps) {
+            menu.add("${map.name()}\n[lightgray]${map.height}x${map.width}")
         }
+        menu.show(p)
     }
+
     handler.registerCommand("vanish", "", Permission.Vanish, CommandRunner { _: Array<String>, p: Player ->
         val status = p.getStatus()
         if (status.vanished) {
@@ -194,7 +199,7 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("economy", "") { _: Array<String?>?, p: Player? ->
         Bundle.infoMessage("infomessage.economyguide", p)
     }
-    handler.registerCommand("slot", "<bet>", CommandRunner { a: Array<String>, p: Player ->
+    /*handler.registerCommand("slot", "<bet>", CommandRunner { a: Array<String>, p: Player ->
         if (!Strings.canParseInt(a[0])) {
             Bundle.sendMessage("args.mustbeint", p, "<bet>")
             return@CommandRunner
@@ -203,7 +208,7 @@ fun register(handler: CustomHandler) {
             getPlayerData(p)
                 ?.let { s -> Core.app.post { slot(p, s, Strings.parseInt(a[0])) } }
         }
-    })
+    })*/
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed || PVars.gamemode == Gamemode.crawlerArena) {
             return@CommandRunner
@@ -361,12 +366,6 @@ fun register(handler: CustomHandler) {
         }
         PVars.mapVote.vote(p, i)
     })
-
-    handler.registerCommand("grelo", "", Permission.EditServer) { _: Array<String>, p: Player ->
-        val status = p.getStatus()
-        status.greloMode = !status.greloMode
-        p.sendMessage("New is ${status.greloMode}")
-    }
 
     handler.registerCommand(
         "ban",
