@@ -605,25 +605,6 @@ fun loadEvents() {
         if (e.player == null || e.tile == null || !e.player.getStatus().historyEnabled) return@on
         Call.setHudText(e.player.con, History.getMessage(e.tile.pos()))
     }
-
-    val zov = "#####  #\n" +
-            "    #  #\n" +
-            "########\n" +
-            "#   #\n" +
-            "#   ####"
-
-    Events.run(Trigger.update) {
-        Groups.player.each { p ->
-            if(p.getStatus().greloMode) {
-                val e = zov.toShape((p.unit().aimX/8).toInt(), (p.unit().aimY()/8).toInt());
-                // Log.info("${e.size} ${p.plainName()}")
-                e.forEach {
-                    // Log.info("${it.x}x${it.y}")
-                    Call.effect(Fx.mine, (it.x*8).toFloat(), (it.y*8).toFloat(), 0.toFloat(), arc.graphics.Color.red)
-                }
-            }
-        }
-    }
 }
 
 fun purgeData(p: Player) {
