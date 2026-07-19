@@ -15,7 +15,31 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 object Database {
-    val dataSource: HikariDataSource? = createDataSource()
+    var dataSource: HikariDataSource? = null
+
+    fun load(
+        dbHost: String,
+        dbPort: Int,
+        db: String,
+        dbUser: String,
+        dbPassword: String
+    ) {
+        if (dataSource != null) {
+            throw IllegalStateException("Database has already been loaded!")
+        }
+
+        dataSource = createDataSource(
+            dbHost,
+            dbPort,
+            db,
+            dbUser,
+            dbPassword
+        )
+    }
+
+    fun load() {
+        load(dbHost, dbPort.toInt(), db, dbUser, dbPassword)
+    }
 
     @JvmField
     var adminsCache = ObjectMap<Player, Admin>()
@@ -40,7 +64,13 @@ object Database {
         )
     }
 
-    private fun createDataSource(): HikariDataSource? {
+    private fun createDataSource(
+        dbHost: String,
+        dbPort: Int,
+        db: String,
+        dbUser: String,
+        dbPassword: String
+    ): HikariDataSource? {
         return try {
             Class.forName("org.postgresql.Driver")
 
@@ -54,8 +84,8 @@ object Database {
 
                 maximumPoolSize = 10
                 minimumIdle = 3
-                idleTimeout = 30000
-                connectionTimeout = 5000
+                idleTimeout = 30_000
+                connectionTimeout = 5_000
             }
 
             HikariDataSource(config)

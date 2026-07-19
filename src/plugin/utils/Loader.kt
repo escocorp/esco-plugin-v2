@@ -16,6 +16,7 @@ import plugin.PVars
 import plugin.PVars.joinDemographics
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
+import plugin.database.Database
 import plugin.database.models.getPlayerData
 import plugin.database.models.Server
 import plugin.database.models.putMessage
@@ -35,6 +36,7 @@ import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
 import plugin.s3.S3
+import javax.xml.crypto.Data
 import kotlin.system.exitProcess
 
 object Loader {
@@ -43,6 +45,7 @@ object Loader {
     fun load() {
         try {
             Config.load()
+            Database.load()
             Bundle.load()
             Patches.load()
             loadEvents()
