@@ -9,35 +9,49 @@ import plugin.utils.configAsString
 import plugin.utils.formatAgo
 
 data class HistoryRecord(
-    val playerName: String?, val playerId: Int?, val type: HistoryType, val block: Block,
-    val unit: UnitType?, val time: Long, val center: Boolean, val team: Team, val rotation: Int,
+    val actor: HistoryActor?,
+    val type: HistoryType,
+    val block: Block,
+    val unit: UnitType?,
+    val time: Long,
+    val center: Boolean,
+    val team: Team,
+    val rotation: Int,
     val configAfter: Any?
 ) {
     fun getMessage(): String {
-        var actor = "[white]" + (playerName ?: unit?.emoji() ?: "unknown")
-        if (playerId != null) actor = "[lightgray][$playerId] $actor"
+        var actorText = "[white]" + (actor?.name ?: unit?.emoji() ?: "unknown")
 
-        val ago = "[lightgray][${formatAgo(time)}] "
+        if (actor?.id != null) {
+            actorText = "[lightgray][${actor.id}] $actorText"
+        }
+
+        val ago = "[lightgray][${formatAgo(time.toLong() * 1000)}] "
 
         return ago + when (type) {
-            HistoryType.Rotate -> "$actor [tan]rotated [white]${block.emoji()}"
+            HistoryType.Rotate ->
+                "$actorText [tan]rotated [white]${block.emoji()}"
 
-            HistoryType.BreakBlock -> "$actor [red]broken [white]${block.emoji()}"
+            HistoryType.BreakBlock ->
+                "$actorText [red]broken [white]${block.emoji()}"
 
-            HistoryType.BuildBlock -> "$actor [green]built [white]${block.emoji()}"
+            HistoryType.BuildBlock ->
+                "$actorText [green]built [white]${block.emoji()}"
 
             HistoryType.Configure -> {
                 val cfg = configAsString(configAfter, block)
 
                 Log.info("CONFIG RAW IZ $cfg (${configAfter?.javaClass})")
 
-                "$actor [tan]configured [white]${block.emoji()}" +
+                "$actorText [tan]configured [white]${block.emoji()}" +
                         if (cfg.isNullOrBlank()) "" else " [lightgray]to $cfg"
             }
 
-            HistoryType.DestroyBlock -> "[white]${team.emoji}${block.emoji()} [red]destroyed"
+            HistoryType.DestroyBlock ->
+                "[white]${team.emoji}${block.emoji()} [red]destroyed"
 
-            else -> "$actor [tan]${type.name} [white]${block.emoji()}"
+            else ->
+                "$actorText [tan]${type.name} [white]${block.emoji()}"
         }
     }
 }

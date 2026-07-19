@@ -1,20 +1,20 @@
 package plugin.history
 
-import arc.func.Cons
 import arc.math.geom.Point2
 import arc.struct.LongMap
 import mindustry.game.Team
 import mindustry.type.UnitType
 import mindustry.world.Block
 import mindustry.world.Tile
-import java.util.*
 
 object History {
-    val history: LongMap<HistoryStack> = LongMap<HistoryStack>()
+    val history: LongMap<HistoryStack> = LongMap()
+
+    private val actors = HashMap<Int, HistoryActor>()
 
     fun getMessage(pos: Int): String {
         val sb = StringBuilder()
-        // Point2 pos2 = Point2.unpack(pos);
+
         val x = Point2.x(pos).toInt()
         val y = Point2.y(pos).toInt() // int int
 
@@ -22,9 +22,11 @@ object History {
 
         synchronized(history) {
             val stack = history.get(pos.toLong()) // long
-            //stack.stack.each(s->{sb.append("\n").append(s.getMessage());});
-            if (stack != null) for (i in 0..<stack.size()) {
-                sb.append("\n").append(stack.stack.get(i).getMessage())
+
+            if (stack != null) {
+                for (i in 0..<stack.size()) {
+                    sb.append("\n").append(stack.stack.get(i).getMessage())
+                }
             }
         }
 
@@ -34,14 +36,17 @@ object History {
     fun copy(): LongMap<HistoryStack> {
         return synchronized(history) {
             val copyMap = LongMap<HistoryStack>(history.size)
+
             history.forEach { entry ->
                 val originalStack = entry.value
+
                 if (originalStack != null) {
                     val stackCopy = HistoryStack()
                     stackCopy.stack.addAll(originalStack.stack)
                     copyMap.put(entry.key, stackCopy)
                 }
             }
+
             copyMap
         }
     }
@@ -61,15 +66,43 @@ object History {
 
         val time = System.currentTimeMillis()
 
-        val record = HistoryRecord(playerName, playerId, type, block, unit, time, false, team, rotation, configAfter)
+        val actor = getActor(playerName, playerId)
 
-        tile.getLinkedTiles { t: Tile ->
+        val record = HistoryRecord(
+            actor,
+            type,
+            block,
+            unit,
+            time,
+            false,
+            team,
+            rotation,
+            configAfter
+        )
+
+        tile.getLinkedTiles { t ->
             val pos = t.pos().toLong()
+
             if (t.isCenter) {
-                addTile(pos, HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation, configAfter))
+                addTile(
+                    pos,
+                    record.copy(center = true)
+                )
             } else {
                 addTile(pos, record)
             }
+        }
+    }
+
+    private fun getActor(name: String?, id: Int?): HistoryActor? {
+        if (name == null && id == null) return null
+
+        if (id == null) {
+            return HistoryActor(name, null)
+        }
+
+        return actors.getOrPut(id) {
+            HistoryActor(name, id)
         }
     }
 
@@ -93,6 +126,7 @@ object History {
     fun clear() {
         synchronized(history) {
             history.clear()
+            actors.clear()
         }
     }
 }
