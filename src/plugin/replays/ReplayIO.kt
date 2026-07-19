@@ -26,14 +26,14 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
         entry.value.stack.forEach { r ->
             if (!r.center) return@forEach
 
-            val dbId = r.playerId
+            val dbId = r.actor?.id
 
             val index = if (dbId == null) {
                 null
             } else {
                 playerIndexMap.getOrPut(dbId) {
                     val newIndex = players.size
-                    players.add(ReplayPlayer(r.playerName, dbId))
+                    players.add(ReplayPlayer(r.actor.name, dbId))
                     newIndex
                 }
             }
