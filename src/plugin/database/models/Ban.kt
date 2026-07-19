@@ -17,14 +17,21 @@ import java.time.Instant
 import kotlin.time.Clock
 import kotlin.time.toJavaInstant
 
+/*
+Auto-generated on 2026-07-19T10:53:21.215Z
+Based on migrations.sql#L55 (table: bans)
+*/
+
 class Ban(
-    val id: Int,
+    val id: Int /*By SERIAL*/,
+    val active: Boolean,
+    val canBeRemoved: Boolean,
     val playerId: Int,
+    val reason: String /*By VARCHAR*/,
     val adminId: Int,
-    var active: Boolean,
-    val banTime: Instant,
+    val banTime: Instant?,
     val unbanTime: Instant?,
-    val reason: String
+    val source: String
 ) {
 
     fun kickPlayer(player: Player) {
@@ -157,22 +164,16 @@ LIMIT 1;
 
 @Throws(SQLException::class)
 fun getBan(rs: ResultSet): Ban {
-    val banId = rs.getInt("id")
-
-    val banTs = rs.getTimestamp("ban_time")
-    val unbanTs = rs.getTimestamp("unban_time")
-
-    val banTime = if (banTs != null) banTs.toInstant() else Instant.now()
-    val unbanTime = if (unbanTs != null) unbanTs.toInstant() else null
-
     return Ban(
-        banId,
-        rs.getInt("player_id"),
-        rs.getInt("admin_id"),
+        rs.getInt("id"),
         rs.getBoolean("active"),
-        banTime,
-        unbanTime,
-        rs.getString("reason")
+        rs.getBoolean("can_be_removed"),
+        rs.getInt("player_id"),
+        rs.getString("reason"),
+        rs.getInt("admin_id"),
+        rs.getTimestamp("ban_time")?.toInstant(),
+        rs.getTimestamp("unban_time")?.toInstant(),
+        rs.getString("source")
     )
 }
 
