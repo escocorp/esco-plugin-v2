@@ -20,7 +20,9 @@ enum class Permission {
     Vanish,
     Artv,
     Replays,
-    MegaBan;
+    MegaBan,
+    ManagePerms,
+    ManagePlayers;
 
     companion object {
         val cache = ObjectMap<Player, Seq<Permission>>()
