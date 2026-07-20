@@ -36,7 +36,6 @@ import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
 import plugin.s3.S3
-import javax.xml.crypto.Data
 import kotlin.system.exitProcess
 
 object Loader {
@@ -128,7 +127,7 @@ object Loader {
         Timer.schedule({
             Groups.player.each { p ->
                 globalScope.launch {
-                    getPlayerData(p)?.update(p, false)
+                    getPlayerData(p)?.updateStats(p, false)
                 }
             }
         }, (15 * 60).toFloat(), (15 * 60).toFloat())

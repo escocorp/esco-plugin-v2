@@ -82,6 +82,11 @@ fun loadEvents() {
     Events.on(PlayerConnect::class.java) { e: PlayerConnect ->  // pre-connect
         val player = e.player
 
+        if(player.plainName().isEmpty()) {
+            player.kick("Your name must be not empty!")
+            return@on
+        }
+
         eventsScope.launch {
             val pd = getOrCreatePlayerData(player)
             if (pd == null) {
@@ -574,8 +579,8 @@ fun loadEvents() {
             return@addActionFilter !status.frozen
         }
         Vars.netServer.admins.addChatFilter { player, message ->
-            val status = player.getStatus()
-            return@addChatFilter if (status.frozen) null else message
+            // val status = player.getStatus()
+            return@addChatFilter message
         }
     }
 
@@ -609,6 +614,7 @@ fun loadEvents() {
 
 fun purgeData(p: Player) {
     Permission.cache.remove(p)
+    p.getData()?.updateStats(p, true)
     playerDataCache.remove(p)
     adminsCache.remove(p)
     purgePlayerStatus(p)

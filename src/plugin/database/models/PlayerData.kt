@@ -134,7 +134,7 @@ class PlayerData(
         return this
     }
 
-    fun update(player: Player, purge: Boolean): PlayerData {
+    fun updateStats(player: Player, purge: Boolean): PlayerData {
         synchronized(joinTime) {
             val time: Long? = joinTime.remove(player.uuid())
             if (time != null) {

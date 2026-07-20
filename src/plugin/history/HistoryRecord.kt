@@ -26,7 +26,7 @@ data class HistoryRecord(
             actorText = "[lightgray][${actor.id}] $actorText"
         }
 
-        val ago = "[lightgray][${formatAgo(time.toLong() * 1000)}] "
+        val ago = "[lightgray][${formatAgo(time * 1000)}] "
 
         return ago + when (type) {
             HistoryType.Rotate ->

@@ -10,9 +10,6 @@ import arc.util.Time
 import arc.util.Timekeeper
 import arc.util.Timer
 import kotlinx.coroutines.launch
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromByteArray
-import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.Team
@@ -20,7 +17,6 @@ import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.graphics.Pal
-import mindustry.maps.Map
 import mindustry.net.Administration
 import plugin.Bundle
 import plugin.KVars.globalScope
@@ -36,16 +32,12 @@ import plugin.history.History
 import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
-import plugin.menus.slot
 import plugin.model.getStatus
-import plugin.replays.Replay
-import plugin.replays.playReplay
 import plugin.replays.saveReplay
 import plugin.utils.*
 import plugin.votes.VoteMap
 import plugin.votes.VoteWave
 import plugin.votes.VotekickSession
-import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -292,7 +284,7 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("stats", "") { _: Array<String>, p: Player ->
         val sb = StringBuilder("[stat]Stats:\n")
         getPlayerData(p)?.let { s ->
-            s.update(p, false)
+            s.updateStats(p, false)
             sb.append("Blocks build: ").append(s.blocksBuild).append("\n")
             sb.append("Blocks broken: ").append(s.blocksBroken).append("\n")
             sb.append("Waves survived: ").append(s.wavesSurvived).append("\n")
