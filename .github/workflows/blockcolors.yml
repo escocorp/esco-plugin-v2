@@ -2,7 +2,7 @@ name: Update block_colors.png
 
 on:
   schedule:
-    - cron: '17 4 */3 * *'
+    - cron: '0 3 */3 * *'
   workflow_dispatch:
 
 permissions:
