@@ -32,6 +32,7 @@ jobs:
 
       - name: Commit changes
         run: |
+          git add block_colors.png
           if git diff --quiet; then
             echo "No changes"
             exit 0
