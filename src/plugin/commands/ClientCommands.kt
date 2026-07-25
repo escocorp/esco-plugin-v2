@@ -21,6 +21,7 @@ import mindustry.net.Administration
 import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
+import plugin.PVars.S3Enabled
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.models.*
@@ -64,6 +65,7 @@ fun register(handler: CustomHandler) {
             }, 0.1f + (i / 10f))
         }
     })
+
     handler.registerCommand("savereplay", "", Permission.Test) { arg: Array<String>, p: Player ->
         /*val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
@@ -71,6 +73,10 @@ fun register(handler: CustomHandler) {
         file.writeBytes(saveReplay(History.history, Vars.state.map.name()))
 
         p.sendMessage("Done!")*/
+        if(!S3Enabled) {
+            p.sendMessage("S3 not enabled!");
+            return@registerCommand
+        }
         val mapName = Vars.state.map.name()
         val date = ZonedDateTime.now(ZoneOffset.UTC)
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
@@ -79,6 +85,7 @@ fun register(handler: CustomHandler) {
         PVars.S3.putObject("replays", name, saveReplay(History.copy(), mapName))
         p.sendMessage("[green]Done! Saved with name $name")
     }
+
     /*handler.registerCommand("playreplay", "<name>", Permission.Test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
         if (!file.exists()) {

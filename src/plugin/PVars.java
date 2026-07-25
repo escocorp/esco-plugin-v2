@@ -27,7 +27,7 @@ public class PVars {
     public static String version = "unknown";
     public static Gamemode gamemode = Gamemode.unknown;
     public static String bundleApi, vpnApi, apiAuth, lokiApi;
-    public static boolean lokiLoggingEnabled;
+    public static boolean lokiLoggingEnabled, vpnApiEnabled;
 
     public static final String discordLink = "https://discord.gg/KfusjwYFDx";
 
@@ -73,4 +73,5 @@ public class PVars {
 
     public static String S3BaseUrl, S3AccessKey, S3SecretKey;
     public static S3 S3;
+    public static boolean S3Enabled;
 }

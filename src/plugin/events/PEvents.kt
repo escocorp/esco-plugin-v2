@@ -32,8 +32,10 @@ import plugin.KVars.eventsScope
 import plugin.KVars.mapStats
 import plugin.KVars.messageBuffer
 import plugin.PVars
+import plugin.PVars.S3Enabled
 import plugin.PVars.discordLink
 import plugin.PVars.joinDemographics
+import plugin.PVars.vpnApiEnabled
 import plugin.antigrief.apply
 import plugin.database.Database.adminsCache
 import plugin.database.Database.playerDataCache
@@ -102,7 +104,7 @@ fun loadEvents() {
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             }
-            if (PVars.gamemode != Gamemode.hub)
+            if (PVars.gamemode != Gamemode.hub && vpnApiEnabled)
                 isAnon(player.ip()) { resp: VPNApiResponse ->
                     if (resp.anon && pd.discordId == null) {
                         putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
@@ -553,17 +555,18 @@ fun loadEvents() {
     Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
         if (PVars.mapVote != null) PVars.mapVote.cancel()
 
-        val oldHistory = History.copy()
+        if(S3Enabled) {
+            val oldHistory = History.copy()
+            eventsScope.launch {
+                val mapName = Vars.state.map.name()
+                val date = ZonedDateTime.now(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
+                val name = "$mapName-${date}.replay"
 
-        eventsScope.launch {
-            val mapName = Vars.state.map.name()
-            val date = ZonedDateTime.now(ZoneOffset.UTC)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
-            val name = "$mapName-${date}.replay"
+                PVars.S3.putObject("replays", name, saveReplay(oldHistory, mapName))
 
-            PVars.S3.putObject("replays", name, saveReplay(oldHistory, mapName))
-
-            Log.info("New replay saved with name ${name}!")
+                Log.info("New replay saved with name ${name}!")
+            }
         }
 
         History.clear()

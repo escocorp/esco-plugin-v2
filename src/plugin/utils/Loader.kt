@@ -13,6 +13,8 @@ import plugin.Config
 import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
+import plugin.PVars.S3Enabled
+import plugin.PVars.gamemode
 import plugin.PVars.joinDemographics
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
@@ -44,6 +46,11 @@ object Loader {
     fun load() {
         try {
             Config.load()
+
+            if(gamemode == Gamemode.unknown) {
+                Log.warn("This server running unknown gamemode!")
+            }
+
             Database.load()
             Bundle.load()
             Patches.load()
@@ -56,7 +63,9 @@ object Loader {
             Menu.load()
             TextMenu.load()
             loadGraylist()
-            PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
+
+            if(S3Enabled)
+                PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
 
             PVars.version = getResource("version")?.readString() ?: ""
 

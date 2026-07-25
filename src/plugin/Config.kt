@@ -13,14 +13,17 @@ object Config {
 
     fun load() {
         // spec.
-        PVars.gamemode = Gamemode.parseGamemode(getEnv("GAMEMODE"))
+        PVars.gamemode = Gamemode.parseGamemode(getEnv("GAMEMODE", "unknown"))
 
         // API
         PVars.bundleApi = getEnv("BUNDLE_API", "http://localhost:8080/bundles/")
+
         PVars.vpnApi = getEnv("VPN_API", "http://localhost:3000/ip/")
+        PVars.vpnApiEnabled = PVars.vpnApi.isNotEmpty()
+
         PVars.lokiApi = getEnv("LOKI_API")
         PVars.lokiLoggingEnabled = !PVars.lokiApi.isEmpty()
-        PVars.apiAuth = Base64.getEncoder().encodeToString(getEnv("API_AUTH")!!.toByteArray())
+        PVars.apiAuth = Base64.getEncoder().encodeToString(getEnv("API_AUTH", "")!!.toByteArray())
 
         // DB
         PVars.db = getEnv("DB", "mindustry")
@@ -41,6 +44,7 @@ object Config {
 
         // S3
         PVars.S3BaseUrl = getEnv("S3_URL")
+        PVars.S3Enabled = PVars.S3BaseUrl.isNotEmpty()
         PVars.S3AccessKey = getEnv("S3_ACCESS_KEY")
         PVars.S3SecretKey = getEnv("S3_SECRET_KEY")
     }
