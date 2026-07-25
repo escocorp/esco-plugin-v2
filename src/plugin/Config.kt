@@ -18,7 +18,7 @@ object Config {
         // API
         PVars.bundleApi = getEnv("BUNDLE_API", "http://localhost:8080/bundles/")
 
-        PVars.vpnApi = getEnv("VPN_API", "http://localhost:3000/ip/")
+        PVars.vpnApi = getEnv("VPN_API")
         PVars.vpnApiEnabled = PVars.vpnApi.isNotEmpty()
 
         PVars.lokiApi = getEnv("LOKI_API")
