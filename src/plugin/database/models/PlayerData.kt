@@ -143,7 +143,7 @@ class PlayerData(
             }
             if (!purge) setJoinTime(player)
         }
-        if (purge) write()
+        write()
 
         return this
     }
@@ -279,11 +279,13 @@ fun getPlayerData(player: Player): PlayerData? {
     if (playerDataCache.containsKey(player)) return playerDataCache.get(player)
     logExpectedCacheMiss(player, "playerDataCache")
 
-    return executeQuery(
+    val pd = executeQuery(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
         { rs: ResultSet -> getPlayerData(rs) }
     )
+    if (pd != null) playerDataCache.put(player, pd)
+    return pd
 }
 
 fun Player.getData(): PlayerData? {
