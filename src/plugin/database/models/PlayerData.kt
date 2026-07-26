@@ -143,7 +143,7 @@ class PlayerData(
             }
             if (!purge) setJoinTime(player)
         }
-        if (purge) write()
+        write()
 
         return this
     }
