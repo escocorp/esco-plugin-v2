@@ -48,7 +48,7 @@ repositories {
 
 val mindustryVersion = "v159.3"
 val jabelVersion = "93fde537c7"
-var nohornyVersion = "4.0.0-beta.7"
+var nohornyVersion = "4.0.0-beta.8"
 
 val useLatest = false
 
@@ -86,7 +86,7 @@ dependencies {
     compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
     compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
 
-    implementation(platform("software.amazon.awssdk:bom:2.48.3"))
+    implementation(platform("software.amazon.awssdk:bom:2.49.3"))
     implementation("software.amazon.awssdk:s3")
 }
 
