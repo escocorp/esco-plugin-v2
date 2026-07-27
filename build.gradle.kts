@@ -2,6 +2,15 @@ plugins {
     java
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.serialization") version "2.4.10"
+
+    id("org.sonarqube") version "7.3.1.8318"
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "escocorp_esco-plugin-v2")
+        property("sonar.organization", "escocorp")
+    }
 }
 
 version = "1.0"
