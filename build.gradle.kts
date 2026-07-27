@@ -66,13 +66,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.11.0")
 
-    compileOnly(
-        if (useLatest)
-            "Anuken:MindustryBuilds:latest"
-        else
-            "Anuken:Mindustry:$mindustryVersion"
-    )
-
     implementation("org.postgresql:postgresql:42.7.13")
     implementation("com.zaxxer:HikariCP:7.1.0")
 
@@ -91,12 +84,18 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    //compileOnly(files("nohorny-client.jar"))
-    compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
-    compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
-
     implementation(platform("software.amazon.awssdk:bom:2.49.3"))
     implementation("software.amazon.awssdk:s3")
+
+    //compileOnly(files("nohorny-client.jar"))
+    compileOnly(
+        if (useLatest)
+            "Anuken:MindustryBuilds:latest"
+        else
+            "Anuken:Mindustry:$mindustryVersion"
+    )
+    compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
+    compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
 }
 
 tasks.withType<JavaCompile>().configureEach {
