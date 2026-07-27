@@ -1,6 +1,10 @@
 ## Chaos of shitcode | Хаос говнокода
 ### Please, don't use it without permission on servers please. | Не используйте плагин без разрешения на публичных серверах, пожалуйста.
 
+### Заметки
+Для плагина также имеется intellij idea плагин на добавление подсказок отображающих примерное содержание бандлов  
+https://github.com/escocorp/intellij-bundle-previewer
+
 ### Сборка
 
 `gradlew jar` / `./gradlew jar`
