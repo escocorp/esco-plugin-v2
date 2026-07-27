@@ -2,6 +2,6 @@ package plugin.events
 
 import plugin.commands.CustomHandler
 
-class EscoPluginLoadEvent() {}
+class EscoPluginLoadEvent
 
-data class RegisterEscoCommandsEvent(val handler: CustomHandler) {}
+data class RegisterEscoCommandsEvent(val handler: CustomHandler)

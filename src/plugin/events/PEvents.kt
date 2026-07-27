@@ -590,10 +590,10 @@ fun loadEvents() {
     Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
         Timer.schedule({
             if (PVars.gamemode == Gamemode.sandbox) {
-                Vars.state.rules.unitDamageMultiplier = 0f
+                /*Vars.state.rules.unitDamageMultiplier = 0f
                 Vars.state.rules.blockDamageMultiplier = 0f
                 Vars.state.rules.unitHealthMultiplier = 0.1f
-                Vars.state.rules.blockHealthMultiplier = 0.1f
+                Vars.state.rules.blockHealthMultiplier = 0.1f*/
                 Vars.state.rules.coreCapture = false
             } else if (PVars.gamemode == Gamemode.campaign) {
                 val core = Vars.state.rules.defaultTeam.core() ?: return@schedule
