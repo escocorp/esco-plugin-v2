@@ -111,6 +111,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 val versionGitDir = layout.buildDirectory.dir("version-git")
 
 val writeVersionFile = tasks.register("writeVersionFile") {
+    group = "build"
+    description = "Writes current Git commit version into the version file"
+
     val gitDir = file("${rootDir}/.git")
 
     if (gitDir.exists()) {
