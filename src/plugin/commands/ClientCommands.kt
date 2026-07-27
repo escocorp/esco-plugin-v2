@@ -492,8 +492,9 @@ fun register(handler: CustomHandler) {
             if (Permission.getPerms(player).contains(Permission.Admin) && arg[0].equals("c", ignoreCase = true)) {
                 // Call.sendMessage(Strings.format("[lightgray]Vote canceled by admin[orange] @[lightgray].", player.name));
                 Bundle.sendMessage("vote.canceledbyadmin", player.coloredName())
-                PVars.currentlyKicking.task.cancel()
-                PVars.currentlyKicking = null
+                /*PVars.currentlyKicking.task.cancel()
+                PVars.currentlyKicking = null*/
+                PVars.currentlyKicking.cancel()
                 return@CommandRunner
             }
 
