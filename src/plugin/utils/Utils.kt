@@ -59,7 +59,7 @@ fun isAnon(ip: String?, callback: Cons<VPNApiResponse>) {
             Log.err("Failed to check ip $ip", th)
         }
         .submit { resp ->
-            Log.debug("Received IPAPI response")
+            Log.debug("Received IpApi response")
             try {
                 val apiResponse = PVars.objectMapper.readValue(
                     resp.resultAsString,
@@ -117,6 +117,14 @@ fun parseBool(bool: String): Int {
         else -> 0
     }
 }
+
+fun parseBool(bool: Boolean, colored: Boolean = false): String =
+    when {
+        colored && bool -> "[green]Yes"
+        colored -> "[red]No"
+        bool -> "Yes"
+        else -> "No"
+    }
 
 fun getRandomString(len: Int): String {
     val sb = StringBuilder()
