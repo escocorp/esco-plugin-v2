@@ -24,6 +24,7 @@ https://github.com/escocorp/intellij-bundle-previewer
 S3 сервер должен быть совместим с amazon-овским s3, иначе работать не будет.  
 loki логгер не обязателен, если не указывать lokiApi он будет отключен.  
 Бандл апи должно принимать запросы в формате /{locale}  
+> Например: https://raw.githubusercontent.com/escocorp/bundles/refs/heads/main/
 
 ### Заметки к базе данных
 Миграции к базе данных не дам, потому что мне лень.  
