@@ -29,7 +29,7 @@ class Ban(
     val playerId: Int,
     val reason: String /*By VARCHAR*/,
     val adminId: Int,
-    val banTime: Instant?,
+    val banTime: Instant,
     val unbanTime: Instant?,
     val source: String
 ) {
@@ -171,7 +171,7 @@ fun getBan(rs: ResultSet): Ban {
         rs.getInt("player_id"),
         rs.getString("reason"),
         rs.getInt("admin_id"),
-        rs.getTimestamp("ban_time")?.toInstant(),
+        rs.getTimestamp("ban_time")?.toInstant()!!,
         rs.getTimestamp("unban_time")?.toInstant(),
         rs.getString("source")
     )

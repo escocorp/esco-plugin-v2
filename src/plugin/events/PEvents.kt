@@ -204,9 +204,12 @@ fun loadEvents() {
         if (pd != null) {
             // val pd = pdOpt.get()
             pid = pd.id
-            Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
-            sendLeaveMessage(player, pd.id)
             putLog(pd.id, "event", "Player disconnected")
+
+            if(player.isAdded) {
+                Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
+                sendLeaveMessage(player, pd.id)
+            }
         }
 
         Log.info("[@] Player @ left [@] (@)", pid, player.plainName(), player.uuid(), player.ip())
