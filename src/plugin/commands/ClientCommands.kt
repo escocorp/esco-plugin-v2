@@ -449,7 +449,7 @@ fun register(handler: CustomHandler) {
         Menu("@discord.link.selecttype", "")
             .add("@discord.link.uri") {
                 val state: String = getRandomString(32) // state because code used
-                if(newLinkRequest("state", pd.id)) {
+                if(newLinkRequest(state, pd.id)) {
                     Call.openURI(player.con, "$discordOauthBaseUrl/link?state=$state")
                     debug("Generated state(code) for linking $state")
                 } else {
