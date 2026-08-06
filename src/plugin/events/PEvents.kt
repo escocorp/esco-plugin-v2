@@ -180,7 +180,7 @@ fun loadEvents() {
         val pd = getPlayerData(player)
         if (pd == null) {
             app.post {
-                player.kick("[scarlet]Failed to create player, try re-join")
+                player.kick("[scarlet]Failed to create player, try re-join", 0)
             }
             return@onAsync
         }
