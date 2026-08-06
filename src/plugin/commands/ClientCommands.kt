@@ -18,6 +18,8 @@ import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.graphics.Pal
 import mindustry.net.Administration
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.buttons.Button
 import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
@@ -25,6 +27,7 @@ import plugin.PVars.S3Enabled
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.models.*
+import plugin.discord.ButtonIds.testId
 /*import plugin.gamemodes.crawlerarena.CVars
 import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.Hex
@@ -286,6 +289,13 @@ fun register(handler: CustomHandler) {
     }
     handler.registerCommand("test", "", Permission.Test) { _: Array<String>, p: Player ->
         p.sendMessage("[green]Ok!")
+    }
+
+    handler.registerCommand("test2", "", Permission.Test) { _: Array<String>, p: Player ->
+        val pd = p.getData() ?: return@registerCommand
+        PVars.notificationsChannel.sendMessage("${pd.discordId?.discordMention()} nya")
+            .addComponents(ActionRow.of(Button.success(testId, "🦈")))
+            .queue()
     }
 
     handler.registerCommand("stats", "") { _: Array<String>, p: Player ->

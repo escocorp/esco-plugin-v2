@@ -13,7 +13,6 @@ import com.xpdustry.nohorny.common.MindustryImageRenderer
 import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
-import mindustry.content.Fx
 import mindustry.content.Items
 import mindustry.content.UnitTypes
 import mindustry.game.EventType.*
@@ -41,11 +40,12 @@ import plugin.database.Database.adminsCache
 import plugin.database.Database.playerDataCache
 import plugin.database.models.*
 import plugin.ddos.DDoSProtect
-import plugin.discord.*
 import plugin.discord.Bot.sendJoinMessage
 import plugin.discord.Bot.sendLeaveMessage
 import plugin.discord.Bot.sendLog
 import plugin.discord.Bot.sendServerMessage
+import plugin.discord.ButtonIds.nohornyBanId
+import plugin.discord.ButtonIds.verifyUsidId
 // import plugin.gamemodes.hexed.HexData
 import plugin.history.History
 import plugin.history.HistoryType
@@ -144,6 +144,24 @@ fun loadEvents() {
 
             if (pd.getUsid() != null && pd.getUsid() != player.usid()) {
                 player.sendMessage("Your authentication credentials are different. Please contact us on Discord. If you have admin rights, they will not be granted until the authentication credentials are updated.")
+
+                if(pd.discordId != null) {
+                    PVars.notificationsChannel.sendMessageEmbeds(
+                        EmbedBuilder()
+                            .addField(
+                                "",
+                                Bundle.get("discord.verifyusid", player.locale)
+                                    .replace("{0}", pd.discordId?.discordMention() ?: ""),
+                                false
+                            )
+                            .build()
+                    )
+                        .addComponents(ActionRow.of(
+                            Button.danger("$verifyUsidId:${pd.id}",
+                                Bundle.get("discord.verifyusid.label", player.locale)),
+                        ))
+                        .queue()
+                }
             } else {
                 getAdmin(player)?.let { a: Admin ->
                     app.post {
@@ -336,7 +354,7 @@ fun loadEvents() {
         playerId?.let {
             message.addComponents(
                 ActionRow.of(
-                    Button.danger("$nohornyBanButtonId:$it", "🔨Ban")
+                    Button.danger("$nohornyBanId:$it", "🔨Ban")
                 )
             )
         }

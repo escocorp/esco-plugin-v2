@@ -14,7 +14,6 @@ import plugin.discord.register.DiscordCommandAnnotationProcessor
 import java.awt.Color
 import java.util.*
 
-const val nohornyBanButtonId = "nohornyban"
 object Bot {
     fun load() {
         val intents = EnumSet.allOf(GatewayIntent::class.java)
@@ -39,6 +38,8 @@ object Bot {
                     PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.nsfwChannelStr)
                 PVars.consoleChannel =
                     PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.consoleChannelStr)
+                PVars.notificationsChannel =
+                    PVars.serverGuild.getChannelById(TextChannel::class.java, PVars.notificationsId)
             } else {
                 Log.err("Failed to get server guild!")
             }

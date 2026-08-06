@@ -31,9 +31,9 @@ public class PVars {
 
     public static final String discordLink = "https://discord.gg/KfusjwYFDx";
 
-    public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, nsfwChannelStr, consoleChannelStr, ownerRoleId;
+    public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, nsfwChannelStr, consoleChannelStr, ownerRoleId, notificationsId;
     public static Guild serverGuild;
-    public static TextChannel serverChannel, logsChannel, votekicksChannel, nsfwChannel, consoleChannel;
+    public static TextChannel serverChannel, logsChannel, votekicksChannel, nsfwChannel, consoleChannel, notificationsChannel;
     public static JDA jda;
 
     public static String dbHost, dbPort, dbPassword, dbUser, db;

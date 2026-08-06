@@ -41,6 +41,7 @@ object Config {
         PVars.nsfwChannelStr = getEnv("NSFW_ID")
         PVars.consoleChannelStr = getEnv("CONSOLE_ID")
         PVars.ownerRoleId = getEnv("OWNER_ROLE_ID")
+        PVars.notificationsId = getEnv("NOTIFICATIONS_ID")
 
         // S3
         PVars.S3BaseUrl = getEnv("S3_URL")
