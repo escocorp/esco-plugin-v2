@@ -5,6 +5,7 @@ import arc.Events
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
+import arc.util.Log.debug
 import arc.util.Strings
 import arc.util.Time
 import arc.util.Timekeeper
@@ -24,6 +25,7 @@ import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.PVars.S3Enabled
+import plugin.PVars.discordOauthBaseUrl
 import plugin.PVars.hubIp
 import plugin.PVars.hubPort
 import plugin.database.models.*
@@ -437,20 +439,33 @@ fun register(handler: CustomHandler) {
         Call.openURI(p.con, PVars.discordLink)
     }
 
-    handler.registerCommand("link", CommandRunner { _: Array<String>, p: Player ->
-        val pdOpt = getPlayerData(p)
-        if (pdOpt != null && pdOpt.discordId != null) {
-            p.sendMessage("Account already linked!")
+    handler.registerCommand("link", CommandRunner { _: Array<String>, player: Player ->
+        val pd = getPlayerData(player) ?: return@CommandRunner
+        if (pd.discordId != null) {
+            player.sendMessage("Account already linked!")
             return@CommandRunner
         }
-        var code: String? = PVars.linkCodes.findKey(p, false)
 
-        if (code == null) {
-            code = getRandomString(6)
-            PVars.linkCodes.put(code, p)
-        }
+        Menu("@discord.link.selecttype", "")
+            .add("@discord.link.uri") {
+                val state: String = getRandomString(32) // state because code used
+                if(newLinkRequest("state", pd.id)) {
+                    Call.openURI(player.con, "$discordOauthBaseUrl/link?state=$state")
+                    debug("Generated state(code) for linking $state")
+                } else {
+                    player.sendMessage("[scarlet]Something went wrong! Try again later or choose another link type.")
+                }
+            }
+            .add("@discord.link.text") {
+                var code: String? = PVars.linkCodes.findKey(player, false)
+                if (code == null) {
+                    code = getRandomString(6)
+                    PVars.linkCodes.put(code, player)
+                }
 
-        Bundle.infoMessage("discord.link", p, PVars.gamemode.botPrefix, code, PVars.discordLink)
+                Bundle.infoMessage("discord.link", player, PVars.gamemode.botPrefix, code, PVars.discordLink)
+            }
+            .show(player)
     })
 
     handler.registerCommand("hidden", "<bool>", Permission.Admin, CommandRunner { a: Array<String>, p: Player ->

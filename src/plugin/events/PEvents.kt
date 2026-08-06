@@ -123,8 +123,6 @@ fun loadEvents() {
                     //if(player.con.isConnected())
                     app.post {
                         apply(player, resp.isp, pd)
-                        if (pd.prefs.customName.isNotEmpty())
-                            player.name(pd.prefs.customName)
                     }
                 }
 

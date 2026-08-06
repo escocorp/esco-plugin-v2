@@ -30,6 +30,7 @@ public class PVars {
     public static boolean lokiLoggingEnabled, vpnApiEnabled;
 
     public static final String discordLink = "https://discord.gg/KfusjwYFDx";
+    public static final String discordOauthBaseUrl = "https://auth.larzed.icu";
 
     public static String botToken, serverGuildStr, serverChannelStr, logsChannelStr, votekicksChannelStr, nsfwChannelStr, consoleChannelStr, ownerRoleId, notificationsId;
     public static Guild serverGuild;
