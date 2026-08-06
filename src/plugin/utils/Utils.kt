@@ -50,7 +50,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
+const val characters = "qwertyuiopasdfghjklzxcvbnm123456789"
 
 fun isAnon(ip: String?, callback: Cons<VPNApiResponse>) {
     Http.get(PVars.vpnApi + ip)
