@@ -19,7 +19,7 @@ public class Menu {
     String title, message;
     Seq<Cons<Player>> handlers = new Seq<>();
 
-    Menu(String title, String message) {
+    public Menu(String title, String message) {
         this.title = title;
         this.message = message;
     }

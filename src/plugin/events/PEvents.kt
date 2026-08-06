@@ -154,6 +154,7 @@ fun loadEvents() {
                                     .replace("{0}", pd.discordId?.discordMention() ?: ""),
                                 false
                             )
+                            .setColor(Color.orange)
                             .build()
                     )
                         .addComponents(ActionRow.of(

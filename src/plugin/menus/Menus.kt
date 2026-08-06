@@ -181,9 +181,9 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
         }.row()
         .add("Mobile\n" + other.con.mobile).row()
         .add("[green]Custom Client\n${other.con.modclient}") {
-            Call.infoMessage(it.con, "SchemShiz: ${parseBool(status.schemeSizeUser, colored = true)}\n" +
-                    "Foo's: ${parseBool(status.foosUser, colored = true)}\n" +
-                    "AgzamMod: ${parseBool(status.agzamModUser, colored = true)}")
+            Call.infoMessage(it.con, "[white]SchemShiz: ${parseBool(status.schemeSizeUser, colored = true)}\n" +
+                    "[]Foo's: ${parseBool(status.foosUser, colored = true)}\n" +
+                    "[]AgzamMod: ${parseBool(status.agzamModUser, colored = true)}")
         }.row()
         .add("Times Joined\n" + stats.timesJoined).row()
         .add("Times Kicked\n" + stats.timesKicked).row()

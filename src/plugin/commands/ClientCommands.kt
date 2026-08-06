@@ -33,6 +33,7 @@ import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
 import plugin.gamemodes.hexed.Hex
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode*/
 import plugin.history.History
+import plugin.menus.Menu
 import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
@@ -52,6 +53,22 @@ const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
+    handler.registerCommand("settings", "") { _: Array<String>, player: Player ->
+        val pd = player.getData()
+        if(pd == null) {
+            player.sendMessage("No PlayerData present!")
+            return@registerCommand
+        }
+        val menu = Menu("Settings", "Click to change setting")
+
+        menu.add("Show welcome menu\n${parseBool(pd.prefs.showWelcomeMenu)}") {
+            Call.infoMessage(player.con, "From ${parseBool(pd.prefs.showWelcomeMenu, colored = true)} -> ${parseBool(!pd.prefs.showWelcomeMenu, colored = true)}")
+            pd.prefs.showWelcomeMenu = !pd.prefs.showWelcomeMenu
+        }
+
+        menu.show(player)
+    }
+
     handler.registerCommand("runwave", "<count>", Permission.Admin, CommandRunner { arg: Array<String>, p: Player ->
         if (!Strings.canParseInt(arg[0])) {
             Bundle.sendMessage("args.mustbeint", p, "<count>")
