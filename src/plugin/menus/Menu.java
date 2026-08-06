@@ -7,6 +7,7 @@ import arc.struct.Seq;
 import mindustry.game.EventType;
 import mindustry.gen.Call;
 import mindustry.gen.Player;
+import plugin.Bundle;
 
 public class Menu {
     static int lastId = 0;
@@ -47,9 +48,19 @@ public class Menu {
 
         menus.put(this.id, this);
 
-        Call.menu(player.con, this.id, title, message, buildRows());
+        Call.menu(player.con, this.id, resolve(title, player), resolve(message, player), buildRows(player));
 
         return this;
+    }
+
+    String resolve(String text, Player player) {
+        if (text.startsWith("@")) {
+            String key = text.substring(1);
+            String value = Bundle.get(key, player.locale);
+            if (!value.equals(key)) return value;
+        }
+
+        return text;
     }
 
     public Menu row() {
@@ -57,14 +68,14 @@ public class Menu {
         return this;
     }
 
-    String[][] buildRows() {
+    String[][] buildRows(Player player) {
         String[][] rowsReturn = new String[rows.size][];
 
         for (int i = 0; i < rows.size; i++) {
             Seq<String> row = rows.get(i);
             rowsReturn[i] = new String[row.size];
             for (int o = 0; o < row.size; o++) {
-                rowsReturn[i][o] = row.get(o);
+                rowsReturn[i][o] = resolve(row.get(o), player);
             }
         }
 
