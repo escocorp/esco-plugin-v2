@@ -448,13 +448,18 @@ fun register(handler: CustomHandler) {
 
         Menu("@discord.link.selecttype", "")
             .add("@discord.link.uri") {
-                val state: String = getRandomString(32) // state because code used
-                if(newLinkRequest(state, pd.id)) {
-                    Call.openURI(player.con, "$discordOauthBaseUrl/link?state=$state")
-                    debug("Generated state(code) for linking $state")
-                } else {
-                    player.sendMessage("[scarlet]Something went wrong! Try again later or choose another link type.")
+                val req = getLinkRequest(pd.id)
+                val state = req?.state ?: run {
+                    val s = getRandomString(32)
+                    if (!newLinkRequest(s, pd.id)) {
+                        player.sendMessage("[scarlet]Something went wrong! Try again later or choose another link type.")
+                        return@add
+                    }
+                    debug("Generated state(code) for linking $s")
+                    s
                 }
+
+                Call.openURI(player.con, "$discordOauthBaseUrl/link?state=$state")
             }
             .add("@discord.link.text") {
                 var code: String? = PVars.linkCodes.findKey(player, false)

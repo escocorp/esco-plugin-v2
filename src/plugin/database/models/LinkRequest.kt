@@ -36,3 +36,15 @@ fun newLinkRequest(state: String, playerId: Int): Boolean {
         }
     )
 }
+
+fun getLinkRequest(pd: Int): LinkRequest? {
+    return Database.executeQuery(
+        "SELECT * FROM link_requests WHERE player_id = ?",
+        { stmt ->
+            stmt.setInt(1, pd)
+        },
+        {
+            getLinkRequest(it)
+        }
+    )
+}
