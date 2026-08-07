@@ -26,7 +26,7 @@ class CustomHandler {
             if (response.type == CommandHandler.ResponseType.manyArguments) {
                 //return "[scarlet]Too many arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
                 return@InvalidCommandHandler Bundle.get(
-                    "commands.manyargs",
+                    "command.many-arguments",
                     player.locale,
                     response.command.text,
                     response.command.paramText
@@ -34,7 +34,7 @@ class CustomHandler {
             } else if (response.type == CommandHandler.ResponseType.fewArguments) {
                 //return "[scarlet]Too few arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
                 return@InvalidCommandHandler Bundle.get(
-                    "commands.fewargs",
+                    "command.few-arguments",
                     player.locale,
                     response.command.text,
                     response.command.paramText
@@ -44,10 +44,10 @@ class CustomHandler {
                 val closest: CommandHandler.Command? = getClosest(response.runCommand, player)
 
                 if (closest != null) {
-                    return@InvalidCommandHandler Bundle.get("commands.didyoumean", player.locale)
+                    return@InvalidCommandHandler Bundle.get("command.did-you-mean", player.locale)
                         .replace("{0}", closest.text)
                 } else {
-                    return@InvalidCommandHandler Bundle.get("commands.unknown", player.locale)
+                    return@InvalidCommandHandler Bundle.get("command.unknown", player.locale)
                 }
             }
         }
@@ -104,12 +104,12 @@ class CustomHandler {
 
         handler.register(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
             if (!Permission.getPerms(p).contains(perm)) {
-                //Bundle.sendMessage("noperms", p);
+                //Bundle.sendMessage("error.no-permission", p);
                 val command = getClosest(name, p)
                 if (command == null) {
-                    Bundle.sendMessage("commands.unknown", p)
+                    Bundle.sendMessage("command.unknown", p)
                 } else {
-                    Bundle.sendMessage("commands.didyoumean", p, command.text)
+                    Bundle.sendMessage("command.did-you-mean", p, command.text)
                 }
                 return@CommandRunner
             }
@@ -138,9 +138,9 @@ class CustomHandler {
 
     class CommandData internal constructor(var name: String, var args: String, var permission: Permission?) {
         fun getDesc(p: Player): String {
-            val req = "commands." + this.name + ".description"
+            val req = "command." + this.name + ".description"
             var desc = Bundle.get(req, p.locale)
-            if (desc == req) desc = Bundle.get("commands.nodesc", p.locale)
+            if (desc == req) desc = Bundle.get("command.no-description", p.locale)
             return desc
         }
     }

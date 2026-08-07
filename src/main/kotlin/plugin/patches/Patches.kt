@@ -45,7 +45,7 @@ object Patches {
             Timer.schedule({ despawnUnits() }, (30 * 60).toFloat(), (30 * 60).toFloat())
 
             Timer.schedule({
-                Bundle.sendMessage("patches.mapchange")
+                Bundle.sendMessage("announce.map-change")
                 Timer.schedule({
                     Events.fire(GameOverEvent(Team.derelict))
                 }, 10f)
@@ -69,7 +69,7 @@ object Patches {
 
     fun despawnUnits() {
         Log.info("Time to despawn unused units!")
-        Bundle.sendMessage("unitdespawn")
+        Bundle.sendMessage("notice.unit-despawn")
         Groups.unit.each(Cons { u: Unit ->
             if (!u.controller().toString().lowercase(Locale.getDefault()).startsWith("player")) u.kill()
         })

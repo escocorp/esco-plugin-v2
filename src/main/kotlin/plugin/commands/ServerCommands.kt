@@ -41,7 +41,7 @@ fun register(handler: CommandHandler) {
 
     handler.register("say", "<text...>", "") { a: Array<String> ->
         Log.info("Server: @", a[0])
-        Bundle.sendMessage("commands.say.prefix", a[0])
+        Bundle.sendMessage("command.say.prefix", a[0])
         sendServerMessage("Server: " + a[0])
     }
 

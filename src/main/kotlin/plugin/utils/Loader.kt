@@ -128,10 +128,10 @@ object Loader {
 
     fun loadTimers() {
         Timer.schedule({
-            if (!Groups.player.isEmpty) Bundle.sendMessage("advertise.discord", PVars.discordLink)
+            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.discord", PVars.discordLink)
         }, (15 * 60).toFloat(), (15 * 60).toFloat())
         /*Timer.schedule({
-            if (!Groups.player.isEmpty) Bundle.sendMessage("advertise.reports", PVars.discordLink)
+            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.reports", PVars.discordLink)
         }, (15 * 60).toFloat(), (35 * 60).toFloat())*/
         Timer.schedule({
             Groups.player.each { p ->

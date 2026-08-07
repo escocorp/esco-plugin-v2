@@ -83,7 +83,7 @@ fun loadEvents() {
         val player = e.player
 
         if(player.plainName().isEmpty()) {
-            player.kick(Bundle.get("kick.noname", player.locale), 0)
+            player.kick(Bundle.get("kick.name-empty", player.locale), 0)
             return@on
         }
 
@@ -91,7 +91,7 @@ fun loadEvents() {
             val pd = getOrCreatePlayerData(player)
             if (pd == null) {
                 app.post {
-                    player.kick(Bundle.get("kick.createdb", player.locale), 0)
+                    player.kick(Bundle.get("kick.database-unavailable", player.locale), 0)
                 }
                 return@launch
             }
@@ -113,8 +113,8 @@ fun loadEvents() {
                             )*/
                             player.freeze()
 
-                            player.sendBundle("antivpn", discordLink)
-                            Bundle.infoMessage("antivpn", player, discordLink)
+                            player.sendBundle("kick.vpn-detected", discordLink)
+                            Bundle.infoMessage("kick.vpn-detected", player, discordLink)
                         }
                     }
                     //AntiFimoz.apply(resp.isp, player);
@@ -139,14 +139,14 @@ fun loadEvents() {
             }
 
             if (pd.getUsid() != null && pd.getUsid() != player.usid()) {
-                player.sendMessage(Bundle.get("messages.credsdiffer", player.locale))
+                player.sendMessage(Bundle.get("message.credentials-differ", player.locale))
 
                 if(pd.discordId != null) {
                     PVars.notificationsChannel.sendMessageEmbeds(
                         EmbedBuilder()
                             .addField(
                                 "",
-                                Bundle.get("discord.verifyusid", player.locale)
+                                Bundle.get("discord.verify-usid", player.locale)
                                     .replace("{0}", pd.discordId?.discordMention() ?: ""),
                                 false
                             )
@@ -155,7 +155,7 @@ fun loadEvents() {
                     )
                         .addComponents(ActionRow.of(
                             Button.danger("$verifyUsidId:${pd.id}",
-                                Bundle.get("discord.verifyusid.label", player.locale)),
+                                Bundle.get("discord.verify-usid.label", player.locale)),
                         ))
                         .queue()
                 }
@@ -163,7 +163,7 @@ fun loadEvents() {
                 getAdmin(player)?.let { a: Admin ->
                     app.post {
                         if (a.perms.contains(Permission.Admin) && !a.hidden) player.admin(true)
-                        if (a.perms.size > 1) player.sendMessage(Bundle.get("messages.permissions", player.locale, Permission.seqToString(a.perms)))
+                        if (a.perms.size > 1) player.sendMessage(Bundle.get("message.permissions", player.locale, Permission.seqToString(a.perms)))
                     }
                 }
             }
@@ -178,7 +178,7 @@ fun loadEvents() {
         val pd = getPlayerData(player)
         if (pd == null) {
             app.post {
-                player.kick(Bundle.get("kick.createfail", player.locale), 0)
+                player.kick(Bundle.get("kick.player-create-failed", player.locale), 0)
             }
             return@onAsync
         }
@@ -189,7 +189,7 @@ fun loadEvents() {
         getPlayerData(player)
 
         app.post {
-            Bundle.sendMessage("messages.join", pd.id.toString(), player.coloredName())
+            Bundle.sendMessage("message.join", pd.id.toString(), player.coloredName())
             putLog(pd.id, "event", "Player joined!")
         }
 
@@ -222,7 +222,7 @@ fun loadEvents() {
             putLog(pd.id, "event", "Player disconnected")
 
             if(player.isAdded) {
-                Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
+                Bundle.sendMessage("message.leave", pd.id.toString(), player.coloredName())
                 sendLeaveMessage(player, pd.id)
             }
         }
@@ -238,7 +238,7 @@ fun loadEvents() {
                 "votekick"
             )
             PVars.currentlyKicking.cancel()
-            Bundle.sendMessage("votekick.targetleft")
+            Bundle.sendMessage("command.votekick.target-left")
         }
 
         purgeData(player)
@@ -246,7 +246,7 @@ fun loadEvents() {
 
         /*if(rtvVotes.contains(player)) {
                 rtvVotes.remove(player);
-                Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
+                Bundle.sendMessage("command.rtv.player-left", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
             }*/
         Timer.schedule({
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
@@ -381,7 +381,7 @@ fun loadEvents() {
                 s.adjBlocksBroken()
                 if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
                     ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"), "antigrief")
-                    player.kick(Bundle.get("kick.antigrief", player.locale), 0)
+                    player.kick(Bundle.get("kick.possible-griefer", player.locale), 0)
                     player.con.close()
                     antigriefCooldown.reset()
                 }
@@ -520,7 +520,7 @@ fun loadEvents() {
 
             app.post {
                 build.configure(attemCode)
-                Bundle.label("attem83", 2f, build.x, build.y)
+                Bundle.label("notice.attem83", 2f, build.x, build.y)
             }
         }
     })

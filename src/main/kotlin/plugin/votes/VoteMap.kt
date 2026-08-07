@@ -23,7 +23,7 @@ class VoteMap(var initiator: Player, var map: Map?) {
        this.initiator = init;
        this.task = Timer.schedule(() -> {
            if (!checkPass()) {
-               sendMessage("rtv.failed", votes, votesRequired());
+               sendMessage("command.rtv.failed", votes, votesRequired());
                cancel();
            }
        }, 2 * 60);
@@ -31,7 +31,7 @@ class VoteMap(var initiator: Player, var map: Map?) {
     init {
         this.task = Timer.schedule({
             if (!checkPass()) {
-                Bundle.sendMessage("rtv.failed", votes, votesRequired())
+                Bundle.sendMessage("command.rtv.failed", votes, votesRequired())
                 cancel()
             }
         }, (2 * 60).toFloat())
@@ -45,11 +45,11 @@ class VoteMap(var initiator: Player, var map: Map?) {
         //voted.put(player.uuid(), d);
         voted.put(Vars.netServer.admins.getInfo(player.uuid()).lastIP, d)
         if (map == null) {
-            if (d == 1) Bundle.sendMessage("rtv.votey", player.coloredName(), votes, votesRequired())
-            else Bundle.sendMessage("rtv.voten", player.coloredName(), votes, votesRequired())
+            if (d == 1) Bundle.sendMessage("command.rtv.voted-yes", player.coloredName(), votes, votesRequired())
+            else Bundle.sendMessage("command.rtv.voted-no", player.coloredName(), votes, votesRequired())
         } else {
-            if (d == 1) Bundle.sendMessage("rtv.voteymap", player.coloredName(), votes, votesRequired(), map!!.name())
-            else Bundle.sendMessage("rtv.votenmap", player.coloredName(), votes, votesRequired(), map!!.name())
+            if (d == 1) Bundle.sendMessage("command.rtv.voted-yes-map", player.coloredName(), votes, votesRequired(), map!!.name())
+            else Bundle.sendMessage("command.rtv.voted-no-map", player.coloredName(), votes, votesRequired(), map!!.name())
         }
         checkPass()
     }
@@ -58,7 +58,7 @@ class VoteMap(var initiator: Player, var map: Map?) {
         if (votes >= votesRequired()) {
             if (map != null) Vars.maps.setNextMapOverride(map)
             Events.fire(GameOverEvent(Team.derelict))
-            Bundle.sendMessage("rtv.pass")
+            Bundle.sendMessage("command.rtv.passed")
 
             cancel()
             return true

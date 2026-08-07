@@ -30,7 +30,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
         this.task = Timer.schedule({
             if (!checkPass()) {
                 //Call.sendMessage(Strings.format("[lightgray]Vote failed. Not enough votes to kick[orange] @[lightgray].", target.name));
-                Bundle.sendMessage("votekick.failed", target.coloredName())
+                Bundle.sendMessage("command.votekick.failed", target.coloredName())
                 cancel()
             }
         }, NetServer.voteDuration)
@@ -52,7 +52,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
 
         /*Call.sendMessage(Strings.format("[lightgray]@[lightgray] has voted on kicking[orange] @[lightgray].[accent] (@/@)\n[lightgray]Type[orange] /vote <y/n>[] to agree.",
                 player.name, target.name, votes, votesRequired()));*/
-        Bundle.sendMessage("votekick.voted", player.coloredName(), target.coloredName(), votes, votesRequired())
+        Bundle.sendMessage("command.votekick.voted", player.coloredName(), target.coloredName(), votes, votesRequired())
 
         checkPass()
     }
@@ -60,7 +60,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
     fun checkPass(): Boolean {
         if (votes >= votesRequired()) {
             // Call.sendMessage(Strings.format("[orange]Vote passed.[scarlet] @[orange] will be banned from the server for @ minutes.", target.name, (kickDuration / 60)));
-            Bundle.sendMessage("votekick.passed", target.coloredName(), (NetServer.kickDuration / 60))
+            Bundle.sendMessage("command.votekick.passed", target.coloredName(), (NetServer.kickDuration / 60))
             //Groups.player.each(p -> p.uuid().equals(target.uuid()), p -> p.kick(Packets.KickReason.vote, kickDuration * 1000));
             cancel()
 

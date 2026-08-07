@@ -43,7 +43,7 @@ class Ban(
 
         player.kick(
             MessageFormat.format(
-                Bundle.get("banned", player.locale),
+                Bundle.get("kick.banned", player.locale),
                 reason,
                 time,
                 discordLink,

@@ -60,7 +60,7 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("settings", "") { _: Array<String>, player: Player ->
         val pd = player.getData()
         if(pd == null) {
-            Bundle.sendMessage("commands.noplayerdata", player)
+            Bundle.sendMessage("command.no-player-data", player)
             return@registerCommand
         }
         val menu = Menu("@menu.settings.title", "@menu.settings.message")
@@ -75,12 +75,12 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("runwave", "<count>", Permission.Admin, CommandRunner { arg: Array<String>, p: Player ->
         if (!Strings.canParseInt(arg[0])) {
-            Bundle.sendMessage("args.mustbeint", p, "<count>")
+            Bundle.sendMessage("command.argument.must-be-number", p, "<count>")
             return@CommandRunner
         }
         val count = Strings.parseInt(arg[0])
         if (count > 10) {
-            Bundle.sendMessage("args.lessthan", p, "<count>")
+            Bundle.sendMessage("command.argument.must-be-less-than", p, "<count>")
             return@CommandRunner
         }
         for (i in 1..count) {
@@ -181,50 +181,50 @@ fun register(handler: CustomHandler) {
         val status = p.getStatus()
         if (status.vanished) {
             status.vanished = false
-            Bundle.sendMessage("commands.vanish.off", p)
+            Bundle.sendMessage("command.vanish.off", p)
             return@CommandRunner
         }
-        Bundle.sendMessage("commands.vanish.on", p)
+        Bundle.sendMessage("command.vanish.on", p)
         status.vanished = true
         Call.playerDisconnect(p.id)
     })
     handler.registerCommand("pay", "<amount> <playername...>", CommandRunner { args: Array<String>, player: Player ->
         val target = Groups.player.find { p: Player -> p.plainName().equals(args[1], ignoreCase = true) }
         if (target == null || target === player) {
-            Bundle.sendMessage("errors.playernotfound", player)
+            Bundle.sendMessage("error.player-not-found", player)
             return@CommandRunner
         }
         if (!Strings.canParseInt(args[0])) {
-            Bundle.sendMessage("args.mustbeint", player, "<amount>")
+            Bundle.sendMessage("command.argument.must-be-number", player, "<amount>")
             return@CommandRunner
         }
         val targetStatsOpt = getPlayerData(target)
         val playerStatsOpt = getPlayerData(player)
         if (targetStatsOpt == null || playerStatsOpt == null) {
-            Bundle.sendMessage("errors.unknown", player)
+            Bundle.sendMessage("error.unknown", player)
             return@CommandRunner
         }
         val amount = Strings.parseInt(args[0])
         if (amount < 1) {
-            Bundle.sendMessage("args.amountpositive", player)
+            Bundle.sendMessage("command.argument.amount-positive", player)
             return@CommandRunner
         }
         if (amount > playerStatsOpt.balance) {
-            Bundle.sendMessage("menu.shop.nomoney", player)
+            Bundle.sendMessage("menu.shop.no-money", player)
             return@CommandRunner
         }
         val commision = (amount * 0.02f).roundToInt()
         playerStatsOpt.subBalance(amount)
         targetStatsOpt.adjBalance(amount - commision)
-        target.sendMessage(Bundle.get("menu.pay.received", target.locale, player.coloredName(), amount, commision))
-        player.sendMessage(Bundle.get("menu.pay.sent", player.locale, target.coloredName(), amount, commision))
+        target.sendMessage(Bundle.get("command.pay.received", target.locale, player.coloredName(), amount, commision))
+        player.sendMessage(Bundle.get("command.pay.sent", player.locale, target.coloredName(), amount, commision))
     })
     handler.registerCommand("economy", "") { _: Array<String?>?, p: Player? ->
-        Bundle.infoMessage("infomessage.economyguide", p)
+        Bundle.infoMessage("command.economy.guide", p)
     }
     /*handler.registerCommand("slot", "<bet>", CommandRunner { a: Array<String>, p: Player ->
         if (!Strings.canParseInt(a[0])) {
-            Bundle.sendMessage("args.mustbeint", p, "<bet>")
+            Bundle.sendMessage("command.argument.must-be-number", p, "<bet>")
             return@CommandRunner
         }
         globalScope.launch {
@@ -242,7 +242,7 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("sync", CommandRunner { _: Array<String>, player: Player ->
         if (Time.timeSinceMillis(player.info.lastSyncTime) < 1000 * 5) {
-            Bundle.sendMessage("commands.sync.cooldown", player)
+            Bundle.sendMessage("command.sync.cooldown", player)
             return@CommandRunner
         }
         player.info.lastSyncTime = Time.millis()
@@ -251,7 +251,7 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("thelp", "[page]", CommandRunner { args: Array<String>, player: Player ->
         if (args.isNotEmpty() && !Strings.canParseInt(args[0])) {
-            Bundle.sendMessage("args.mustbeint", player, "<page>")
+            Bundle.sendMessage("command.argument.must-be-number", player, "<page>")
             return@CommandRunner
         }
         val page = if (args.isNotEmpty()) Strings.parseInt(args[0]) - 1 else 0
@@ -287,10 +287,10 @@ fun register(handler: CustomHandler) {
         if (result.isNotEmpty()) pages.add(result.toString())
 
         if ((page + 1) > pages.size || page < 0) {
-            Bundle.sendMessage("commands.unknownpage", player)
+            Bundle.sendMessage("command.unknown-page", player)
             return@CommandRunner
         }
-        val resp = Bundle.get("commands.pages.header", player.locale, page + 1, pages.size) + "\n\n" + pages.get(page)
+        val resp = Bundle.get("command.pages.header", player.locale, page + 1, pages.size) + "\n\n" + pages.get(page)
         player.sendMessage(resp)
     })
 
@@ -320,28 +320,28 @@ fun register(handler: CustomHandler) {
     }
 
     handler.registerCommand("stats", "") { _: Array<String>, p: Player ->
-        val sb = StringBuilder(Bundle.get("stats.header", p.locale)).append("\n")
+        val sb = StringBuilder(Bundle.get("command.stats.header", p.locale)).append("\n")
         getPlayerData(p)?.let { s ->
             s.updateStats(p, false)
-            sb.append(Bundle.get("stats.blocksbuild", p.locale, s.blocksBuild)).append("\n")
-            sb.append(Bundle.get("stats.blocksbroken", p.locale, s.blocksBroken)).append("\n")
-            sb.append(Bundle.get("stats.wavessurvived", p.locale, s.wavesSurvived)).append("\n")
-            sb.append(Bundle.get("stats.balance", p.locale, s.balance)).append("\n")
-            sb.append(Bundle.get("stats.playtime", p.locale, formatTime(s.playtime)))
+            sb.append(Bundle.get("command.stats.blocks-built", p.locale, s.blocksBuild)).append("\n")
+            sb.append(Bundle.get("command.stats.blocks-broken", p.locale, s.blocksBroken)).append("\n")
+            sb.append(Bundle.get("command.stats.waves-survived", p.locale, s.wavesSurvived)).append("\n")
+            sb.append(Bundle.get("command.stats.balance", p.locale, s.balance)).append("\n")
+            sb.append(Bundle.get("command.stats.playtime", p.locale, formatTime(s.playtime)))
         }
         p.sendMessage(sb.toString())
     }
 
     handler.registerCommand("vnw", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed) {
-            Bundle.sendMessage("rtv.error.hexed", p)
+            Bundle.sendMessage("command.disabled-in-hexed", p)
             return@CommandRunner
         }
         val i = if (a.isEmpty()) 1
         else parseBool(a[0])
 
         if (i == 0) {
-            Bundle.sendMessage("vote.unknownvote", p)
+            Bundle.sendMessage("command.vote.unknown-choice", p)
             return@CommandRunner
         }
         if (PVars.waveVote == null) {
@@ -350,7 +350,7 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         if (PVars.waveVote.voted.containsKey(p.ip())) {
-            Bundle.sendMessage("rtv.error.voted", p)
+            Bundle.sendMessage("command.rtv.already-voted", p)
             return@CommandRunner
         }
         PVars.waveVote.vote(p, i)
@@ -358,7 +358,7 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed) {
-            Bundle.sendMessage("rtv.error.hexed", p)
+            Bundle.sendMessage("command.disabled-in-hexed", p)
             return@CommandRunner
         }
         val i: Int = if (a.isEmpty()) 1
@@ -387,11 +387,11 @@ fun register(handler: CustomHandler) {
         }
 
         if (i == 0) {
-            Bundle.sendMessage("vote.unknownvote", p)
+            Bundle.sendMessage("command.vote.unknown-choice", p)
             return@CommandRunner
         }
         if (PVars.mapVote.voted.containsKey(p.ip())) {
-            Bundle.sendMessage("rtv.error.voted", p)
+            Bundle.sendMessage("command.rtv.already-voted", p)
             return@CommandRunner
         }
         PVars.mapVote.vote(p, i)
@@ -407,7 +407,7 @@ fun register(handler: CustomHandler) {
                 val time = parseTime(a[1])
                 val perm = a[1].equals("perm", ignoreCase = true)
                 if (time == -1L && !perm) {
-                    Bundle.sendMessage("commands.ban.unknowntime", p)
+                    Bundle.sendMessage("command.ban.unknown-time", p)
                     return@CommandRunner
                 }
                 val banned: Boolean = if (perm) {
@@ -416,12 +416,12 @@ fun register(handler: CustomHandler) {
                     ban(id, p, a[2], time, "command")
                 }
                 if (banned) {
-                    Bundle.sendMessage("commands.ban.success", p)
+                    Bundle.sendMessage("command.ban.success", p)
                 } else {
-                    Bundle.sendMessage("commands.ban.fail", p)
+                    Bundle.sendMessage("command.ban.fail", p)
                 }
             } else {
-                Bundle.sendMessage("args.mustbeint", p, "<id>")
+                Bundle.sendMessage("command.argument.must-be-number", p, "<id>")
             }
         })
 
@@ -429,11 +429,11 @@ fun register(handler: CustomHandler) {
         val status = p.getStatus()
         if (status.historyEnabled) {
             status.historyEnabled = false
-            Bundle.sendMessage("commands.history.disabled", p)
+            Bundle.sendMessage("command.history.disabled", p)
             Call.hideHudText(p.con)
         } else {
             status.historyEnabled = true
-            Bundle.sendMessage("commands.history.enabled", p)
+            Bundle.sendMessage("command.history.enabled", p)
         }
     }
 
@@ -444,17 +444,17 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("link", CommandRunner { _: Array<String>, player: Player ->
         val pd = getPlayerData(player) ?: return@CommandRunner
         if (pd.discordId != null) {
-            Bundle.sendMessage("commands.link.alreadylinked", player)
+            Bundle.sendMessage("command.link.already-linked", player)
             return@CommandRunner
         }
 
-        Menu("@discord.link.selecttype", "")
+        Menu("@discord.link.select-method", "")
             .add("@discord.link.uri") {
                 val req = getLinkRequest(pd.id)
                 val state = req?.state ?: run {
                     val s = getRandomString(32)
                     if (!newLinkRequest(s, pd.id)) {
-                        Bundle.sendMessage("commands.link.error", player)
+                        Bundle.sendMessage("command.link.error", player)
                         return@add
                     }
                     debug("Generated state(code) for linking $s")
@@ -470,7 +470,7 @@ fun register(handler: CustomHandler) {
                     player.setLinkCode(code)
                 }
 
-                Bundle.infoMessage("discord.link", player, PVars.gamemode.botPrefix, code, PVars.discordLink)
+                Bundle.infoMessage("discord.link.instructions", player, PVars.gamemode.botPrefix, code, PVars.discordLink)
             }
             .show(player)
     })
@@ -483,17 +483,17 @@ fun register(handler: CustomHandler) {
             1 -> {
                 updateAdminHidden(id, true)
                 p.admin(false)
-                Bundle.sendMessage("commands.hidden.ok", p)
+                Bundle.sendMessage("command.hidden.ok", p)
             }
 
             -1 -> {
                 updateAdminHidden(id, false)
                 p.admin(true)
-                Bundle.sendMessage("commands.hidden.ok", p)
+                Bundle.sendMessage("command.hidden.ok", p)
             }
 
             else -> {
-                Bundle.sendMessage("commands.hidden.unknownbool", p)
+                Bundle.sendMessage("command.hidden.unknown-boolean", p)
             }
         }
     })
@@ -502,19 +502,19 @@ fun register(handler: CustomHandler) {
     /*
             handler.registerCommand("team", "<team>", (arg, player)->{
                 if(!Strings.canParseInt(arg[0])) {
-                    sendMessage("args.mustbeint", player, "<team>");
+                    sendMessage("command.argument.must-be-number", player, "<team>");
                     return@CommandRunner;
                 }
                 int id = Strings.parseInt(arg[0]);
                 if(id > 5) {
-                    sendMessage("args.lessthan", player, "<team>", 5);
+                    sendMessage("command.argument.must-be-less-than", player, "<team>", 5);
                     return@CommandRunner;
                 }
                 player.team(Team.get(id));
             });*/
     handler.registerCommand("artv", "", Permission.Artv, CommandRunner { _: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed) {
-            Bundle.sendMessage("rtv.error.hexed", p)
+            Bundle.sendMessage("command.disabled-in-hexed", p)
             return@CommandRunner
         }
         Events.fire(EventType.GameOverEvent(Team.derelict))
@@ -536,11 +536,11 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("vote", "<y/n/c>", CommandRunner { arg: Array<String>, player: Player ->
         if (PVars.currentlyKicking == null) {
             // player.sendMessage("[scarlet]Nobody is being voted on.");
-            Bundle.sendMessage("vote.novoteinprogress", player)
+            Bundle.sendMessage("command.vote.no-vote-in-progress", player)
         } else {
             if (Permission.getPerms(player).contains(Permission.Admin) && arg[0].equals("c", ignoreCase = true)) {
                 // Call.sendMessage(Strings.format("[lightgray]Vote canceled by admin[orange] @[lightgray].", player.name));
-                Bundle.sendMessage("vote.canceledbyadmin", player.coloredName())
+                Bundle.sendMessage("command.vote.canceled-by-admin", player.coloredName())
                 /*PVars.currentlyKicking.task.cancel()
                 PVars.currentlyKicking = null*/
                 PVars.currentlyKicking.cancel()
@@ -549,7 +549,7 @@ fun register(handler: CustomHandler) {
 
             if (player.isLocal) {
                 // player.sendMessage("[scarlet]Local players can't vote. Kick the player yourself instead.");
-                Bundle.sendMessage("vote.local", player)
+                Bundle.sendMessage("command.vote.local-player", player)
                 return@CommandRunner
             }
 
@@ -569,25 +569,25 @@ fun register(handler: CustomHandler) {
                 ) == sign)
             ) {
                 // player.sendMessage(Strings.format("[scarlet]You've already voted @. Sit down.", arg[0].toLowerCase()));
-                Bundle.sendMessage("vote.alreadyvoted", player, arg[0].lowercase(Locale.getDefault()))
+                Bundle.sendMessage("command.vote.already-voted", player, arg[0].lowercase(Locale.getDefault()))
                 return@CommandRunner
             }
 
             if (PVars.currentlyKicking.target === player) {
                 // player.sendMessage("[scarlet]You can't vote on your own trial.");
-                Bundle.sendMessage("vote.targetisplayer", player)
+                Bundle.sendMessage("command.vote.cannot-vote-self", player)
                 return@CommandRunner
             }
 
             if (PVars.currentlyKicking.target.team() !== player.team()) {
                 // player.sendMessage("[scarlet]You can't vote for other teams.");
-                Bundle.sendMessage("vote.otherteam", player)
+                Bundle.sendMessage("command.vote.other-team", player)
                 return@CommandRunner
             }
 
             if (sign == 0) {
                 // player.sendMessage("[scarlet]Vote either 'y' (yes) or 'n' (no).");
-                Bundle.sendMessage("vote.unknownvote", player)
+                Bundle.sendMessage("command.vote.unknown-choice", player)
                 return@CommandRunner
             }
 
@@ -602,29 +602,29 @@ fun register(handler: CustomHandler) {
         CommandRunner { args: Array<String>, player: Player ->
             if (!Administration.Config.enableVotekick.bool()) {
                 // player.sendMessage("[scarlet]Vote-kick is disabled on this server.");
-                Bundle.sendMessage("votekick.disabled", player)
+                Bundle.sendMessage("command.votekick.disabled", player)
                 return@CommandRunner
             }
             if (Groups.player.size() < 3) {
                 // player.sendMessage("[scarlet]At least 3 players are needed to start a votekick.");
-                Bundle.sendMessage("votekick.fewplayers", player)
+                Bundle.sendMessage("command.votekick.few-players", player)
                 return@CommandRunner
             }
 
             if (player.isLocal) {
                 // player.sendMessage("[scarlet]Just kick them yourself if you're the host.");
-                Bundle.sendMessage("votekick.localplayer", player)
+                Bundle.sendMessage("command.votekick.local-player", player)
                 return@CommandRunner
             }
 
             if (PVars.currentlyKicking != null) {
                 // player.sendMessage("[scarlet]A vote is already in progress.");
-                Bundle.sendMessage("votekick.alreadystarted", player)
+                Bundle.sendMessage("command.votekick.already-started", player)
                 return@CommandRunner
             }
             if (args.isEmpty()) {
                 val builder = StringBuilder()
-                builder.append(Bundle.get("commands.votekick.players", player.locale)).append("\n")
+                builder.append(Bundle.get("command.votekick.players", player.locale)).append("\n")
 
                 Groups.player.each(
                     { p: Player -> !p.admin && p.con != null && p !== player },
@@ -635,7 +635,7 @@ fun register(handler: CustomHandler) {
                 player.sendMessage(builder.toString())
             } else if (args.size == 1) {
                 // player.sendMessage("[orange]You need a valid reason to kick the player. Add a reason after the player name.");
-                Bundle.sendMessage("votekick.noreason", player)
+                Bundle.sendMessage("command.votekick.no-reason", player)
             } else {
                 val found: Player?
                 if (args[0].length > 1 && args[0].startsWith("#") && Strings.canParseInt(args[0].substring(1))) {
@@ -649,38 +649,38 @@ fun register(handler: CustomHandler) {
                     val perms = Permission.getPerms(found)
                     if (found === player) {
                         // player.sendMessage("[scarlet]You can't vote to kick yourself.");
-                        Bundle.sendMessage("votekick.kickyouself", player)
+                        Bundle.sendMessage("command.votekick.cannot-kick-self", player)
                     } else if (found.admin || perms.contains(Permission.Admin)) {
                         // player.sendMessage("[scarlet]Did you really expect to be able to kick an admin?");
-                        Bundle.sendMessage("votekick.admin", player)
+                        Bundle.sendMessage("command.votekick.admin-immune", player)
                     } else if (perms.contains(Permission.VotekickImmune)) {
-                        Bundle.sendMessage("votekick.immune", player)
+                        Bundle.sendMessage("command.votekick.immune", player)
                     } else if (found.isLocal) {
                         // player.sendMessage("[scarlet]Local players cannot be kicked.");
-                        Bundle.sendMessage("votekick.localplayer2", player)
+                        Bundle.sendMessage("command.votekick.local-player-immune", player)
                     } else if (found.team() !== player.team()) {
                         // player.sendMessage("[scarlet]Only players on your team can be kicked.");
-                        Bundle.sendMessage("votekick.onlyyourteam", player)
+                        Bundle.sendMessage("command.votekick.same-team-only", player)
                     } else {
                         val vtime =
                             cooldowns.get(player.uuid()) { Timekeeper.ofSeconds(voteCooldown.toFloat()) }
 
                         if (!vtime.get()) {
                             // player.sendMessage("[scarlet]You must wait " + voteCooldown/60 + " minutes between votekicks.");
-                            Bundle.sendMessage("votekick.wait", player, voteCooldown / 60)
+                            Bundle.sendMessage("command.votekick.cooldown", player, voteCooldown / 60)
                             return@CommandRunner
                         }
 
                         val session = VotekickSession(found, player, args[1])
                         session.vote(player, 1)
                         // Call.sendMessage(Strings.format("[lightgray]Reason:[orange] @[lightgray].", args[1]));
-                        Bundle.sendMessage("votekick.start", args[1])
+                        Bundle.sendMessage("command.votekick.start", args[1])
                         vtime.reset()
                         PVars.currentlyKicking = session
                     }
                 } else {
                     // player.sendMessage("[scarlet]No player [orange]'" + args[0] + "'[scarlet] found.");
-                    Bundle.sendMessage("votekick.playernotfound", player, args[0])
+                    Bundle.sendMessage("command.votekick.player-not-found", player, args[0])
                 }
             }
         })
@@ -755,7 +755,7 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
         CommandRunner { args: Array<String>, player: Player ->
             val newUnitType = CrawlerArenaGamemode.findType(args[0].lowercase(Locale.getDefault()))
             if (newUnitType == null) {
-                Bundle.sendMessage("crawler.commands.upgrade.unit-not-found", player)
+                Bundle.sendMessage("command.unit.not-found", player)
                 return@CommandRunner
             }
             var amount = 1
@@ -763,17 +763,17 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                 try {
                     amount = args[1].toInt()
                 } catch (_: NumberFormatException) {
-                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                    Bundle.sendMessage("command.invalid-amount", player)
                     return@CommandRunner
                 }
             }
             if (amount < 1) {
-                Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                Bundle.sendMessage("command.invalid-amount", player)
                 return@CommandRunner
             }
 
             if (Groups.unit.count(Boolf { u: Unit -> u.type === newUnitType && u.team === Vars.state.rules.defaultTeam }) > CVars.unitCap - amount) {
-                Bundle.sendMessage("crawler.commands.upgrade.too-many-units", player)
+                Bundle.sendMessage("command.upgrade.too-many-units", player)
                 return@CommandRunner
             }
             if (CrawlerArenaGamemode.money.get(player.uuid(), 0f) >= CVars.unitCosts.get(newUnitType) * amount) {
@@ -786,7 +786,7 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                         player.uuid(),
                         CrawlerArenaGamemode.money.get(player.uuid(), 0f) - CVars.unitCosts.get(newUnitType) * amount
                     )
-                    Bundle.sendMessage("crawler.commands.upgrade.already", player)
+                    Bundle.sendMessage("command.upgrade.extra-unit", player)
                     return@CommandRunner
                 }
                 val newUnit = newUnitType.spawn(player.x, player.y)
@@ -798,8 +798,8 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                 )
                 CrawlerArenaGamemode.units.put(player.uuid(), newUnitType)
                 CrawlerArenaGamemode.unitIDs.put(player.uuid(), newUnit.id)
-                Bundle.sendMessage("crawler.commands.upgrade.success", player)
-            } else Bundle.sendMessage("crawler.commands.upgrade.not-enough-money", player)
+                Bundle.sendMessage("command.upgrade.success", player)
+            } else Bundle.sendMessage("command.upgrade.not-enough-money", player)
         })
 
     handler.registerCommand(
@@ -811,7 +811,7 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                     .contains(args[1].lowercase(Locale.getDefault()))
             }
             if (giveTo == null) {
-                Bundle.sendMessage("crawler.commands.give.player-not-found", player)
+                Bundle.sendMessage("command.give.player-not-found", player)
                 return@CommandRunner
             }
             val amount: Float = if (args[0].equals("all", ignoreCase = true)) {
@@ -820,12 +820,12 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                 try {
                     args[0].toInt().toFloat()
                 } catch (_: java.lang.NumberFormatException) {
-                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                    Bundle.sendMessage("command.invalid-amount", player)
                     return@CommandRunner
                 }
             }
             if (amount < 0) {
-                Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                Bundle.sendMessage("command.invalid-amount", player)
                 return@CommandRunner
             }
             if (CrawlerArenaGamemode.money.get(player.uuid(), 0f) >= amount) {
@@ -837,14 +837,14 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                     giveTo.uuid(),
                     CrawlerArenaGamemode.money.get(giveTo.uuid(), 0f) + amount
                 )
-                Bundle.sendMessage("crawler.commands.give.success", player, amount, giveTo.coloredName())
-                Bundle.sendMessage("crawler.commands.give.money-recieved", giveTo, amount, player.coloredName())
-            } else Bundle.sendMessage("crawler.commands.give.not-enough-money", player)
+                Bundle.sendMessage("command.give.success", player, amount, giveTo.coloredName())
+                Bundle.sendMessage("command.give.money-received", giveTo, amount, player.coloredName())
+            } else Bundle.sendMessage("command.give.not-enough-money", player)
         })
 
     handler.registerCommand(
         "info"
-    ) { _: Array<String>, player: Player -> Bundle.sendMessage("crawler.commands.info", player) }
+    ) { _: Array<String>, player: Player -> Bundle.sendMessage("command.info.message", player) }
 
     handler.registerCommand(
         "upgrades",
@@ -856,14 +856,14 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
                 try {
                     args[0].toInt()
                 } catch (_: java.lang.NumberFormatException) {
-                    Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                    Bundle.sendMessage("command.invalid-amount", player)
                     return@CommandRunner
                 }
             }
             val sortedUnitCosts = CVars.unitCosts.values().toArray()
             val maxPage = (sortedUnitCosts.size - 1) / CVars.unitsRows + 1
             if (page !in 1..maxPage) {
-                Bundle.sendMessage("crawler.exceptions.invalid-amount", player)
+                Bundle.sendMessage("command.invalid-amount", player)
                 return@CommandRunner
             }
             sortedUnitCosts.sort()
@@ -877,9 +877,9 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
             unitCostsCopy.putAll(CVars.unitCosts)
 
             //StringBuilder upgrades = new StringBuilder(Bundle.format("commands.upgrades.header", Bundle.findLocale(player)));
-            val upgrades = java.lang.StringBuilder(Bundle.get("crawler.commands.upgrades.header", player.locale))
+            val upgrades = java.lang.StringBuilder(Bundle.get("command.upgrades.header", player.locale))
 
-            upgrades.append(Bundle.get("crawler.commands.upgrades.page", player.locale, page, maxPage)).append("\n")
+            upgrades.append(Bundle.get("command.upgrades.page", player.locale, page, maxPage)).append("\n")
             sortedUnitCosts.each { cost: Int ->
                 val type = unitCostsCopy.findKey(cost)
                 upgrades.append("[gold] - [accent]").append(type.name).append(" [lightgray](").append(cost)
@@ -896,7 +896,7 @@ private fun registerCrawlerArenaCommands(handler: CustomHandler) {
             val type = CrawlerArenaGamemode.findType(args[0].lowercase(Locale.getDefault()))
             val cost = CVars.unitCosts.get(type, -1)
             if (cost == -1) {
-                Bundle.sendMessage("crawler.commands.upgrade.unit-not-found", player)
+                Bundle.sendMessage("command.unit.not-found", player)
                 return@CommandRunner
             }
             player.sendMessage(type.name + (" - ") + (cost))

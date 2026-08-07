@@ -65,7 +65,7 @@ fun showShop(stats: PlayerData, p: Player) {
         rowPerItems = 1
     )
 
-    menu.add(Bundle.get("units", p.locale)) { pl ->
+    menu.add(Bundle.get("menu.shop.category.units", p.locale)) { pl ->
         val countMenu = Menu("@menu.shop.count.title", "@menu.shop.count.message")
         countMenu.add("1") {
             buyUnits(stats, p, 1)
@@ -76,10 +76,10 @@ fun showShop(stats: PlayerData, p: Player) {
         countMenu.add("10") {
             buyUnits(stats, p, 10)
         }
-        countMenu.row().add("@menus.close")
+        countMenu.row().add("@menu.close")
         countMenu.show(pl)
     }
-    menu.add(Bundle.get("items", p.locale)) { pl ->
+    menu.add(Bundle.get("menu.shop.category.items", p.locale)) { pl ->
         val itemMenu =
             ScrollableMenu(Bundle.get("menu.shop.title", p.locale), Bundle.get("menu.shop.balance", p.locale, stats.balance))
         itemCosts.forEach(Consumer { en: ObjectIntMap.Entry<Item> ->
@@ -87,17 +87,17 @@ fun showShop(stats: PlayerData, p: Player) {
             val cost = if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value
             itemMenu.add(Bundle.get("menu.shop.cost", p.locale, type.emoji(), cost)) { pl: Player ->
                 if (cost > stats.balance) {
-                    Bundle.sendMessage("menu.shop.nomoney", pl)
+                    Bundle.sendMessage("menu.shop.no-money", pl)
                     return@add
                 }
                 pl.team().core().items.add(type, 1000)
                 stats.subBalance(cost)
-                Bundle.label("menu.shop.unitbuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
+                Bundle.label("menu.shop.unit-bought", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
             }
         })
         itemMenu.show(pl)
     }
-    menu.add(Bundle.get("other", p.locale)) { pl ->
+    menu.add(Bundle.get("menu.shop.category.other", p.locale)) { pl ->
         val otherMenu =
             ScrollableMenu(Bundle.get("menu.shop.title", p.locale), Bundle.get("menu.shop.balance", p.locale, stats.balance))
         if (PVars.gamemode != Gamemode.pvp) {
@@ -110,11 +110,11 @@ fun showShop(stats: PlayerData, p: Player) {
                 )
             ) { pl: Player ->
                 if (2500 > stats.balance) {
-                    Bundle.sendMessage("menu.shop.nomoney", pl)
+                    Bundle.sendMessage("menu.shop.no-money", pl)
                     return@add
                 }
-                // sendMessage("menu.shop.advertise.healcores", pl.coloredName(), pl.team().emoji);
-                Bundle.label("menu.shop.advertise.healcores", 1f, pl.x, pl.y, pl.coloredName(), pl.team().emoji)
+                // sendMessage("menu.shop.cores-repaired", pl.coloredName(), pl.team().emoji);
+                Bundle.label("menu.shop.cores-repaired", 1f, pl.x, pl.y, pl.coloredName(), pl.team().emoji)
                 pl.team().cores().each(Cons { obj: CoreBuild -> obj.heal() })
             }
         }
@@ -133,7 +133,7 @@ fun buyUnits(stats: PlayerData, p: Player, count: Int) {
         val cost = (if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value) * count
         unitMenu.add(Bundle.get("menu.shop.cost", p.locale, type.emoji(), cost)) { pl: Player ->
             if (cost > stats.balance) {
-                Bundle.sendMessage("menu.shop.nomoney", pl)
+                Bundle.sendMessage("menu.shop.no-money", pl)
                 return@add
             }
 
@@ -142,8 +142,8 @@ fun buyUnits(stats: PlayerData, p: Player, count: Int) {
                 type.spawn(pl.team(), pl.x, pl.y)
             stats.subBalance(cost)
 
-            //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
-            Bundle.label("menu.shop.unitbuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
+            //sendMessage("menu.shop.unit-bought", pl.coloredName(), type.emoji(), cost);
+            Bundle.label("menu.shop.unit-bought", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
         }
     })
 
@@ -152,11 +152,11 @@ fun buyUnits(stats: PlayerData, p: Player, count: Int) {
 
 fun showWelcome(p: Player) {
     Menu(Bundle.get("menu.welcome.title", p.locale), Bundle.get("menu.welcome.message", p.locale))
-        .add(Bundle.get("menus.close"))
+        .add(Bundle.get("menu.close"))
         .add(
             "[blue]\uE80DDiscord"
         ) { pl: Player -> Call.openURI(pl.con, PVars.discordLink) }
-        .add(Bundle.get("menus.dontshow", p.locale)) { pl: Player ->
+        .add(Bundle.get("menu.dont-show", p.locale)) { pl: Player ->
             getPlayerData(pl)?.let { data: PlayerData ->
                 data.prefs.showWelcomeMenu = false
                 data.updatePrefs()
@@ -184,7 +184,7 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
         .add(Bundle.get("menu.trace.mobile", p.locale) + "\n" + other.con.mobile).row()
         .add(Bundle.get("menu.trace.client", p.locale) + "\n${other.con.modclient}") {
             Bundle.infoMessage(
-                "menu.trace.modstats",
+                "menu.trace.mod-stats",
                 it,
                 parseBool(status.schemeSizeUser, colored = true),
                 parseBool(status.foosUser, colored = true),
@@ -198,31 +198,31 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
             showBanMenu(pl2, pdOpt.id, other)
         }.row()
     }
-    menu.add("@menus.close")
+    menu.add("@menu.close")
         .show(p)
 }
 
 fun showBanMenu(p: Player, playerId: Int, target: Player) {
     TextMenu(Cons2 { pl: Player, reason: String ->
         if (reason.isEmpty()) {
-            pl.sendMessage(Bundle.get("menu.ban.noreason", pl.locale))
+            pl.sendMessage(Bundle.get("menu.ban.no-reason", pl.locale))
             return@Cons2
         }
         TextMenu(Cons2 { pl2: Player, time: String ->
             if (time.isEmpty()) {
-                pl2.sendMessage(Bundle.get("menu.ban.notime", pl2.locale))
+                pl2.sendMessage(Bundle.get("menu.ban.no-time", pl2.locale))
                 return@Cons2
             }
             val timeL = parseTime(time)
             if (timeL == -1L && !time.contains("perm")) {
-                pl2.sendMessage(Bundle.get("menu.ban.unknowntime", pl2.locale))
+                pl2.sendMessage(Bundle.get("menu.ban.unknown-time", pl2.locale))
                 return@Cons2
             }
             if (ban(playerId, pl2, reason, timeL, "menu")) {
                 pl2.sendMessage(Bundle.get("menu.ban.success", pl2.locale))
                 target.kick(
                     MessageFormat.format(
-                        Bundle.get("banned"),
+                        Bundle.get("kick.banned"),
                         reason,
                         time,
                         PVars.discordLink,

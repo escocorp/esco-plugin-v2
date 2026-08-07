@@ -77,7 +77,7 @@ fun playReplay(replay: HashMap<Long, ReplayStack>) {
         val delay = (event.record.time - start) / 1000f
         Timer.schedule({
             if (event.record.time == end) {
-                Bundle.sendMessage("replays.done")
+                Bundle.sendMessage("replay.done")
             }
             applyEvent(event)
         }, delay)

@@ -86,7 +86,7 @@ class TextMenu(private val handler: Cons2<Player, String>) {
 
                 val menu = menus.get(e.textInputId)
                 if (menu == null || menu.player != player) {
-                    player.sendMessage(Bundle.get("textmenu.invalid", player.locale))
+                    player.sendMessage(Bundle.get("menu.invalid-input", player.locale))
                     return@on
                 }
 

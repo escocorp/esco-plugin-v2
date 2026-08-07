@@ -32,7 +32,7 @@ public class AdminRequest {
         switch (action) {
             case wave -> {
                 if (!perms.contains(Permission.Admin)) {
-                    Bundle.sendMessage("noperms", player);
+                    Bundle.sendMessage("error.no-permission", player);
                     return;
                 }
                 Vars.logic.skipWave();
@@ -41,21 +41,21 @@ public class AdminRequest {
             case ban -> {
                 // ban(other, player, "Touch grass", parseTime("10"));
                 if (!perms.contains(Permission.Punish)) {
-                    Bundle.sendMessage("noperms", player);
+                    Bundle.sendMessage("error.no-permission", player);
                     return;
                 }
                 player.sendMessage("use /ban or ban by trace menu");
             }
             case kick -> {
                 if (!perms.contains(Permission.Admin)) {
-                    Bundle.sendMessage("noperms", player);
+                    Bundle.sendMessage("error.no-permission", player);
                     return;
                 }
-                other.kick(Bundle.get("admin.kicked") + " " + player.coloredName());
+                other.kick(Bundle.get("kick.by-admin") + " " + player.coloredName());
             }
             case trace -> {
                 if (!perms.contains(Permission.Admin)) {
-                    Bundle.sendMessage("noperms", player);
+                    Bundle.sendMessage("error.no-permission", player);
                     return;
                 }
                 /*
@@ -76,12 +76,12 @@ public class AdminRequest {
             }
             case switchTeam -> {
                 if (!perms.contains(Permission.Admin)) {
-                    Bundle.sendMessage("noperms", player);
+                    Bundle.sendMessage("error.no-permission", player);
                     return;
                 }
                 if (params instanceof Team team) {
                     other.team(team);
-                    other.sendMessage(Bundle.get("team.changed") + " " + team.coloredName());
+                    other.sendMessage(Bundle.get("message.team-changed") + " " + team.coloredName());
                 }
             }
         }

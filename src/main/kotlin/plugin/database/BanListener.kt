@@ -46,7 +46,7 @@ object BanListener {
                                     getBan(i)?.let { ban ->
                                         getPlayerById(ban.playerId).ifPresent(Consumer { p: Player? ->
                                             Bundle.sendMessage(
-                                                "advertise.banned",
+                                                "announce.ban",
                                                 ban.playerId,
                                                 p!!.coloredName(),
                                                 if (ban.unbanTime == null) "never" else formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000),

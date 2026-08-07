@@ -18,7 +18,7 @@ class VoteWave {
     constructor() {
         task = Timer.schedule({
             if (!checkPass()) {
-                Bundle.sendMessage("vnw.failed")
+                Bundle.sendMessage("command.vnw.failed")
                 cancel()
             }
         }, 30f)
@@ -29,9 +29,9 @@ class VoteWave {
         voted.put(player.ip(), d)
 
         if (d == 1)
-            Bundle.sendMessage("vnw.votedy", player.coloredName(), votes, votesRequired())
+            Bundle.sendMessage("command.vnw.voted-yes", player.coloredName(), votes, votesRequired())
         else
-            Bundle.sendMessage("vnw.votedn", player.coloredName(), votes, votesRequired())
+            Bundle.sendMessage("command.vnw.voted-no", player.coloredName(), votes, votesRequired())
 
         checkPass()
     }
@@ -41,7 +41,7 @@ class VoteWave {
             Vars.logic.runWave()
             cancel()
 
-            Bundle.sendMessage("vnw.pass")
+            Bundle.sendMessage("command.vnw.passed")
             return true
         }
         return false
