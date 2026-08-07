@@ -16,10 +16,6 @@ kotlin {
     jvmToolchain(javaVersion)
 }
 
-sourceSets.main {
-    java.srcDirs("src")
-}
-
 repositories {
     mavenCentral()
 
@@ -158,11 +154,6 @@ tasks.jar {
         configurations.runtimeClasspath.get()
             .map { if (it.isDirectory) it else zipTree(it) }
     })
-
-    from(rootDir) {
-        include("plugin.json")
-        include("block_colors.png")
-    }
 
     from(versionGitDir) {
         include("version")

@@ -83,6 +83,7 @@ enum class Permission {
             val perms: Array<String>
 
             if (sqlArray != null) {
+                @Suppress("UNCHECKED_CAST")
                 perms = sqlArray.array as Array<String>
             } else {
                 perms = arrayOf("none")

@@ -28,15 +28,15 @@ jobs:
 
       - name: Extract block_colors.png
         run: |
-          unzip -p Mindustry.jar sprites/block_colors.png > block_colors.png
-          test -s block_colors.png
+          unzip -p Mindustry.jar sprites/block_colors.png > src/main/resources/block_colors.png
+          test -s src/main/resources/block_colors.png
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add block_colors.png
+          git add src/main/resources/block_colors.png
 
           if git diff --staged --quiet; then
             echo "No changes"
