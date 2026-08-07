@@ -3,7 +3,6 @@ package plugin.commands
 import arc.func.Cons
 import arc.util.CommandHandler
 import arc.util.Log
-import mindustry.gen.Call
 import mindustry.gen.Groups
 import plugin.Bundle
 import plugin.PVars
@@ -42,7 +41,7 @@ fun register(handler: CommandHandler) {
 
     handler.register("say", "<text...>", "") { a: Array<String> ->
         Log.info("Server: @", a[0])
-        Call.sendMessage("[scarlet][Server]:[white] " + a[0])
+        Bundle.sendMessage("commands.say.prefix", a[0])
         sendServerMessage("Server: " + a[0])
     }
 

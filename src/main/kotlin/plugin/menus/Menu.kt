@@ -77,18 +77,18 @@ class Menu(var title: String, var message: String) {
                 val player = e.player
                 val menu = menus.get(e.menuId)
                 if (menu == null || menu.player != player) {
-                    player.sendMessage("[scarlet]Invalid menu.")
+                    player.sendMessage(Bundle.get("menu.invalid", player.locale))
                     return@on
                 }
 
                 val option = e.option
                 if (option == -1) {
-                    player.sendMessage("[red]Closed.")
+                    player.sendMessage(Bundle.get("menu.closed", player.locale))
                     menus.remove(e.menuId)
                     return@on
                 }
                 if (option > menu.handlers.size) {
-                    player.sendMessage("[scarlet]Invalid option.")
+                    player.sendMessage(Bundle.get("menu.invalidoption", player.locale))
                     return@on
                 }
                 menus.remove(e.menuId)

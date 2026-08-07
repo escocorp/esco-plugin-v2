@@ -60,10 +60,10 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("settings", "") { _: Array<String>, player: Player ->
         val pd = player.getData()
         if(pd == null) {
-            player.sendMessage("No PlayerData present!")
+            Bundle.sendMessage("commands.noplayerdata", player)
             return@registerCommand
         }
-        val menu = Menu("Settings", "Click to change setting")
+        val menu = Menu("@menu.settings.title", "@menu.settings.message")
 
         menu.add("Show welcome menu\n${parseBool(pd.prefs.showWelcomeMenu)}") {
             Call.infoMessage(player.con, "From ${parseBool(pd.prefs.showWelcomeMenu, colored = true)} -> ${parseBool(!pd.prefs.showWelcomeMenu, colored = true)}")
@@ -169,10 +169,10 @@ fun register(handler: CustomHandler) {
     }
 
     handler.registerCommand("maps", "") { _: Array<String>, p: Player ->
-        val menu = ScrollableMenu("Maps", rowPerItems = 2)
+        val menu = ScrollableMenu("@menu.maps.title", rowPerItems = 2)
         val maps = Vars.maps.customMaps()
         for (map in maps) {
-            menu.add("${map.name()}\n[lightgray]${map.height}x${map.width}")
+            menu.add(Bundle.get("menu.maps.item", p.locale, map.name(), map.height, map.width))
         }
         menu.show(p)
     }
@@ -181,17 +181,17 @@ fun register(handler: CustomHandler) {
         val status = p.getStatus()
         if (status.vanished) {
             status.vanished = false
-            p.sendMessage("unvanished")
+            Bundle.sendMessage("commands.vanish.off", p)
             return@CommandRunner
         }
-        p.sendMessage("vanished")
+        Bundle.sendMessage("commands.vanish.on", p)
         status.vanished = true
         Call.playerDisconnect(p.id)
     })
     handler.registerCommand("pay", "<amount> <playername...>", CommandRunner { args: Array<String>, player: Player ->
         val target = Groups.player.find { p: Player -> p.plainName().equals(args[1], ignoreCase = true) }
         if (target == null || target === player) {
-            player.sendMessage("[scarlet]Player with that name not found!")
+            Bundle.sendMessage("errors.playernotfound", player)
             return@CommandRunner
         }
         if (!Strings.canParseInt(args[0])) {
@@ -201,12 +201,12 @@ fun register(handler: CustomHandler) {
         val targetStatsOpt = getPlayerData(target)
         val playerStatsOpt = getPlayerData(player)
         if (targetStatsOpt == null || playerStatsOpt == null) {
-            player.sendMessage("[scarlet]Unknown error")
+            Bundle.sendMessage("errors.unknown", player)
             return@CommandRunner
         }
         val amount = Strings.parseInt(args[0])
         if (amount < 1) {
-            player.sendMessage("Amount must be > 0")
+            Bundle.sendMessage("args.amountpositive", player)
             return@CommandRunner
         }
         if (amount > playerStatsOpt.balance) {
@@ -216,8 +216,8 @@ fun register(handler: CustomHandler) {
         val commision = (amount * 0.02f).roundToInt()
         playerStatsOpt.subBalance(amount)
         targetStatsOpt.adjBalance(amount - commision)
-        target.sendMessage("[green]Player " + player.coloredName() + " [green]give you $[white]" + amount + " [green](commision $[white]" + commision + "[green])")
-        player.sendMessage("[green]You give " + target.coloredName() + " [green]$[white]" + amount + " [green](commision $[white]" + commision + "[green])")
+        target.sendMessage(Bundle.get("menu.pay.received", target.locale, player.coloredName(), amount, commision))
+        player.sendMessage(Bundle.get("menu.pay.sent", player.locale, target.coloredName(), amount, commision))
     })
     handler.registerCommand("economy", "") { _: Array<String?>?, p: Player? ->
         Bundle.infoMessage("infomessage.economyguide", p)
@@ -242,7 +242,7 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("sync", CommandRunner { _: Array<String>, player: Player ->
         if (Time.timeSinceMillis(player.info.lastSyncTime) < 1000 * 5) {
-            player.sendMessage("[scarlet]You may only /sync every 5 seconds.")
+            Bundle.sendMessage("commands.sync.cooldown", player)
             return@CommandRunner
         }
         player.info.lastSyncTime = Time.millis()
@@ -251,7 +251,7 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("thelp", "[page]", CommandRunner { args: Array<String>, player: Player ->
         if (args.isNotEmpty() && !Strings.canParseInt(args[0])) {
-            player.sendMessage("[scarlet]\"page\" must be a integer.")
+            Bundle.sendMessage("args.mustbeint", player, "<page>")
             return@CommandRunner
         }
         val page = if (args.isNotEmpty()) Strings.parseInt(args[0]) - 1 else 0
@@ -290,13 +290,13 @@ fun register(handler: CustomHandler) {
             Bundle.sendMessage("commands.unknownpage", player)
             return@CommandRunner
         }
-        val resp = "[orange]-- Commands Page " + (page + 1) + "/" + pages.size + " --\n\n" + pages.get(page)
+        val resp = Bundle.get("commands.pages.header", player.locale, page + 1, pages.size) + "\n\n" + pages.get(page)
         player.sendMessage(resp)
     })
 
     handler.registerCommand("help", "") { _: Array<String>, player: Player ->
         val perms = Permission.getPerms(player)
-        val menu = ScrollableTextMenu("Help")
+        val menu = ScrollableTextMenu("@menu.help.title")
         for (i in 0..<handler.commands.size) {
             val c = handler.commands.get(i) ?: continue
             if (!perms.contains(c.permission)) continue
@@ -320,14 +320,14 @@ fun register(handler: CustomHandler) {
     }
 
     handler.registerCommand("stats", "") { _: Array<String>, p: Player ->
-        val sb = StringBuilder("[stat]Stats:\n")
+        val sb = StringBuilder(Bundle.get("stats.header", p.locale)).append("\n")
         getPlayerData(p)?.let { s ->
             s.updateStats(p, false)
-            sb.append("Blocks build: ").append(s.blocksBuild).append("\n")
-            sb.append("Blocks broken: ").append(s.blocksBroken).append("\n")
-            sb.append("Waves survived: ").append(s.wavesSurvived).append("\n")
-            sb.append("Balance: [green]$[]").append(s.balance).append("\n")
-            sb.append("Playtime: ").append(formatTime(s.playtime))
+            sb.append(Bundle.get("stats.blocksbuild", p.locale, s.blocksBuild)).append("\n")
+            sb.append(Bundle.get("stats.blocksbroken", p.locale, s.blocksBroken)).append("\n")
+            sb.append(Bundle.get("stats.wavessurvived", p.locale, s.wavesSurvived)).append("\n")
+            sb.append(Bundle.get("stats.balance", p.locale, s.balance)).append("\n")
+            sb.append(Bundle.get("stats.playtime", p.locale, formatTime(s.playtime)))
         }
         p.sendMessage(sb.toString())
     }
@@ -407,7 +407,7 @@ fun register(handler: CustomHandler) {
                 val time = parseTime(a[1])
                 val perm = a[1].equals("perm", ignoreCase = true)
                 if (time == -1L && !perm) {
-                    p.sendMessage("[scarlet]Unknown time, use d w m y or perm!")
+                    Bundle.sendMessage("commands.ban.unknowntime", p)
                     return@CommandRunner
                 }
                 val banned: Boolean = if (perm) {
@@ -416,12 +416,12 @@ fun register(handler: CustomHandler) {
                     ban(id, p, a[2], time, "command")
                 }
                 if (banned) {
-                    p.sendMessage("[green]Player banned!")
+                    Bundle.sendMessage("commands.ban.success", p)
                 } else {
-                    p.sendMessage("[scarlet]Failed to ban player")
+                    Bundle.sendMessage("commands.ban.fail", p)
                 }
             } else {
-                p.sendMessage("[scarlet]ID must be int!")
+                Bundle.sendMessage("args.mustbeint", p, "<id>")
             }
         })
 
@@ -429,11 +429,11 @@ fun register(handler: CustomHandler) {
         val status = p.getStatus()
         if (status.historyEnabled) {
             status.historyEnabled = false
-            p.sendMessage("[scarlet]Disabled")
+            Bundle.sendMessage("commands.history.disabled", p)
             Call.hideHudText(p.con)
         } else {
             status.historyEnabled = true
-            p.sendMessage("[green]Enabled! Tap on tile to see history!.")
+            Bundle.sendMessage("commands.history.enabled", p)
         }
     }
 
@@ -444,7 +444,7 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("link", CommandRunner { _: Array<String>, player: Player ->
         val pd = getPlayerData(player) ?: return@CommandRunner
         if (pd.discordId != null) {
-            player.sendMessage("Account already linked!")
+            Bundle.sendMessage("commands.link.alreadylinked", player)
             return@CommandRunner
         }
 
@@ -454,7 +454,7 @@ fun register(handler: CustomHandler) {
                 val state = req?.state ?: run {
                     val s = getRandomString(32)
                     if (!newLinkRequest(s, pd.id)) {
-                        player.sendMessage("[scarlet]Something went wrong! Try again later or choose another link type.")
+                        Bundle.sendMessage("commands.link.error", player)
                         return@add
                     }
                     debug("Generated state(code) for linking $s")
@@ -483,17 +483,17 @@ fun register(handler: CustomHandler) {
             1 -> {
                 updateAdminHidden(id, true)
                 p.admin(false)
-                p.sendMessage("[green]Ok!")
+                Bundle.sendMessage("commands.hidden.ok", p)
             }
 
             -1 -> {
                 updateAdminHidden(id, false)
                 p.admin(true)
-                p.sendMessage("[green]Ok!")
+                Bundle.sendMessage("commands.hidden.ok", p)
             }
 
             else -> {
-                p.sendMessage("[scarlet]Unknown bool! Use y/yes/д/да/t or n/no/н/нет/f")
+                Bundle.sendMessage("commands.hidden.unknownbool", p)
             }
         }
     })
@@ -624,7 +624,7 @@ fun register(handler: CustomHandler) {
             }
             if (args.isEmpty()) {
                 val builder = StringBuilder()
-                builder.append("[orange]Players to kick: \n")
+                builder.append(Bundle.get("commands.votekick.players", player.locale)).append("\n")
 
                 Groups.player.each(
                     { p: Player -> !p.admin && p.con != null && p !== player },

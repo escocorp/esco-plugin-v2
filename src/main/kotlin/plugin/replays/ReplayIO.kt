@@ -8,7 +8,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
 import mindustry.content.Blocks
 import mindustry.game.Team
-import mindustry.gen.Call
+import plugin.Bundle
 import plugin.history.HistoryStack
 import plugin.history.HistoryType
 
@@ -77,7 +77,7 @@ fun playReplay(replay: HashMap<Long, ReplayStack>) {
         val delay = (event.record.time - start) / 1000f
         Timer.schedule({
             if (event.record.time == end) {
-                Call.sendMessage("Done!")
+                Bundle.sendMessage("replays.done")
             }
             applyEvent(event)
         }, delay)

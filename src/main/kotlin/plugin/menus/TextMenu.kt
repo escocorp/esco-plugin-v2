@@ -8,6 +8,7 @@ import arc.util.Timer
 import mindustry.game.EventType
 import mindustry.gen.Call
 import mindustry.gen.Player
+import plugin.Bundle
 
 class TextMenu(private val handler: Cons2<Player, String>) {
     lateinit var player: Player
@@ -85,7 +86,7 @@ class TextMenu(private val handler: Cons2<Player, String>) {
 
                 val menu = menus.get(e.textInputId)
                 if (menu == null || menu.player != player) {
-                    player.sendMessage("[scarlet]Unknown input!")
+                    player.sendMessage(Bundle.get("textmenu.invalid", player.locale))
                     return@on
                 }
 

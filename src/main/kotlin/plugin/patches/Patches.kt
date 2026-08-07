@@ -12,7 +12,6 @@ import mindustry.Vars
 import mindustry.ctype.Content
 import mindustry.game.EventType.GameOverEvent
 import mindustry.game.Team
-import mindustry.gen.Call
 import mindustry.gen.EntityMapping
 import mindustry.gen.Groups
 import mindustry.gen.Unit
@@ -46,7 +45,7 @@ object Patches {
             Timer.schedule({ despawnUnits() }, (30 * 60).toFloat(), (30 * 60).toFloat())
 
             Timer.schedule({
-                Call.sendMessage("[stat]Time to change map! Save your buildings.")
+                Bundle.sendMessage("patches.mapchange")
                 Timer.schedule({
                     Events.fire(GameOverEvent(Team.derelict))
                 }, 10f)

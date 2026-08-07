@@ -2,6 +2,7 @@ package plugin.menus
 
 import arc.struct.Seq
 import mindustry.gen.Player
+import plugin.Bundle
 
 class ScrollableMenu(
     private val title: String,
@@ -33,7 +34,8 @@ class ScrollableMenu(
 
         val menu = Menu(
             title,
-            if (message.isEmpty()) "[gray]Page ${page + 1}/$totalPages" else "$message\n[gray]Page ${page + 1}/$totalPages"
+            if (message.isEmpty()) Bundle.get("menu.page", player.locale, page + 1, totalPages)
+            else message + "\n" + Bundle.get("menu.page", player.locale, page + 1, totalPages)
         )
 
         val start = page * itemsPerPage
@@ -52,16 +54,16 @@ class ScrollableMenu(
 
         menu.row()
 
-        menu.add("[lightgray]<-") { p ->
+        menu.add("@menu.prev") { p ->
             val newPage = (page - 1).coerceAtLeast(0)
             showPage(p, newPage)
         }
 
-        menu.add("[red]Cancel") { p ->
-            p.sendMessage("[red]Cancelled.")
+        menu.add("@menu.cancel") { p ->
+            p.sendMessage(Bundle.get("menu.cancelled", p.locale))
         }
 
-        menu.add("[lightgray]->") { p ->
+        menu.add("@menu.next") { p ->
             val newPage = (page + 1).coerceAtMost(totalPages - 1)
             showPage(p, newPage)
         }

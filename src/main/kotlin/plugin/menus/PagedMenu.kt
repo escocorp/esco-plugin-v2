@@ -2,6 +2,7 @@ package plugin.menus
 
 import arc.struct.Seq
 import mindustry.gen.Player
+import plugin.Bundle
 
 class PagedMenu(
     private val title: String,
@@ -54,9 +55,9 @@ class PagedMenu(
         val menu = Menu(
             title,
             if (message.isEmpty())
-                "[gray]Page ${page + 1}/${pages.size}"
+                Bundle.get("menu.page", player.locale, page + 1, pages.size)
             else
-                "$message\n[gray]Page ${page + 1}/${pages.size}"
+                message + "\n" + Bundle.get("menu.page", player.locale, page + 1, pages.size)
         )
 
         for (item in pages[page]) {
@@ -71,16 +72,16 @@ class PagedMenu(
 
         menu.row()
 
-        menu.add("[lightgray]<-") { p ->
+        menu.add("@menu.prev") { p ->
             if (page > 0)
                 showPage(p, page - 1)
         }
 
-        menu.add("[red]Cancel") {
-            it.sendMessage("[red]Cancelled.")
+        menu.add("@menu.cancel") {
+            it.sendMessage(Bundle.get("menu.cancelled", it.locale))
         }
 
-        menu.add("[lightgray]->") { p ->
+        menu.add("@menu.next") { p ->
             if (page < pages.size - 1)
                 showPage(p, page + 1)
         }

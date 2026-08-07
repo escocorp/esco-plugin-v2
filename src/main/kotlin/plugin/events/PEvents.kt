@@ -83,7 +83,7 @@ fun loadEvents() {
         val player = e.player
 
         if(player.plainName().isEmpty()) {
-            player.kick("Your name must be not empty!")
+            player.kick(Bundle.get("kick.noname", player.locale), 0)
             return@on
         }
 
@@ -91,7 +91,7 @@ fun loadEvents() {
             val pd = getOrCreatePlayerData(player)
             if (pd == null) {
                 app.post {
-                    player.kick("[scarlet]Failed to create player! The server database may not be available", 0)
+                    player.kick(Bundle.get("kick.createdb", player.locale), 0)
                 }
                 return@launch
             }
@@ -139,7 +139,7 @@ fun loadEvents() {
             }
 
             if (pd.getUsid() != null && pd.getUsid() != player.usid()) {
-                player.sendMessage("Your authentication credentials are different. Please contact us on Discord. If you have admin rights, they will not be granted until the authentication credentials are updated.")
+                player.sendMessage(Bundle.get("messages.credsdiffer", player.locale))
 
                 if(pd.discordId != null) {
                     PVars.notificationsChannel.sendMessageEmbeds(
@@ -163,7 +163,7 @@ fun loadEvents() {
                 getAdmin(player)?.let { a: Admin ->
                     app.post {
                         if (a.perms.contains(Permission.Admin) && !a.hidden) player.admin(true)
-                        if (a.perms.size > 1) player.sendMessage("Your permissions " + Permission.seqToString(a.perms))
+                        if (a.perms.size > 1) player.sendMessage(Bundle.get("messages.permissions", player.locale, Permission.seqToString(a.perms)))
                     }
                 }
             }
@@ -178,7 +178,7 @@ fun loadEvents() {
         val pd = getPlayerData(player)
         if (pd == null) {
             app.post {
-                player.kick("[scarlet]Failed to create player, try re-join", 0)
+                player.kick(Bundle.get("kick.createfail", player.locale), 0)
             }
             return@onAsync
         }
@@ -381,7 +381,7 @@ fun loadEvents() {
                 s.adjBlocksBroken()
                 if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
                     ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"), "antigrief")
-                    player.kick("AutoBan: Possible Griefer", 0)
+                    player.kick(Bundle.get("kick.antigrief", player.locale), 0)
                     player.con.close()
                     antigriefCooldown.reset()
                 }
