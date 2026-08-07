@@ -32,6 +32,8 @@ import plugin.discord.Bot.sendLog
 import plugin.discord.register.CommandType
 import plugin.discord.register.DiscordCommand
 import plugin.maps.MapPreview
+import plugin.model.findPlayerByLinkCode
+import plugin.model.removeLinkCode
 import plugin.utils.*
 import java.awt.Color
 import java.io.File
@@ -219,12 +221,12 @@ class Commands {
     )
     fun link(args: Array<String>, ctx: Context) {
         if (args[0].length > 15) return
-        if (!PVars.linkCodes.containsKey(args[0])) {
+        val player = findPlayerByLinkCode(args[0])
+        if (player == null) {
             ctx.reply("Code not found! Are you on server?")
             return
         }
-        val player = PVars.linkCodes.get(args[0])
-        PVars.linkCodes.remove(args[0])
+        player.removeLinkCode()
         getPlayerData(player)?.let( { p: PlayerData ->
             if (p.updateDiscordId(ctx.author.idLong)) ctx.reply("Success!")
             else ctx.reply("Failed")

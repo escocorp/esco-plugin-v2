@@ -5,7 +5,6 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.CommandHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mindustry.gen.Player;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -47,8 +46,6 @@ public class PVars {
     public static CommandHandler discordCommands, globalCommands, serverCommands;
 
     public static final Random random = new Random();
-
-    public static final ObjectMap<String, Player> linkCodes = new ObjectMap<>();
 
     public static boolean needRestart = false;
 

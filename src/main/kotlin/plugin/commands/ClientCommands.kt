@@ -39,7 +39,9 @@ import plugin.menus.Menu
 import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
+import plugin.model.getLinkCode
 import plugin.model.getStatus
+import plugin.model.setLinkCode
 import plugin.replays.saveReplay
 import plugin.utils.*
 import plugin.votes.VoteMap
@@ -462,10 +464,10 @@ fun register(handler: CustomHandler) {
                 Call.openURI(player.con, "$discordOauthBaseUrl/link?state=$state")
             }
             .add("@discord.link.text") {
-                var code: String? = PVars.linkCodes.findKey(player, false)
+                var code: String? = player.getLinkCode()
                 if (code == null) {
                     code = getRandomString(6)
-                    PVars.linkCodes.put(code, player)
+                    player.setLinkCode(code)
                 }
 
                 Bundle.infoMessage("discord.link", player, PVars.gamemode.botPrefix, code, PVars.discordLink)

@@ -3,7 +3,6 @@ package plugin.events
 import arc.Core.app
 import arc.Events
 import arc.func.Cons
-import arc.struct.ObjectMap
 import arc.util.Log
 import arc.util.Strings
 import arc.util.Timekeeper
@@ -65,7 +64,6 @@ import java.awt.Color
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.function.Consumer
 import kotlin.time.Clock
 
 var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
@@ -641,12 +639,4 @@ fun purgeData(p: Player) {
     playerDataCache.remove(p)
     adminsCache.remove(p)
     purgePlayerStatus(p)
-
-    if (PVars.linkCodes.containsValue(
-            p,
-            false
-        )
-    ) PVars.linkCodes.forEach(Consumer { e: ObjectMap.Entry<String, Player> ->
-        if (e.value == p) app.post { PVars.linkCodes.remove(e.key) }
-    })
 }

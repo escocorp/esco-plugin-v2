@@ -9,7 +9,8 @@ data class PlayerStatus(
     var schemeSizeUser: Boolean = false,
     var foosUser: Boolean = false,
     var agzamModUser: Boolean = false,
-    var historyEnabled: Boolean = false
+    var historyEnabled: Boolean = false,
+    var linkCode: String? = null
 )
 
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
@@ -50,4 +51,20 @@ fun Player.unfreeze(): PlayerStatus {
 
 fun purgePlayerStatus(player: Player) {
     playerStatuses.remove(player)
+}
+
+fun Player.getLinkCode(): String? {
+    return this.getStatus().linkCode
+}
+
+fun Player.setLinkCode(code: String) {
+    this.getStatus().linkCode = code
+}
+
+fun Player.removeLinkCode() {
+    this.getStatus().linkCode = null
+}
+
+fun findPlayerByLinkCode(code: String): Player? {
+    return playerStatuses.entries.firstOrNull { it.value.linkCode == code }?.key
 }
