@@ -1,5 +1,6 @@
 package plugin;
 
+import arc.files.Fi;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.struct.StringMap;
@@ -14,9 +15,17 @@ import java.text.MessageFormat;
 import static java.text.MessageFormat.format;
 import static plugin.PVars.apiAuth;
 import static plugin.PVars.bundleApi;
+import static plugin.utils.UtilsKt.getResource;
 
 public class Bundle {
-    public static final Seq<String> locales = Seq.with("en", "ru", "uk_UA", "zh_CN", "pt_BR", "de");
+    public static final Seq<String> locales = Seq.with(
+            getResource("locales")
+                    .readString()
+                    .lines()
+                    .filter(s -> !s.isBlank())
+                    .toArray(String[]::new)
+    );
+    // Seq.with("en", "ru", "uk_UA", "zh_CN", "pt_BR", "de");
     public static final ObjectMap<String, String> localesAliases = new ObjectMap<>();
 
     private static final ObjectMap<String, StringMap> bundles = new ObjectMap<>();
@@ -36,67 +45,61 @@ public class Bundle {
         Http.get(bundleApi + locale)
                 .header("Authorization", "Basic " + apiAuth)
                 .error(err -> {
-                    Log.err("Failed to load bundle locale '@'", locale);
+                    Log.err("Failed to load bundle locale '@', falling back to bundled file", locale);
                     Log.err(err);
+                    loadLocaleFallback(locale);
                 })
                 .submit(resp -> {
                     String content = resp.getResultAsString();
 
                     if (content == null || content.isEmpty()) {
-                        Log.warn("Bundle locale '@' returned empty response", locale);
+                        Log.warn("Bundle locale '@' returned empty response, falling back to bundled file", locale);
+                        loadLocaleFallback(locale);
                         return;
                     }
 
-                    StringMap map = new StringMap();
-
-                    for (String line : content.split(";")) {
-                        line = line.trim();
-
-                        if (line.isEmpty() || line.startsWith("#")) continue;
-
-                        int eq = line.indexOf('=');
-                        if (eq <= 0) continue;
-
-                        String key = line.substring(0, eq).trim();
-                        String value = line.substring(eq + 1).trim();
-
-                        map.put(key, value);
-                    }
-
-                    bundles.put(locale, map);
-                    Log.info("Bundle locale '@' loaded (@ keys)", locale, map.size);
+                    parseAndStore(locale, content);
                 });
-        /*Http.get(bundleApi + locale,
-                resp -> {
-                    String content = resp.getResultAsString();
+    }
 
-                    if (content == null || content.isEmpty()) {
-                        Log.warn("Bundle locale '@' returned empty response", locale);
-                        return;
-                    }
+    private static void loadLocaleFallback(String locale) {
+        Fi file = getResource("bundles/" + locale);
 
-                    StringMap map = new StringMap();
+        if (file == null || !file.exists()) {
+            Log.warn("No bundled fallback file found for locale '@' (submodule likely not initialized)", locale);
+            return;
+        }
 
-                    for (String line : content.split(";")) {
-                        line = line.trim();
+        String content = file.readString();
 
-                        if (line.isEmpty() || line.startsWith("#")) continue;
+        if (content.isEmpty()) {
+            Log.warn("Bundled fallback file for locale '@' is empty", locale);
+            return;
+        }
 
-                        int eq = line.indexOf('=');
-                        if (eq <= 0) continue;
+        parseAndStore(locale, content);
+        Log.info("Bundle locale '@' loaded from bundled fallback file", locale);
+    }
 
-                        String key = line.substring(0, eq).trim();
-                        String value = line.substring(eq + 1).trim();
+    private static void parseAndStore(String locale, String content) {
+        StringMap map = new StringMap();
 
-                        map.put(key, value);
-                    }
+        for (String line : content.split(";")) {
+            line = line.trim();
 
-                    bundles.put(locale, map);
-                    Log.info("Bundle locale '@' loaded (@ keys)", locale, map.size);
+            if (line.isEmpty() || line.startsWith("#")) continue;
 
-                },
-                err -> Log.err("Failed to load bundle locale '@'", locale, err)
-        );*/
+            int eq = line.indexOf('=');
+            if (eq <= 0) continue;
+
+            String key = line.substring(0, eq).trim();
+            String value = line.substring(eq + 1).trim();
+
+            map.put(key, value);
+        }
+
+        bundles.put(locale, map);
+        Log.info("Bundle locale '@' loaded (@ keys)", locale, map.size);
     }
 
     public static String get(String key, String locale) {

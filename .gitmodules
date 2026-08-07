@@ -1,0 +1,3 @@
+[submodule "src/main/resources/bundles"]
+	path = src/main/resources/bundles
+	url = https://github.com/escocorp/bundles

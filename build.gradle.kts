@@ -161,3 +161,21 @@ tasks.jar {
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+val bundlesDir = file("src/main/resources/bundles")
+val localesFile = file("src/main/resources/locales")
+
+tasks.processResources {
+    if (bundlesDir.exists() && localesFile.exists()) {
+        val locales = localesFile.readLines()
+            .map(String::trim)
+            .filter { it.isNotBlank() }
+
+        exclude("bundles/**")
+
+        from(bundlesDir) {
+            include(locales)
+            into("bundles")
+        }
+    }
+}
