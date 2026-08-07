@@ -14,6 +14,7 @@ import mindustry.maps.Map;
 import mindustry.type.Item;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.OreBlock;
+import org.jspecify.annotations.NonNull;
 import plugin.utils.UtilsKt;
 
 import javax.imageio.ImageIO;
@@ -109,18 +110,7 @@ public class MapPreview {
                 final BufferedImage floors = new BufferedImage(width, height, 2);
                 final BufferedImage walls = new BufferedImage(width, height, 2);
                 final Graphics2D fgraphics = floors.createGraphics();
-                final java.awt.Color shade = new java.awt.Color(0, 0, 0, 64);
-                CachedTile tile = new CachedTile() {
-                    public void setBlock(Block type) {
-                        super.setBlock(type);
-                        int color = MapIO.colorFor(this.block(), Blocks.air, Blocks.air, this.team());
-                        if (color != 255 && color != 0) {
-                            walls.setRGB(this.x, floors.getHeight() - 1 - this.y, convert(color));
-                            fgraphics.setColor(shade);
-                            fgraphics.drawRect(this.x, floors.getHeight() - 1 - this.y + 1, 1, 1);
-                        }
-                    }
-                };
+                CachedTile tile = getCachedTile(walls, floors, fgraphics);
                 version.readRegion("content", stream, counter, version::readContentHeader);
                 if (version.version >= 11) {
                     // version.readRegion("content", stream, counter, version::skipContentPatches);
@@ -200,6 +190,22 @@ public class MapPreview {
         }
 
         return var12;
+    }
+
+    private static @NonNull CachedTile getCachedTile(BufferedImage walls, BufferedImage floors, Graphics2D fgraphics) {
+        final Color shade = new Color(0, 0, 0, 64);
+        CachedTile tile = new CachedTile() {
+            public void setBlock(Block type) {
+                super.setBlock(type);
+                int color = MapIO.colorFor(this.block(), Blocks.air, Blocks.air, this.team());
+                if (color != 255 && color != 0) {
+                    walls.setRGB(this.x, floors.getHeight() - 1 - this.y, convert(color));
+                    fgraphics.setColor(shade);
+                    fgraphics.drawRect(this.x, floors.getHeight() - 1 - this.y + 1, 1, 1);
+                }
+            }
+        };
+        return tile;
     }
 
     public static int convert(int color) {

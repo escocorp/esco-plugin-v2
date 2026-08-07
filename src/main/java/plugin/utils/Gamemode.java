@@ -12,12 +12,10 @@ public enum Gamemode {
     hexed("hexed", "hex!", 0, 20, 1050),
     crawlerArena("crw", "crw!", 20, 0, 1500);
 
-    public boolean optimized;
-    public String simpleName, botPrefix;
-    public int waveCost, blockCost, winCost;
+    public final String simpleName, botPrefix;
+    public final int waveCost, blockCost, winCost;
 
     Gamemode() {
-        this.optimized = false;
         this.simpleName = name();
         this.botPrefix = "idk!";
         this.waveCost = 0;

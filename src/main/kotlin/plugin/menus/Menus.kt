@@ -135,7 +135,7 @@ fun buyUnits(stats: PlayerData, p: Player, count: Int) {
                 return@add
             }
 
-            @Suppress("UNUSED_PARAMETER")
+            @Suppress("UNUSED_PARAMETER", "RedundantSuppression")
             for(i in 0 until count)
                 type.spawn(pl.team(), pl.x, pl.y)
             stats.subBalance(cost)

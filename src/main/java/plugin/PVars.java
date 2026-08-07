@@ -46,22 +46,22 @@ public class PVars {
     public static CustomHandler clientCommands;
     public static CommandHandler discordCommands, globalCommands, serverCommands;
 
-    public static Random random = new Random();
+    public static final Random random = new Random();
 
-    public static ObjectMap<String, Player> linkCodes = new ObjectMap<>();
+    public static final ObjectMap<String, Player> linkCodes = new ObjectMap<>();
     public static Seq<Player> vanishedPlayers = new Seq<>();
 
     public static boolean needRestart = false;
 
-    public static Seq<Log> logsBuffer = new Seq<>();
+    public static final Seq<Log> logsBuffer = new Seq<>();
 
-    public static IntMap<String> SSUsers = new IntMap<>(8);
+    public static final IntMap<String> SSUsers = new IntMap<>(8);
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static final ExecutorService globalExecutor = Executors.newSingleThreadExecutor();
 
-    public static HttpClient httpClient = HttpClient.newBuilder()
+    public static final HttpClient httpClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
@@ -70,7 +70,7 @@ public class PVars {
     public static final String hubIp = "node2.larzed.icu";
     public static final int hubPort = 6568;
 
-    public static ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();
+    public static final ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();
 
     public static String S3BaseUrl, S3AccessKey, S3SecretKey;
     public static S3 S3;

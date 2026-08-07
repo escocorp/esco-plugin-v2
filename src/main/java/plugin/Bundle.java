@@ -21,7 +21,7 @@ public class Bundle {
 
     private static final ObjectMap<String, StringMap> bundles = new ObjectMap<>();
 
-    public static String defaultLocale = "en";
+    public static final String defaultLocale = "en";
 
     public static void load() {
         localesAliases.put("en_US", "en");
