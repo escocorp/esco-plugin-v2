@@ -7,13 +7,13 @@ https://github.com/escocorp/intellij-bundle-previewer
 
 ### Сборка
 
-`gradlew jar` / `./gradlew jar`
+`./gradlew jar` / `./gradlew.bat jar`
 
 Артефакты должны быть в `build/libs`.
 
 ### Деплой
 
-`./autodeploy.sh`
+`./autodeploy.sh` / `./autodeploy.bat`
 
 ### Установка
 Поместите плагин в папку `config/mods` и создайте конфигурационный файл .env, или задайте ее через export или же параметры -D
