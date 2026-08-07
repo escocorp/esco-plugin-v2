@@ -16,7 +16,6 @@ import plugin.utils.sanitizeDiscordMessage
 import java.text.MessageFormat
 
 class MessageListener : ListenerAdapter() {
-    // Rate limit: track last message time per user to prevent spam
     private val userCooldowns = java.util.concurrent.ConcurrentHashMap<String, Long>()
     private val cooldownMs = 1500L
 
@@ -31,14 +30,12 @@ class MessageListener : ListenerAdapter() {
         val content = message.contentDisplay
 
         if (member != null) {
-            // RCE protection: block dangerous JS patterns in console command
             val jsSafe = !content.contains("js", true)
             if (jsSafe && channel.id == PVars.consoleChannelStr && member.hasRole(PVars.ownerRoleId)) {
                 ServerControl.instance.handleCommandString(content)
             }
 
             if (channel.id == PVars.serverChannelStr && !content.startsWith(PVars.gamemode.botPrefix)) {
-                // Rate limiting: skip if user is on cooldown
                 val now = System.currentTimeMillis()
                 val lastMsg = userCooldowns.getOrDefault(author.id, 0L)
                 if (now - lastMsg < cooldownMs) return
