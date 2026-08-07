@@ -18,7 +18,7 @@ class PPlugin : Plugin() {
 
         Threads.daemon { Bot.load() }
 
-        Log.info("EscoPlugin successfully loaded!")
+        Log.info("EscoPlugin (${PVars.version}) successfully loaded!")
     }
 
     override fun registerServerCommands(handler: CommandHandler) {
