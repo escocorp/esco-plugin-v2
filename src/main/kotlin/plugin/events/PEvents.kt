@@ -57,6 +57,7 @@ import plugin.model.freeze
 import plugin.model.getStatus
 import plugin.model.purgePlayerStatus
 import plugin.replays.saveReplay
+import plugin.trails.TrailsHandler
 import plugin.utils.*
 import plugin.utils.Loader.exit
 import plugin.utils.Loader.loadAfterStart
@@ -639,4 +640,5 @@ fun purgeData(p: Player) {
     playerDataCache.remove(p)
     adminsCache.remove(p)
     purgePlayerStatus(p)
+    TrailsHandler.remove(p)
 }

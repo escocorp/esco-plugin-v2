@@ -14,6 +14,9 @@ class ScrollableMenu(
     private val items = Seq<String>()
     private val handlers = Seq<(Player) -> Unit>()
 
+    private val footerItems = Seq<String>()
+    private val footerHandlers = Seq<(Player) -> Unit>()
+
     fun add(text: String, handler: (Player) -> Unit): ScrollableMenu {
         items.add(text)
         handlers.add(handler)
@@ -22,6 +25,12 @@ class ScrollableMenu(
 
     fun add(text: String): ScrollableMenu {
         add(text) {} // empty handler
+        return this
+    }
+
+    fun addFooter(text: String, handler: (Player) -> Unit): ScrollableMenu {
+        footerItems.add(text)
+        footerHandlers.add(handler)
         return this
     }
 
@@ -49,6 +58,13 @@ class ScrollableMenu(
 
             if ((i - start + 1) % rowPerItems == 0) {
                 menu.row()
+            }
+        }
+
+        if (!footerItems.isEmpty) {
+            menu.row()
+            for (i in 0 until footerItems.size) {
+                menu.add(footerItems[i]) { p -> footerHandlers[i](p) }
             }
         }
 

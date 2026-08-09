@@ -43,6 +43,7 @@ import plugin.model.getLinkCode
 import plugin.model.getStatus
 import plugin.model.setLinkCode
 import plugin.replays.saveReplay
+import plugin.trails.TrailsHandler
 import plugin.utils.*
 import plugin.votes.VoteMap
 import plugin.votes.VoteWave
@@ -57,6 +58,8 @@ const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
+    TrailsHandler.registerCommands(handler)
+
     handler.registerCommand("settings", "") { _: Array<String>, player: Player ->
         val pd = player.getData()
         if(pd == null) {

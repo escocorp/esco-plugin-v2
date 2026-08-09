@@ -38,6 +38,7 @@ import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
 import plugin.s3.S3
+import plugin.trails.TrailsHandler
 import kotlin.system.exitProcess
 
 object Loader {
@@ -63,6 +64,7 @@ object Loader {
             Menu.load()
             TextMenu.load()
             loadGraylist()
+            TrailsHandler.load()
 
             if(S3Enabled)
                 PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
