@@ -66,6 +66,12 @@ fun register(handler: CustomHandler) {
         Bundle.sendMessage(if (status.owoAccent) "command.owo.on" else "command.owo.off", player)
     }
 
+    handler.registerCommand("ohio", "") { _: Array<String>, player: Player ->
+        val status = player.getStatus()
+        status.ohioAccent = !status.ohioAccent
+        Bundle.sendMessage(if (status.ohioAccent) "command.ohio.on" else "command.ohio.off", player)
+    }
+
     handler.registerCommand("settings", "") { _: Array<String>, player: Player ->
         val pd = player.getData()
         if(pd == null) {
@@ -84,6 +90,13 @@ fun register(handler: CustomHandler) {
             p.getStatus().owoAccent = pd.prefs.owoAccent
             globalScope.launch { pd.updatePrefs() }
             Bundle.sendMessage(if (pd.prefs.owoAccent) "command.owo.on" else "command.owo.off", p)
+        }
+
+        menu.add("${Bundle.get("menu.settings.ohio", player.locale)}\n${parseBool(pd.prefs.ohioAccent)}") { p ->
+            pd.prefs.ohioAccent = !pd.prefs.ohioAccent
+            p.getStatus().ohioAccent = pd.prefs.ohioAccent
+            globalScope.launch { pd.updatePrefs() }
+            Bundle.sendMessage(if (pd.prefs.ohioAccent) "command.ohio.on" else "command.ohio.off", p)
         }
 
         menu.show(player)

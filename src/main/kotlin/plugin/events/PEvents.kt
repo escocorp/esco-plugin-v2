@@ -56,6 +56,7 @@ import plugin.model.VPNApiResponse
 import plugin.model.freeze
 import plugin.model.getStatus
 import plugin.model.purgePlayerStatus
+import plugin.chat.ohioify
 import plugin.chat.owoify
 import plugin.replays.saveReplay
 import plugin.trails.TrailsHandler
@@ -202,6 +203,7 @@ fun loadEvents() {
             Call.clientPacketReliable(player.con, "SendMeSubtitle", player.id.toString())
             if (pd.prefs.showWelcomeMenu) showWelcome(player)
             if (pd.prefs.owoAccent) player.getStatus().owoAccent = true
+            if (pd.prefs.ohioAccent) player.getStatus().ohioAccent = true
         }
 
 
@@ -603,10 +605,11 @@ fun loadEvents() {
             return@addActionFilter !status.frozen
         }
         Vars.netServer.admins.addChatFilter { player, message ->
-            if (player.getStatus().owoAccent) {
-                return@addChatFilter owoify(message)
-            }
-            return@addChatFilter message
+            val status = player.getStatus()
+            var result = message
+            if (status.ohioAccent) result = ohioify(result, player.locale)
+            if (status.owoAccent) result = owoify(result)
+            return@addChatFilter result
         }
     }
 

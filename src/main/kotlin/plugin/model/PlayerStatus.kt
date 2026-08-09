@@ -11,6 +11,7 @@ data class PlayerStatus(
     var agzamModUser: Boolean = false,
     var historyEnabled: Boolean = false,
     var owoAccent: Boolean = false,
+    var ohioAccent: Boolean = false,
     var linkCode: String? = null
 )
 
