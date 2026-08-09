@@ -71,7 +71,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    implementation(platform("software.amazon.awssdk:bom:2.49.3"))
+    implementation(platform("software.amazon.awssdk:bom:2.51.1"))
     implementation("software.amazon.awssdk:s3")
 
     //compileOnly(files("nohorny-client.jar"))
