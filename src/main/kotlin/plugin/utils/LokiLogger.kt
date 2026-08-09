@@ -13,10 +13,20 @@ data class LogEntry(
 
 val logs = CopyOnWriteArrayList<LogEntry>()
 
+/**
+ * Adds a log entry to the buffer.
+ *
+ * @param level the log level
+ * @param message the log message
+ */
 fun addLog(level: String, message: String) {
     logs.add(LogEntry(level, message))
 }
 
+/**
+ * Snapshots and clears the buffered logs, groups them by level,
+ * serializes them into a Loki push payload and sends it.
+ */
 fun pushLogs() {
     if (logs.isEmpty()) return
 
@@ -60,11 +70,23 @@ fun pushLogs() {
     send(sb.toString())
 }
 
+/**
+ * Removes ANSI escape sequences (color codes) from a string.
+ *
+ * @param str the string to strip
+ * @return the string without ANSI codes
+ */
 fun stripAnsi(str: String): String {
     val ansiRegex = "\u001B\\[[;\\d]*m".toRegex()
     return str.replace(ansiRegex, "")
 }
 
+/**
+ * Escapes a string for embedding into a JSON value.
+ *
+ * @param s the string to escape
+ * @return the JSON-escaped string
+ */
 fun escapeJson(s: String): String {
     val sb = StringBuilder(s.length)
     for (c in s) {
@@ -80,6 +102,11 @@ fun escapeJson(s: String): String {
     return sb.toString()
 }
 
+/**
+ * Returns the current time in nanoseconds.
+ *
+ * @return the current timestamp in nanoseconds
+ */
 fun now(): Long {
     return System.currentTimeMillis() * 1_000_000L
 }
@@ -108,6 +135,11 @@ fun send(payload: String) {
 }
 */
 
+/**
+ * Sends a raw Loki push payload to the Loki API.
+ *
+ * @param payload the JSON payload to send
+ */
 fun send(payload: String) {
     Log.debug(payload)
 

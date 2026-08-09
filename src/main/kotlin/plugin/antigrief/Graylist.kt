@@ -23,6 +23,14 @@ val isps = Seq<String>()
 val ips = Seq<String>()
 val ipsBlock = Seq<String>()
 
+/**
+ * Kicks a player if they are not linked to Discord and match the graylist
+ * (by ISP or IP).
+ *
+ * @param p the player to check
+ * @param isp the player's ISP, may be `null`
+ * @param pd the player's database data
+ */
 fun apply(p: Player, isp: String?, pd: PlayerData) {
     if (pd.discordId == null && (isps.contains(isp) || ipMatches(ips, p.ip()))) {
         p.kick(Bundle.get("kick.graylisted", p.locale, PVars.discordLink), 0)
@@ -30,6 +38,10 @@ fun apply(p: Player, isp: String?, pd: PlayerData) {
     }
 }
 
+/**
+ * Schedules periodic graylist reloads and installs a connect filter that
+ * rejects IPs from the blocked list.
+ */
 fun loadGraylist() {
     Timer.schedule({
         reloadGraylist()
@@ -40,6 +52,10 @@ fun loadGraylist() {
     }
 }
 
+/**
+ * Fetches the ISP, IP and blocked-IP lists from the graylist repository
+ * and updates the in-memory lists.
+ */
 fun reloadGraylist() {
     try {
         Http.get(ispsUrl)
@@ -91,6 +107,13 @@ fun reloadGraylist() {
     }
 }
 
+/**
+ * Checks whether an IP matches any entry in the list (exact match or CIDR range).
+ *
+ * @param list the list of IPs and CIDR ranges
+ * @param ip the IP to check
+ * @return `true` if the IP matches, `false` otherwise
+ */
 private fun ipMatches(list: Seq<String>, ip: String): Boolean {
     for (entry in list) {
         if (entry == ip) return true
@@ -103,6 +126,13 @@ private fun ipMatches(list: Seq<String>, ip: String): Boolean {
     return false
 }
 
+/**
+ * Checks whether an IP belongs to the given CIDR range (IPv4 or IPv6).
+ *
+ * @param ip the IP to check
+ * @param cidr the CIDR range, e.g. `192.168.0.0/24`
+ * @return `true` if the IP is in the range, `false` otherwise
+ */
 private fun cidrMatch(ip: String, cidr: String): Boolean {
     return try {
         val parts = cidr.split("/", limit = 2)

@@ -1,5 +1,6 @@
 package plugin.database
 
+import arc.Events
 import arc.struct.ObjectMap
 import arc.util.Log
 import arc.util.Time
@@ -10,6 +11,7 @@ import plugin.PVars.*
 import plugin.database.models.Admin
 import plugin.database.models.PlayerData
 import plugin.database.models.putLog
+import plugin.events.DatabaseLoadEvent
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -17,6 +19,16 @@ import java.sql.SQLException
 object Database {
     var dataSource: HikariDataSource? = null
 
+    /**
+     * Initializes the data source from explicit connection parameters.
+     *
+     * @param dbHost the database host
+     * @param dbPort the database port
+     * @param db the database name
+     * @param dbUser the database user
+     * @param dbPassword the database password, pass `"empty"` to omit
+     * @throws IllegalStateException if the database was already loaded
+     */
     fun load(
         dbHost: String,
         dbPort: Int,
@@ -35,6 +47,7 @@ object Database {
             dbUser,
             dbPassword
         )
+        dataSource?.let { Events.fire(DatabaseLoadEvent(it)) }
     }
 
     fun load() {
@@ -50,6 +63,13 @@ object Database {
     private val cacheMissLogCooldown = ObjectMap<String, Long>()
     private const val CACHE_MISS_LOG_COOLDOWN_MS = 60_000L
 
+    /**
+     * Logs an expected warm-cache miss for a player, throttled to once per
+     * minute per player per cache.
+     *
+     * @param player the player whose cache entry was missing
+     * @param cacheName the name of the cache
+     */
     fun logExpectedCacheMiss(player: Player, cacheName: String) {
         // During gameplay these caches should usually be warmed on connect.
         val key = "$cacheName:${player.uuid()}"
@@ -64,6 +84,11 @@ object Database {
         )
     }
 
+    /**
+     * Creates a Hikari connection pool for the given PostgreSQL parameters.
+     *
+     * @return the data source, or `null` if the driver is not available
+     */
     private fun createDataSource(
         dbHost: String,
         dbPort: Int,
@@ -95,6 +120,16 @@ object Database {
         }
     }
 
+    /**
+     * Executes a query and maps the first row of the result set.
+     *
+     * @param T the mapped result type
+     * @param sql the SQL query
+     * @param setter binds the prepared statement parameters
+     * @param mapper maps the first row to the result
+     * @return the mapped result, or `null` if the query returned no rows
+     *         or failed
+     */
     @JvmStatic
     fun <T> executeQuery(
         sql: String,
@@ -121,6 +156,13 @@ object Database {
         }
     }
 
+    /**
+     * Executes an UPDATE/INSERT statement.
+     *
+     * @param sql the SQL statement
+     * @param statementSetter binds the prepared statement parameters
+     * @return `true` if at least one row was affected, `false` otherwise
+     */
     @JvmStatic
     fun executeUpdate(
         sql: String,
@@ -140,6 +182,15 @@ object Database {
         }
     }
 
+    /**
+     * Executes a query and maps every row of the result set into a list.
+     *
+     * @param T the mapped result type
+     * @param sql the SQL query
+     * @param statementSetter binds the prepared statement parameters
+     * @param serializer maps each row to an element
+     * @return the list of mapped rows, possibly empty
+     */
     @JvmStatic
     fun <T> executeQueryList(
         sql: String,

@@ -4,6 +4,8 @@
 
 - Do not add pointless comments that explain basic code. For example, avoid
   `val x = 10 // assign x to 10` and similar.
+- KDoc/Javadoc comments are only allowed on functions. Do not document
+  classes or fields (properties, constants, etc.).
 
 ## Emojis
 

@@ -13,8 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 object DDoSProtect {
     private const val ATTACK_TIMEOUT = 2 * 60 * 1000L
 
-    val lastPing = ConcurrentHashMap<String, Long>()
-
     private val botsKicked = AtomicInteger(0)
     private val lastBotTime = AtomicLong(0L)
     private val attackActive = AtomicBoolean(false)
