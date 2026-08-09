@@ -60,6 +60,12 @@ var voteCooldown = 60 * 5
 fun register(handler: CustomHandler) {
     TrailsHandler.registerCommands(handler)
 
+    handler.registerCommand("owo", "") { _: Array<String>, player: Player ->
+        val status = player.getStatus()
+        status.owoAccent = !status.owoAccent
+        Bundle.sendMessage(if (status.owoAccent) "command.owo.on" else "command.owo.off", player)
+    }
+
     handler.registerCommand("settings", "") { _: Array<String>, player: Player ->
         val pd = player.getData()
         if(pd == null) {
@@ -71,6 +77,13 @@ fun register(handler: CustomHandler) {
         menu.add("Show welcome menu\n${parseBool(pd.prefs.showWelcomeMenu)}") {
             Call.infoMessage(player.con, "From ${parseBool(pd.prefs.showWelcomeMenu, colored = true)} -> ${parseBool(!pd.prefs.showWelcomeMenu, colored = true)}")
             pd.prefs.showWelcomeMenu = !pd.prefs.showWelcomeMenu
+        }
+
+        menu.add("${Bundle.get("menu.settings.owo", player.locale)}\n${parseBool(pd.prefs.owoAccent)}") { p ->
+            pd.prefs.owoAccent = !pd.prefs.owoAccent
+            p.getStatus().owoAccent = pd.prefs.owoAccent
+            globalScope.launch { pd.updatePrefs() }
+            Bundle.sendMessage(if (pd.prefs.owoAccent) "command.owo.on" else "command.owo.off", p)
         }
 
         menu.show(player)

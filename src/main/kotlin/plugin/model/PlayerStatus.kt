@@ -10,6 +10,7 @@ data class PlayerStatus(
     var foosUser: Boolean = false,
     var agzamModUser: Boolean = false,
     var historyEnabled: Boolean = false,
+    var owoAccent: Boolean = false,
     var linkCode: String? = null
 )
 
