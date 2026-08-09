@@ -73,6 +73,8 @@ var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
 
 fun loadEvents() {
     Events.on(ConnectPacketEvent::class.java) { e ->
+        if (DDoSProtect.checkRatelimit(e.connection.address)) return@on
+
         val region = e.packet.uuid.hashCode()
         val cachedRegion = joinDemographics.get(region)
         if (cachedRegion == null) joinDemographics.put(region, e.packet.uuid)

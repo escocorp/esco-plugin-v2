@@ -1,5 +1,8 @@
 package plugin.ddos
 
+import arc.util.Log
+import arc.util.Ratekeeper
+import mindustry.Vars
 import mindustry.gen.Player
 import plugin.PVars
 import plugin.database.models.PlayerData
@@ -13,9 +16,35 @@ import java.util.concurrent.atomic.AtomicBoolean
 object DDoSProtect {
     private const val ATTACK_TIMEOUT = 2 * 60 * 1000L
 
+    private const val RATE_SPACING = 1000L
+    private const val RATE_AMOUNT = 5
+    private const val RATE_ENTRY_TTL = 60 * 1000L
+
     private val botsKicked = AtomicInteger(0)
     private val lastBotTime = AtomicLong(0L)
     private val attackActive = AtomicBoolean(false)
+
+    private val ipRatekeepers = ConcurrentHashMap<String, Ratekeeper>()
+    private val blacklisted = ConcurrentHashMap.newKeySet<String>()
+
+    fun checkRatelimit(address: String): Boolean {
+        if (blacklisted.contains(address)) return true
+
+        val keeper = ipRatekeepers.computeIfAbsent(address) { Ratekeeper() }
+        if (keeper.allow(RATE_SPACING, RATE_AMOUNT)) return false
+
+        if (blacklisted.add(address)) {
+            Vars.netServer.admins.blacklistDos(address)
+            lastBotTime.set(System.currentTimeMillis())
+            if (!attackActive.getAndSet(true)) {
+                Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
+            }
+            botsKicked.incrementAndGet()
+            Log.info("Blacklisting IP @ due to connection flood", address)
+            putLog("ddosprotect", "IP $address blacklisted due to connection flood")
+        }
+        return true
+    }
 
     fun handleBot(player: Player, pd: PlayerData?): Boolean {
         player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 5)
@@ -38,10 +67,13 @@ object DDoSProtect {
     }
 
     fun update() {
-        if (attackActive.get() &&
-            System.currentTimeMillis() - lastBotTime.get() >= ATTACK_TIMEOUT) {
+        val now = System.currentTimeMillis()
 
+        ipRatekeepers.entries.removeIf { now - it.value.lastTime >= RATE_ENTRY_TTL }
+
+        if (attackActive.get() && now - lastBotTime.get() >= ATTACK_TIMEOUT) {
             attackActive.set(false)
+            blacklisted.clear()
             val total = botsKicked.getAndSet(0)
             Bot.sendLog("\n# Bot attack ended✅✅✅✅. Total bots caught: $total")
         }

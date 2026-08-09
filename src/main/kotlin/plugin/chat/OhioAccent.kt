@@ -8,8 +8,8 @@ package plugin.chat
 
 import plugin.PVars
 
-private const val PREFIX_CHANCE = 0.15f
-private const val SUFFIX_CHANCE = 0.3f
+private const val PREFIX_CHANCE = 0.3f
+private const val SUFFIX_CHANCE = 0.4f
 
 private val enPrefixes = listOf(
     "Gyatt dang,", "Chat...", "Epic win,", "Widewawwy...",
@@ -26,7 +26,7 @@ private val enSuffixes = listOf(
 private val ruPrefixes = listOf(
     "О кринге,", "Чатик...", "Эпик вин,", "Буквальна...",
     "БРАТАН...", "Зови меня сигмой, потому что", "Это вайб...",
-    "Порошка белого хочется...", "Ооо чёрт..."
+    "Порошка белого хочется...", "Ооо чёрт...", "Щас бы порошка белого занюхнуть..."
 )
 
 private val ruSuffixes = listOf(
