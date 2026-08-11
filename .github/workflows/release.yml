@@ -15,7 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Init public submodules only
+        run: git submodule update --init src/main/resources/bundles
 
       - name: Set up JDK
         uses: actions/setup-java@v4
