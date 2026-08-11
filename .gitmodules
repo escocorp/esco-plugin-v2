@@ -1,3 +1,6 @@
 [submodule "src/main/resources/bundles"]
 	path = src/main/resources/bundles
 	url = https://github.com/escocorp/bundles
+[submodule "src/main/kotlin/plugin/ddos/antiddos"]
+	path = src/main/kotlin/plugin/ddos/antiddos
+	url = https://github.com/kukoldiki/antiddos.git

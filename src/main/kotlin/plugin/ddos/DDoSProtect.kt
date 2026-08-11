@@ -1,5 +1,6 @@
 package plugin.ddos
 
+import arc.struct.Seq
 import arc.util.Log
 import arc.util.Ratekeeper
 import mindustry.Vars
@@ -26,6 +27,19 @@ object DDoSProtect {
 
     private val ipRatekeepers = ConcurrentHashMap<String, Ratekeeper>()
     private val blacklisted = ConcurrentHashMap.newKeySet<String>()
+
+    fun load() {
+        try {
+            val clazz = Class.forName("plugin.ddos.antiddos.MethodOne")
+            val instance = clazz.getField("INSTANCE").get(null)
+            clazz.getMethod("load").invoke(instance)
+            Log.info("AntiDDoS method 1 loaded!")
+        } catch (e: ClassNotFoundException) {
+            Log.info("AntiDDoS method 1 not found! Skipping...")
+        } catch (e: Exception) {
+            Log.err("Error while loading method 1", e)
+        }
+    }
 
     fun checkRatelimit(address: String): Boolean {
         if (blacklisted.contains(address)) return true

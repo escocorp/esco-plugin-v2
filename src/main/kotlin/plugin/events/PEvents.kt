@@ -87,6 +87,8 @@ fun loadEvents() {
     Events.on(PlayerConnect::class.java) { e: PlayerConnect ->  // pre-connect
         val player = e.player
 
+        player.con
+
         if(player.plainName().isEmpty()) {
             player.kick(Bundle.get("kick.name-empty", player.locale), 0)
             return@on

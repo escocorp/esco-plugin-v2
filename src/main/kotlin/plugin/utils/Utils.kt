@@ -21,6 +21,7 @@ import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.maps.Map
+import mindustry.net.NetConnection
 import mindustry.world.Block
 import mindustry.world.blocks.power.PowerNode
 import mindustry.world.blocks.units.UnitFactory
@@ -39,6 +40,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.IOException
+import java.net.InetAddress
 import java.net.URI
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
@@ -247,6 +249,10 @@ fun parseTime(time: String?): Long {
 fun getUDPAddress(player: Player): String {
     return Reflect.get<Connection>(player.con, "connection").remoteAddressUDP.address.toString().substring(1)
 }
+
+fun NetConnection.getUDPAddress(): InetAddress =
+    Reflect.get<Connection>(this, "connection").remoteAddressUDP.address
+
 /**
  * Checks whether the player has the given permission.
  *
@@ -484,4 +490,12 @@ fun configAsString(config: Any?, block: Block): String? {
  */
 fun Long.discordMention(): String {
     return "<@$this>"
+}
+
+fun InetAddress.toIntKey(): Int {
+    val b = address // byte[4]
+    return (b[0].toInt() and 0xFF shl 24) or
+            (b[1].toInt() and 0xFF shl 16) or
+            (b[2].toInt() and 0xFF shl 8) or
+            (b[3].toInt() and 0xFF)
 }
