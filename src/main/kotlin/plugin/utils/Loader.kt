@@ -65,6 +65,7 @@ object Loader {
             TextMenu.load()
             loadGraylist()
             TrailsHandler.load()
+            DDoSProtect.load()
 
             if(S3Enabled)
                 PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
