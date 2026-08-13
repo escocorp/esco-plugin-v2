@@ -5,6 +5,7 @@ import arc.Events
 import arc.func.Cons
 import arc.util.Log
 import arc.util.Strings
+import arc.util.Time
 import arc.util.Timekeeper
 import arc.util.Timer
 import com.xpdustry.nohorny.client.ClassificationEvent
@@ -19,6 +20,7 @@ import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
+import mindustry.net.Administration
 import mindustry.world.blocks.logic.LogicBlock
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
@@ -32,6 +34,7 @@ import plugin.KVars.messageBuffer
 import plugin.PVars
 import plugin.PVars.S3Enabled
 import plugin.PVars.discordLink
+import plugin.PVars.gamemode
 import plugin.PVars.joinDemographics
 import plugin.PVars.vpnApiEnabled
 import plugin.antigrief.apply
@@ -67,6 +70,7 @@ import java.awt.Color
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.concurrent.atomics.AtomicInt
 import kotlin.time.Clock
 
 var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
@@ -173,6 +177,12 @@ fun loadEvents() {
                 }
             }
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
+
+            /*Timer.schedule({
+                if(player.con.isConnected && !player.isAdded) {
+                    player.kick("[scarlet]Something wrong with your connection, please reconnect")
+                }
+            }, 10f)*/
         }
     }
 
@@ -604,7 +614,15 @@ fun loadEvents() {
         loadAfterStart()
         Vars.netServer.admins.addActionFilter { filter ->
             val status = filter.player.getStatus()
-            return@addActionFilter !status.frozen
+            val action = filter.type
+            if(status.frozen)
+                return@addActionFilter false
+
+            /*if(gamemode == Gamemode.pvp && action == Administration.ActionType.commandUnits && Vars.state.tick < 15 * Time.toMinutes) {
+                return@addActionFilter false
+            }*/
+
+            return@addActionFilter true
         }
         Vars.netServer.admins.addChatFilter { player, message ->
             val status = player.getStatus()

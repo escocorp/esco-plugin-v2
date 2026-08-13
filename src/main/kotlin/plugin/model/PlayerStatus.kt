@@ -12,18 +12,14 @@ data class PlayerStatus(
     var historyEnabled: Boolean = false,
     var owoAccent: Boolean = false,
     var ohioAccent: Boolean = false,
-    var linkCode: String? = null
+    var linkCode: String? = null,
+    var pingReceived: Boolean = false,
 )
 
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
 
 fun getOrCreatePlayerStatus(player: Player): PlayerStatus {
-    var status = playerStatuses[player]
-    if (status == null) {
-        status = PlayerStatus()
-        playerStatuses[player] = status
-    }
-    return status
+    return playerStatuses.getOrPut(player) { PlayerStatus() }
 }
 
 fun Player.getStatus(): PlayerStatus {

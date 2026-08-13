@@ -30,14 +30,16 @@ object DDoSProtect {
 
     fun load() {
         try {
-            val clazz = Class.forName("plugin.ddos.antiddos.MethodOne")
+            val clazz = Class.forName("plugin.ddos.antiddos.L")
+
             val instance = clazz.getField("INSTANCE").get(null)
-            clazz.getMethod("load").invoke(instance)
-            Log.info("AntiDDoS method 1 loaded!")
+            clazz.getMethod("d").invoke(instance)
+
+            Log.info("AntiDDoS loaded!")
         } catch (e: ClassNotFoundException) {
-            Log.info("AntiDDoS method 1 not found! Skipping...")
+            Log.info("AntiDDoS not found! Skipping...")
         } catch (e: Exception) {
-            Log.err("Error while loading method 1", e)
+            Log.err("Error while loading AntiDDoS", e)
         }
     }
 
