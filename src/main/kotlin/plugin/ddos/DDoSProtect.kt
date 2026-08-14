@@ -81,6 +81,20 @@ object DDoSProtect {
         return true
     }
 
+    fun handleBotNoPlayer(address: String): Boolean {
+        lastBotTime.set(System.currentTimeMillis())
+
+        if (!attackActive.getAndSet(true)) {
+            Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
+        }
+
+        putLog("ddosprotect", "Player at IP $address detected as bot before connecting!")
+
+        botsKicked.incrementAndGet()
+
+        return true
+    }
+
     fun update() {
         val now = System.currentTimeMillis()
 
