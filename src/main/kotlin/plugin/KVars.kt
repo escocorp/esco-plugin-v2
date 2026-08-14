@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import plugin.database.models.MapStats
 import plugin.model.ChatMessageData
 import java.lang.management.ManagementFactory
 
@@ -19,8 +18,6 @@ object KVars {
     val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + errorHandler)
     val eventsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + errorHandler)
 
-    var mapStats: MapStats? = null
-    var startTime = System.currentTimeMillis()
     val messageBuffer = Seq<ChatMessageData>()
 
     const val buildsBaseUrl = "https://builds.larzed.icu"

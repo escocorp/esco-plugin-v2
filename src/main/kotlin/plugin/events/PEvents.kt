@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.utils.FileUpload
 import plugin.Bundle
 import plugin.KVars
 import plugin.KVars.eventsScope
-import plugin.KVars.mapStats
 import plugin.KVars.messageBuffer
 import plugin.PVars
 import plugin.PVars.S3Enabled
@@ -283,67 +282,9 @@ fun loadEvents() {
         }
         if (!message.startsWith("/")) {
             val content =
-                ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "")
+                ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "@\u200b")
             sendServerMessage(content)
         }
-    }
-
-    Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
-        Timer.schedule({
-            KVars.startTime = System.currentTimeMillis()
-            eventsScope.launch {
-                createOrGetMapStats(Vars.state.map.plainName())?.let { stats ->
-                    app.post {
-                        mapStats = stats
-                    }
-                }
-            }
-        }, 1f)
-    }
-
-    onAsync(GameOverEvent::class.java) { e: GameOverEvent ->
-        if (PVars.gamemode == Gamemode.hexed) return@onAsync
-        val stats = mapStats ?: return@onAsync
-
-        val wave = Vars.state.wave
-        val playtime = ((System.currentTimeMillis() - KVars.startTime) / 1000L).toInt() // seconds
-
-        val minWave = minOf(stats.minWave, wave)
-        val maxWave = maxOf(stats.maxWave, wave)
-
-        val minPlaytime =
-            if (stats.minPlaytime <= 0) playtime
-            else minOf(stats.minPlaytime, playtime)
-
-        val maxPlaytime = maxOf(stats.maxPlaytime, playtime)
-
-        var wins = stats.wins
-        var loses = stats.loses
-        var skips = stats.skips
-        when (e.winner) {
-            Team.derelict -> {
-                skips += 1
-            }
-
-            Vars.state.rules.defaultTeam -> {
-                wins += 1
-            }
-
-            else -> {
-                loses += 1
-            }
-        }
-
-        updateMapStats(
-            stats.name,
-            minWave,
-            maxWave,
-            minPlaytime,
-            maxPlaytime,
-            wins,
-            loses,
-            skips
-        )
     }
 
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
@@ -384,11 +325,6 @@ fun loadEvents() {
 
         message.queue()
     }
-
-    /*Events.on(HexData.HexCaptureEvent::class.java) { e ->
-        val hex = e.hex
-        Vars.world.tile(hex.x, hex.y)?.setNet(Blocks.coreShard, e.player.team(), 1)
-    }*/
 
     Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
         if (e.tile == null || e.unit == null) return@Cons
@@ -518,7 +454,6 @@ fun loadEvents() {
     })
 
     Events.on(WaveEvent::class.java) { _: WaveEvent ->
-        // Groups.player.each(Cons { p: Player -> getPlayerData(p).ifPresent(Consumer { obj: PlayerStats? -> obj!!.adjWavesSurvived() }) })
         Groups.player.each { p ->
             eventsScope.launch {
                 getPlayerData(p)?.let { stats ->
