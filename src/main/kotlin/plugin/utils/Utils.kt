@@ -15,7 +15,6 @@ import mindustry.Vars
 import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
 import mindustry.ai.UnitCommand
-import mindustry.core.GameState
 import mindustry.ctype.UnlockableContent
 import mindustry.gen.Groups
 import mindustry.gen.Player
@@ -36,9 +35,7 @@ import plugin.database.models.Permission
 import plugin.database.models.Permission.Companion.getPerms
 import plugin.model.VPNApiResponse
 import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.DataInputStream
 import java.io.IOException
 import java.net.InetAddress
 import java.net.URI
@@ -46,7 +43,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
 import java.util.*
-import java.util.zip.InflaterInputStream
 import javax.imageio.ImageIO
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds

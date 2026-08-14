@@ -4,13 +4,12 @@ package plugin.database.models
 Auto-generated on 2026-07-02T10:02:10.961Z
 Based on migrations.sql#L119 (table: messages)
 */
-import mindustry.gen.Player
 import plugin.PVars
 import plugin.database.Database.executeUpdate
-import kotlin.time.Instant
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Timestamp
+import kotlin.time.Instant
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
 

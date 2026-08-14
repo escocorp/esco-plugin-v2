@@ -14,7 +14,6 @@ import plugin.database.models.ban
 import plugin.database.models.getBan
 import plugin.database.models.getPlayerId
 import plugin.model.freeze
-import plugin.model.getStatus
 import plugin.model.unfreeze
 import java.awt.Color
 import java.text.MessageFormat

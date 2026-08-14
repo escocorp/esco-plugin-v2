@@ -1,6 +1,5 @@
 package plugin.ddos
 
-import arc.struct.Seq
 import arc.util.Log
 import arc.util.Ratekeeper
 import mindustry.Vars
@@ -10,9 +9,9 @@ import plugin.database.models.PlayerData
 import plugin.database.models.putLog
 import plugin.discord.Bot
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicBoolean
 
 object DDoSProtect {
     private const val ATTACK_TIMEOUT = 2 * 60 * 1000L

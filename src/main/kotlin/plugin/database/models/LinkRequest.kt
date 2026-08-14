@@ -4,9 +4,9 @@ Auto-generated on 2026-08-06T19:50:20.843Z
 Based on migrations.sql#L131 (table: link_requests)
 */
 import plugin.database.Database
-import java.time.Instant
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.time.Instant
 
 data class LinkRequest(
     val id: Int /*By SERIAL*/,

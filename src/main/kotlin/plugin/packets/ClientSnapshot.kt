@@ -5,9 +5,7 @@ import arc.util.Timekeeper
 import mindustry.core.NetServer
 import mindustry.gen.ClientSnapshotCallPacket
 import mindustry.net.NetConnection
-import plugin.PVars
 import plugin.ddos.DDoSProtect
-import plugin.discord.Bot
 
 private val accamulator = Timekeeper.ofSeconds(120f)
 

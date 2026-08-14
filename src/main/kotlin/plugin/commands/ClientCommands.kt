@@ -1,5 +1,9 @@
 package plugin.commands
 
+/*import plugin.gamemodes.crawlerarena.CVars
+import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
+import plugin.gamemodes.hexed.Hex
+import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode*/
 import arc.Core
 import arc.Events
 import arc.struct.ObjectMap
@@ -24,16 +28,9 @@ import net.dv8tion.jda.api.components.buttons.Button
 import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
-import plugin.PVars.S3Enabled
-import plugin.PVars.discordOauthBaseUrl
-import plugin.PVars.hubIp
-import plugin.PVars.hubPort
+import plugin.PVars.*
 import plugin.database.models.*
 import plugin.discord.ButtonIds.testId
-/*import plugin.gamemodes.crawlerarena.CVars
-import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
-import plugin.gamemodes.hexed.Hex
-import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode*/
 import plugin.history.History
 import plugin.menus.Menu
 import plugin.menus.ScrollableMenu

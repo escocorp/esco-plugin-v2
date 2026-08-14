@@ -9,7 +9,6 @@ import plugin.database.Database.executeUpdate
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
-import kotlin.collections.get
 
 class Admin(
     val id: Int,

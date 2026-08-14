@@ -12,10 +12,8 @@ import mindustry.Vars
 import mindustry.ctype.Content
 import mindustry.game.EventType.GameOverEvent
 import mindustry.game.Team
-import mindustry.gen.EntityMapping
 import mindustry.gen.Groups
 import mindustry.gen.Unit
-import mindustry.io.JsonIO
 import mindustry.net.Administration
 import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock

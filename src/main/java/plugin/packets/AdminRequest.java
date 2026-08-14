@@ -11,8 +11,8 @@ import mindustry.gen.Player;
 import mindustry.net.NetConnection;
 import mindustry.net.Packets;
 import plugin.Bundle;
-import plugin.menus.MenusKt;
 import plugin.database.models.Permission;
+import plugin.menus.MenusKt;
 
 public class AdminRequest {
     public static void handle(NetConnection con, AdminRequestCallPacket packet) {

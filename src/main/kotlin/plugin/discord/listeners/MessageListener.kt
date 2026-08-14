@@ -8,9 +8,9 @@ import mindustry.server.ServerControl
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import plugin.PVars
-import plugin.discord.Context
-import plugin.discord.Bot.reply
 import plugin.database.models.Permission
+import plugin.discord.Bot.reply
+import plugin.discord.Context
 import plugin.utils.hasRole
 import plugin.utils.sanitizeDiscordMessage
 import java.text.MessageFormat

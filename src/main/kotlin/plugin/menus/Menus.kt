@@ -2,10 +2,8 @@ package plugin.menus
 
 import arc.func.Cons
 import arc.func.Cons2
-import arc.math.Mathf
 import arc.struct.ObjectIntMap
 import arc.struct.Seq
-import arc.util.Timekeeper
 import mindustry.Vars
 import mindustry.content.Items.*
 import mindustry.content.UnitTypes
@@ -16,19 +14,16 @@ import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock.CoreBuild
 import plugin.Bundle
 import plugin.PVars
-import plugin.database.models.ban
-import plugin.database.models.deepSearchNames
-import plugin.database.models.getPlayerData
-import plugin.database.models.PlayerData
-import plugin.utils.Gamemode
 import plugin.database.models.Permission
+import plugin.database.models.PlayerData
+import plugin.database.models.ban
+import plugin.database.models.getPlayerData
 import plugin.model.getStatus
+import plugin.utils.Gamemode
 import plugin.utils.parseBool
 import plugin.utils.parseTime
 import java.text.MessageFormat
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
-import kotlin.math.roundToInt
 
 val unitCosts = ObjectIntMap<UnitType>()
 val itemCosts = ObjectIntMap<Item>()

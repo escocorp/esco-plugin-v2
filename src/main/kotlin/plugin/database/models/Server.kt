@@ -4,7 +4,6 @@ import plugin.PVars.gamemode
 import plugin.database.Database.executeQuery
 import java.sql.ResultSet
 import java.sql.SQLException
-import java.util.*
 
 class Server(
     val id: Int,

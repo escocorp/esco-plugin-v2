@@ -1,11 +1,7 @@
 package plugin.packets
 
 import mindustry.Vars
-import mindustry.gen.AdminRequestCallPacket
-import mindustry.gen.Call
-import mindustry.gen.ClientSnapshotCallPacket
-import mindustry.gen.Player
-import mindustry.gen.SendChatMessageCallPacket
+import mindustry.gen.*
 import mindustry.io.JsonIO
 import mindustry.net.NetConnection
 import plugin.PVars

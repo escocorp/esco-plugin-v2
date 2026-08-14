@@ -1,6 +1,5 @@
 package plugin.commands
 
-import arc.func.Boolf
 import arc.struct.Seq
 import arc.util.CommandHandler
 import arc.util.CommandHandler.CommandResponse

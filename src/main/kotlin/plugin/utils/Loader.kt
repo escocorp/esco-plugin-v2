@@ -1,5 +1,9 @@
 package plugin.utils
 
+/*import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
+import plugin.gamemodes.hexed.HexedGamemode
+import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
+import plugin.gamemodes.tdf.TDGamemode*/
 import arc.Core
 import arc.Events
 import arc.util.Log
@@ -13,14 +17,12 @@ import plugin.Config
 import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
-import plugin.PVars.S3Enabled
-import plugin.PVars.gamemode
-import plugin.PVars.joinDemographics
+import plugin.PVars.*
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener
 import plugin.database.Database
-import plugin.database.models.getPlayerData
 import plugin.database.models.Server
+import plugin.database.models.getPlayerData
 import plugin.database.models.putMessage
 import plugin.ddos.DDoSProtect
 import plugin.discord.Bot.sendLog
@@ -28,10 +30,6 @@ import plugin.events.EscoPluginLoadEvent
 import plugin.events.loadEvents
 import plugin.maps.EscoMapProvider
 import plugin.maps.MapPreview
-/*import plugin.gamemodes.crawlerarena.CrawlerArenaGamemode
-import plugin.gamemodes.hexed.HexedGamemode
-import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
-import plugin.gamemodes.tdf.TDGamemode*/
 import plugin.menus.Menu
 import plugin.menus.TextMenu
 import plugin.menus.loadMenus
