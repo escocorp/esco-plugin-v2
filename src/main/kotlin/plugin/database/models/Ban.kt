@@ -165,8 +165,10 @@ LIMIT 1;
         { stmt: PreparedStatement ->
             stmt.setString(1, player.uuid())
             stmt.setString(2, player.ip())
-            stmt.setString(3, player.usid())
-            stmt.setInt(4, serverId)
+            stmt.setString(3, player.ip())
+            stmt.setString(4, player.ip())
+            stmt.setString(5, player.usid())
+            stmt.setString(6, player.uuid())
         },
         { rs: ResultSet -> getBan(rs) }
     )
