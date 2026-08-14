@@ -24,7 +24,7 @@ object Bot {
 
             jda.awaitReady()
 
-            PVars.jda = jda;
+            PVars.jda = jda
 
             PVars.serverGuild = jda.getGuildById(PVars.serverGuildStr)
             if (PVars.serverGuild != null) {

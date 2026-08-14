@@ -110,7 +110,7 @@ fun loadEvents() {
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             }
-            if (PVars.gamemode != Gamemode.hub && vpnApiEnabled)
+            if (gamemode != Gamemode.hub && vpnApiEnabled)
                 isAnon(player.ip()) { resp: VPNApiResponse ->
                     if (resp.anon && pd.discordId == null) {
                         putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
@@ -293,7 +293,7 @@ fun loadEvents() {
 
         val embed = EmbedBuilder()
             .setColor(Color.red)
-            .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${(response.confidence * 100).toInt()}%)")
+            .setTitle("NSFW detected on ${gamemode.name} (Confidence: ${(response.confidence * 100).toInt()}%)")
             .setImage("attachment://image.png")
 
         var playerId: Int? = null
@@ -551,14 +551,11 @@ fun loadEvents() {
         Vars.netServer.admins.addActionFilter { filter ->
             val status = filter.player.getStatus()
             val action = filter.type
-            if(status.frozen)
-                return@addActionFilter false
+            return@addActionFilter !status.frozen
 
             /*if(gamemode == Gamemode.pvp && action == Administration.ActionType.commandUnits && Vars.state.tick < 15 * Time.toMinutes) {
                 return@addActionFilter false
             }*/
-
-            return@addActionFilter true
         }
         Vars.netServer.admins.addChatFilter { player, message ->
             val status = player.getStatus()
@@ -571,13 +568,13 @@ fun loadEvents() {
 
     Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
         Timer.schedule({
-            if (PVars.gamemode == Gamemode.sandbox) {
+            if (gamemode == Gamemode.sandbox) {
                 /*Vars.state.rules.unitDamageMultiplier = 0f
                 Vars.state.rules.blockDamageMultiplier = 0f
                 Vars.state.rules.unitHealthMultiplier = 0.1f
                 Vars.state.rules.blockHealthMultiplier = 0.1f*/
                 Vars.state.rules.coreCapture = false
-            } else if (PVars.gamemode == Gamemode.campaign) {
+            } else if (gamemode == Gamemode.campaign) {
                 val core = Vars.state.rules.defaultTeam.core() ?: return@schedule
                 val items = core.items
                 items.add(Items.copper, 500)

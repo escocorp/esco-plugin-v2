@@ -127,7 +127,7 @@ fun register(handler: CustomHandler) {
 
         p.sendMessage("Done!")*/
         if(!S3Enabled) {
-            p.sendMessage("S3 not enabled!");
+            p.sendMessage("S3 not enabled!")
             return@registerCommand
         }
         val mapName = Vars.state.map.name()
