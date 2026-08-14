@@ -133,22 +133,32 @@ fun getBan(id: Int): Ban? {
 fun getBan(player: Player): Ban? {
     return executeQuery(
         """
-SELECT b.*
+SELECT DISTINCT b.*
 FROM bans b
 JOIN players p ON p.id = b.player_id
 WHERE b.active = true
   AND (b.unban_time IS NULL OR b.unban_time > NOW())
   AND (
         p.uuid = ?
+        OR EXISTS (
+            SELECT 1 FROM connections c
+            WHERE c.player_id = p.id
+              AND (c.address = ?::INET OR c.address_udp = ?::INET)
+        )
         OR p.last_ip = ?::INET
         OR EXISTS (
-            SELECT 1
-            FROM usid_list ul
-            WHERE ul.player_id = p.id
-              AND ul.usid = ?
-              AND ul.server = ?
+            SELECT 1 FROM usid_list ul
+            WHERE ul.player_id = p.id AND ul.usid = ?
+        )
+        OR (
+            p.discord_id IS NOT NULL
+            AND p.discord_id IN (
+                SELECT discord_id FROM players
+                WHERE uuid = ? AND discord_id IS NOT NULL
+            )
         )
   )
+ORDER BY b.ban_time DESC
 LIMIT 1;
                 
                 """.trimIndent(),
