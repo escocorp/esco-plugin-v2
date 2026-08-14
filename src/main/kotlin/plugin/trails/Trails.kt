@@ -5,7 +5,7 @@ import mindustry.content.Fx
 
 enum class Trails(val trail: Trail) {
     Mine(Trail("mine", Fx.mine, Color.sky)),
-    HealWave(Trail("healWave", Fx.healWave, Color.lime)),
+    //HealWave(Trail("healWave", Fx.healWave, Color.lime)),
     Explosion(Trail("explosion", Fx.plasticExplosionFlak, Color.orange)),
     Smoke(Trail("smoke", Fx.smoke, Color.gray)),
     SmokeCloud(Trail("smokeCloud", Fx.smokeCloud, Color.gray));
