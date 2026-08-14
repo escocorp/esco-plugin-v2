@@ -222,6 +222,7 @@ fun loadEvents() {
         // simple bot check
         Timer.schedule({
             if (player.con.isConnected && player.con.lastReceivedClientSnapshot == -1) {
+                Log.info("Detected bot player by snapshot id method @ [@] (@)", player.plainName(), player.uuid(), player.ip())
                 DDoSProtect.handleBot(player, pd)
             }
         }, 2f)
