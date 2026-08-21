@@ -160,3 +160,7 @@ android/libs/
 /tools/generatedClasses/
 /.ai/
 /bin/
+
+/opencode.json
+/opencode.jsonc
+/.opencode/
