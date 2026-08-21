@@ -67,3 +67,46 @@ settings.label=Settings menu;
 ```
 
 `;` marks the end of a key and the transition to the next key.
+
+## Changelog style
+
+Changelogs are written for Discord and target players, not developers. One
+change per line, no blank lines between entries.
+
+Each line starts with an emoji tag, then ` - `, then a short present-tense
+description, then a commit link:
+
+- `🆕` for new features/additions.
+- `🛠️` for changes, fixes, reworks, and removals.
+
+Line format:
+
+```
+<emoji> - <description> ([<short-hash>](<https://github.com/escocorp/esco-plugin-v2/commit/<full-hash>>))
+```
+
+Notes:
+
+- The commit URL is wrapped in `<...>` (inside the markdown link parentheses)
+  so Discord does not render a link preview.
+- Use the short hash as the link text and the full 40-char hash in the URL.
+- Use backticks for commands/identifiers, e.g. `` `/top` ``.
+- Reference Discord channels with `<#channelId>` when relevant.
+- A line starting with `-# ` is a Discord subtext note (small text). Use it for
+  sub-details attached to the entry above it (examples, clarifications).
+- Optionally prefix a section/author header line with `###`, e.g.
+  `### kukoldiki`.
+- Group multiple related changes from the same commit as separate lines that
+  all link to that same commit; do not invent per-feature hashes.
+- Describe only player-visible changes. Skip internal-only refactors (package
+  moves, event-timing tweaks, `.gitignore`, etc.) unless the changelog is
+  explicitly technical.
+
+Example:
+
+```
+🆕 - Added Arras.io gamemode ([7a39acb](<https://github.com/escocorp/esco-plugin-v2/commit/7a39acb0d31658d49d9b39436d0e1ea5c92c1246>))
+🆕 - Added `/top` — balance leaderboard with a menu to pick the top type ([7a39acb](<https://github.com/escocorp/esco-plugin-v2/commit/7a39acb0d31658d49d9b39436d0e1ea5c92c1246>))
+🛠️ - Fixed duplicate commands in `/help` and the Foo's command list ([7ecf00d](<https://github.com/escocorp/esco-plugin-v2/commit/7ecf00d43ec966df918a107493dc43a44b540e5b>))
+-# /ban - `command` | %ban - `dscommand` | votekick - `votekick`, etc.
+```

@@ -288,8 +288,8 @@ fun loadEvents() {
         }
 
         try {
-            val image = parseImage(MindustryImageRenderer.render(e.group))
-            message.addFiles(FileUpload.fromData(image, "image.png"))
+            /*val image = parseImage(MindustryImageRenderer.render(e.group))
+            message.addFiles(FileUpload.fromData(image, "image.png"))*/
         } catch (ex: Exception) {
             Log.err("Error while rendering nsfw image", ex)
             message.addContent("Error while rendering nsfw image")
