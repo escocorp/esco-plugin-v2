@@ -122,7 +122,9 @@ class CustomHandler {
         // addPseudoCommand("votekick", "[player] [reason...]");
         // addPseudoCommand("vote", "<y/n/c>");
         // addPseudoCommand("sync", "");
+        val tmp = Seq.with("sync", "t", "help", "a", "vote", "votekick")
         handler.commandList?.each { command ->
+            if(tmp.contains(command.text)) return@each
             addPseudoCommand(command.text, command.paramText ?: "")
         }
     }
