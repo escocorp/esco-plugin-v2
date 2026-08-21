@@ -117,7 +117,7 @@ class CustomHandler {
     }
 
     fun registerPseudoCommands() {
-        addPseudoCommand("t", "<message...>")
+        // addPseudoCommand("t", "<message...>")
         // addPseudoCommand("a", "<message...>", Permission.admin);
         // addPseudoCommand("votekick", "[player] [reason...]");
         // addPseudoCommand("vote", "<y/n/c>");

@@ -1,4 +1,4 @@
-package plugin.utils;
+package plugin;
 
 public enum Gamemode {
     unknown(),
@@ -10,7 +10,8 @@ public enum Gamemode {
     tdefense("tower defense", "td!", 5, 10, 750),
     hub("hub", "hb!", 0, 0, 0),
     hexed("hexed", "hex!", 0, 20, 1050),
-    crawlerArena("crw", "crw!", 20, 0, 1500);
+    crawlerArena("crw", "crw!", 20, 0, 1500),
+    arras("arras", "ar!", 0, 0, 0); // TODO: сделать нормальные вин косты/вейв косты.
 
     public final String simpleName, botPrefix;
     public final int waveCost, blockCost, winCost;

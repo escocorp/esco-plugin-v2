@@ -21,7 +21,7 @@ import plugin.Bundle
 import plugin.PVars
 import plugin.ai.DumbAI
 import plugin.discord.Bot.sendConsoleMessage
-import plugin.utils.Gamemode
+import plugin.Gamemode
 import plugin.utils.addLog
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

@@ -26,6 +26,7 @@ import mindustry.net.Administration
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
 import plugin.Bundle
+import plugin.Gamemode
 import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.PVars.*
@@ -38,6 +39,7 @@ import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
 import plugin.model.getLinkCode
 import plugin.model.getStatus
+import plugin.model.isFake
 import plugin.model.setLinkCode
 import plugin.replays.saveReplay
 import plugin.trails.TrailsHandler
@@ -215,6 +217,10 @@ fun register(handler: CustomHandler) {
         Call.playerDisconnect(p.id)
     })
     handler.registerCommand("pay", "<amount> <playername...>", CommandRunner { args: Array<String>, player: Player ->
+        if (player.isFake()) {
+            Bundle.sendMessage("message.credentials-differ", player)
+            return@CommandRunner
+        }
         val target = Groups.player.find { p: Player -> p.plainName().equals(args[1], ignoreCase = true) }
         if (target == null || target === player) {
             Bundle.sendMessage("error.player-not-found", player)
@@ -260,6 +266,10 @@ fun register(handler: CustomHandler) {
     })*/
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
         if (PVars.gamemode == Gamemode.hexed || PVars.gamemode == Gamemode.crawlerArena) {
+            return@CommandRunner
+        }
+        if (p.isFake()) {
+            Bundle.sendMessage("message.credentials-differ", p)
             return@CommandRunner
         }
         globalScope.launch {
@@ -345,17 +355,53 @@ fun register(handler: CustomHandler) {
             .queue()
     }
 
-    handler.registerCommand("stats", "") { _: Array<String>, p: Player ->
-        val sb = StringBuilder(Bundle.get("command.stats.header", p.locale)).append("\n")
-        getPlayerData(p)?.let { s ->
-            s.updateStats(p, false)
-            sb.append(Bundle.get("command.stats.blocks-built", p.locale, s.blocksBuild)).append("\n")
-            sb.append(Bundle.get("command.stats.blocks-broken", p.locale, s.blocksBroken)).append("\n")
-            sb.append(Bundle.get("command.stats.waves-survived", p.locale, s.wavesSurvived)).append("\n")
-            sb.append(Bundle.get("command.stats.balance", p.locale, s.balance)).append("\n")
-            sb.append(Bundle.get("command.stats.playtime", p.locale, formatTime(s.playtime)))
+    handler.registerCommand("stats", "[playerid]") { a: Array<String>, p: Player ->
+        val stats: PlayerData?
+        if (a.isNotEmpty()) {
+            if (!Strings.canParseInt(a[0])) {
+                Bundle.sendMessage("command.argument.must-be-number", p, "[playerid]")
+                return@registerCommand
+            }
+            stats = getPlayerData(Strings.parseInt(a[0]))
+            if (stats == null) {
+                Bundle.sendMessage("error.player-not-found", p)
+                return@registerCommand
+            }
+        } else {
+            stats = getPlayerData(p)?.also { it.updateStats(p, false) }
         }
+
+        if (stats == null) {
+            Bundle.sendMessage("error.unknown", p)
+            return@registerCommand
+        }
+
+        val sb = StringBuilder(Bundle.get("command.stats.header", p.locale)).append("\n")
+        sb.append(Bundle.get("command.stats.blocks-built", p.locale, stats.blocksBuild)).append("\n")
+        sb.append(Bundle.get("command.stats.blocks-broken", p.locale, stats.blocksBroken)).append("\n")
+        sb.append(Bundle.get("command.stats.waves-survived", p.locale, stats.wavesSurvived)).append("\n")
+        sb.append(Bundle.get("command.stats.balance", p.locale, stats.balance)).append("\n")
+        sb.append(Bundle.get("command.stats.playtime", p.locale, formatTime(stats.playtime)))
         p.sendMessage(sb.toString())
+    }
+
+    handler.registerCommand("top", "") { _: Array<String>, p: Player ->
+        Menu("@command.top.select-title", "")
+            .add("@command.top.type.balance") { pl ->
+                globalScope.launch {
+                    val top = getTopByBalance(10)
+                    Core.app.post {
+                        val sb = StringBuilder(Bundle.get("command.top.header", pl.locale)).append("\n")
+                        top.forEachIndexed { i, e ->
+                            sb.append(Bundle.get("command.top.entry", pl.locale, i + 1, e.name ?: "", e.id, e.balance)).append("\n")
+                        }
+                        pl.sendMessage(sb.toString().trimEnd())
+                    }
+                }
+            }
+            // TODO: add more top types here
+            .row().add("@menu.close")
+            .show(p)
     }
 
     handler.registerCommand("vnw", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
@@ -478,7 +524,7 @@ fun register(handler: CustomHandler) {
             .add("@discord.link.uri") {
                 val req = getLinkRequest(pd.id)
                 val state = req?.state ?: run {
-                    val s = getRandomString(32)
+                    val s = getSecureRandomString(32)
                     if (!newLinkRequest(s, pd.id)) {
                         Bundle.sendMessage("command.link.error", player)
                         return@add
@@ -492,7 +538,7 @@ fun register(handler: CustomHandler) {
             .add("@discord.link.text") {
                 var code: String? = player.getLinkCode()
                 if (code == null) {
-                    code = getRandomString(6)
+                    code = getSecureRandomString(8)
                     player.setLinkCode(code)
                 }
 

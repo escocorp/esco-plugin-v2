@@ -2,7 +2,6 @@ package plugin
 
 import arc.util.Log
 import io.github.cdimascio.dotenv.Dotenv
-import plugin.utils.Gamemode
 import java.util.*
 
 object Config {

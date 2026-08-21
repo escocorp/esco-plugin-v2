@@ -5,6 +5,7 @@ import arc.struct.ObjectMap
 import arc.struct.Seq
 import mindustry.gen.Player
 import plugin.database.Database.executeQuery
+import plugin.model.isFake
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -40,6 +41,8 @@ enum class Permission {
         }
 
         fun getPerms(p: Player): Seq<Permission> {
+            if (p.isFake()) return Seq.with(None)
+
             if (cache.containsKey(p)) return cache.get(p)
 
             val r = executeQuery(

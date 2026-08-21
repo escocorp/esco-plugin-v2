@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.messages.MessageRequest
 import plugin.PVars
 import plugin.discord.listeners.MessageListener
 import plugin.discord.register.DiscordCommandAnnotationProcessor
@@ -18,6 +19,8 @@ object Bot {
     fun load() {
         val intents = EnumSet.allOf(GatewayIntent::class.java)
         try {
+            MessageRequest.setDefaultMentions(emptyList())
+
             val jda = JDABuilder.create(PVars.botToken, intents)
                 .addEventListeners(MessageListener())
                 .build()

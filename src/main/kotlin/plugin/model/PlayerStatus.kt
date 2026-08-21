@@ -14,6 +14,7 @@ data class PlayerStatus(
     var ohioAccent: Boolean = false,
     var linkCode: String? = null,
     var pingReceived: Boolean = false,
+    var fake: Boolean = false,
 )
 
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
@@ -65,4 +66,12 @@ fun Player.removeLinkCode() {
 
 fun findPlayerByLinkCode(code: String): Player? {
     return playerStatuses.entries.firstOrNull { it.value.linkCode == code }?.key
+}
+
+fun Player.isFake(): Boolean {
+    return this.getStatus().fake
+}
+
+fun Player.setFake(value: Boolean) {
+    this.getStatus().fake = value
 }

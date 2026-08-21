@@ -6,6 +6,7 @@ import plugin.database.Database
 import plugin.database.Database.adminsCache
 import plugin.database.Database.executeQuery
 import plugin.database.Database.executeUpdate
+import plugin.model.isFake
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -57,6 +58,8 @@ fun updateAdminHidden(pid: Int, hidden: Boolean): Boolean {
 }
 
 fun getAdmin(player: Player): Admin? {
+    if (player.isFake()) return null
+
     if (adminsCache.containsKey(player)) return adminsCache.get(player)
     Database.logExpectedCacheMiss(player, "adminsCache")
 

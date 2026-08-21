@@ -164,3 +164,6 @@ android/libs/
 /opencode.json
 /opencode.jsonc
 /.opencode/
+
+.env
+.env.*

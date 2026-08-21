@@ -19,7 +19,7 @@ import plugin.database.models.PlayerData
 import plugin.database.models.ban
 import plugin.database.models.getPlayerData
 import plugin.model.getStatus
-import plugin.utils.Gamemode
+import plugin.Gamemode
 import plugin.utils.parseBool
 import plugin.utils.parseTime
 import java.text.MessageFormat
@@ -50,6 +50,7 @@ fun loadMenus() {
         graphite, 2500,
         silicon, 2500,
         titanium, 2500,
+        thorium, 3000
     )
 }
 

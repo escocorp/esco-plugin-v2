@@ -11,12 +11,12 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import plugin.commands.CustomHandler;
 import plugin.database.models.Log;
 import plugin.s3.S3;
-import plugin.utils.Gamemode;
 import plugin.votes.VoteMap;
 import plugin.votes.VoteWave;
 import plugin.votes.VotekickSession;
 
 import java.net.http.HttpClient;
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +46,7 @@ public class PVars {
     public static CommandHandler discordCommands, globalCommands, serverCommands;
 
     public static final Random random = new Random();
+    public static final SecureRandom secureRandom = new SecureRandom();
 
     public static boolean needRestart = false;
 

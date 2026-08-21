@@ -57,6 +57,7 @@ private const val characters = "qwertyuiopasdfghjklzxcvbnm123456789"
 fun isAnon(ip: String?, callback: Cons<VPNApiResponse>) {
     Http.get(PVars.vpnApi + ip)
         .header("Authorization", "Basic $apiAuth")
+        .timeout(5000)
         .error { th ->
             Log.err("Failed to check ip $ip", th)
         }
@@ -125,8 +126,8 @@ fun httpGetString(url: String): String {
  * */
 fun parseBool(bool: String): Int {
     return when (bool.lowercase(Locale.getDefault())) {
-        "y", "yes", "д", "да", "+", "t", "true" -> 1
-        "n", "no", "н", "нет", "-", "f", "false" -> -1
+        "y", "yes", "д", "да", "+", "t", "true", "1" -> 1
+        "n", "no", "н", "нет", "-", "f", "false", "0" -> -1
         else -> 0
     }
 }
@@ -153,6 +154,20 @@ fun getRandomString(len: Int): String {
 
     for (i in 0..<len) {
         sb.append(characters[PVars.random.nextInt(characters.length)])
+    }
+
+    return sb.toString()
+}
+
+/**
+ * generates a cryptographically secure random string without spec. symbols
+ * [len] - output string length
+ * */
+fun getSecureRandomString(len: Int): String {
+    val sb = StringBuilder()
+
+    for (i in 0..<len) {
+        sb.append(characters[PVars.secureRandom.nextInt(characters.length)])
     }
 
     return sb.toString()

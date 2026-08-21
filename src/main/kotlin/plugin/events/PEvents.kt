@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.utils.FileUpload
 import plugin.Bundle
+import plugin.Gamemode
 import plugin.KVars.eventsScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
@@ -42,7 +43,6 @@ import plugin.discord.Bot.sendLeaveMessage
 import plugin.discord.Bot.sendLog
 import plugin.discord.Bot.sendServerMessage
 import plugin.discord.ButtonIds.nohornyBanId
-import plugin.discord.ButtonIds.verifyUsidId
 import plugin.history.History
 import plugin.history.HistoryType
 import plugin.logic.attemCode
@@ -135,27 +135,10 @@ fun loadEvents() {
             }
 
             if (pd.getUsid() != null && pd.getUsid() != player.usid()) {
+                player.setFake(true)
                 player.sendMessage(Bundle.get("message.credentials-differ", player.locale))
-
-                if(pd.discordId != null) {
-                    PVars.notificationsChannel.sendMessageEmbeds(
-                        EmbedBuilder()
-                            .addField(
-                                "",
-                                Bundle.get("discord.verify-usid", player.locale)
-                                    .replace("{0}", pd.discordId?.discordMention() ?: ""),
-                                false
-                            )
-                            .setColor(Color.orange)
-                            .build()
-                    )
-                        .addComponents(ActionRow.of(
-                            Button.danger("$verifyUsidId:${pd.id}",
-                                Bundle.get("discord.verify-usid.label", player.locale)),
-                        ))
-                        .queue()
-                }
             } else {
+                player.setFake(false)
                 getAdmin(player)?.let { a: Admin ->
                     app.post {
                         if (a.perms.contains(Permission.Admin) && !a.hidden) player.admin(true)
@@ -269,8 +252,9 @@ fun loadEvents() {
             messageBuffer.add(ChatMessageData(pd.id, message, Strings.stripColors(message), Clock.System.now()))
         }
         if (!message.startsWith("/")) {
-            val content =
-                ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "@\u200b")
+            val name = player.plainName().replace("`", "'")
+            val text = stripFoo(Strings.stripColors(message)).replace("`", "'")
+            val content = ("`$name: $text`").replace("@", "@\u200b")
             sendServerMessage(content)
         }
     }

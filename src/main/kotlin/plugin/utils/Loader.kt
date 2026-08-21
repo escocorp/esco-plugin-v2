@@ -14,6 +14,7 @@ import mindustry.gen.Groups
 import mindustry.net.Administration
 import plugin.Bundle
 import plugin.Config
+import plugin.Gamemode
 import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
@@ -97,7 +98,9 @@ object Loader {
             Log.err(e)
         }
 
-        Events.fire(EscoPluginLoadEvent())
+        Timer.schedule({
+            Events.fire(EscoPluginLoadEvent())
+        }, 5f)
 
         Log.debug("Loader: OK!")
     }

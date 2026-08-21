@@ -87,7 +87,7 @@ class Menu(var title: String, var message: String) {
                     menus.remove(e.menuId)
                     return@on
                 }
-                if (option > menu.handlers.size) {
+                if (option < 0 || option >= menu.handlers.size) {
                     player.sendMessage(Bundle.get("menu.invalid-option", player.locale))
                     return@on
                 }
