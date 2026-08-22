@@ -1,5 +1,27 @@
 # Instructions
 
+## Meta
+
+- This file (AGENTS.md) must always be written in English, in full, when
+  edited. Do not leave or add non-English content here, even partially.
+
+## Git commits and branches
+
+- Keep commits and branches minimalistic. Squash/consolidate related small
+  fixes into one commit instead of committing each tiny fix separately.
+  - Bad: separate commits "fixed something1", "fixed something2", "fixed
+    something3".
+  - Good: one commit "fixes/minor changes" (or a similarly short, combined
+    message) covering all of them.
+
+## Build and verification
+
+- Before committing changes to Kotlin/Java code, run a build to catch
+  compilation errors: `./gradlew jar` (or `./gradlew.bat jar` on Windows).
+- There are no automated tests in the project — a successful build is the
+  only automated check.
+- The built artifact ends up in `build/libs`.
+
 ## Tooling
 
 - Prefer the IntelliJ IDEA MCP server (`intellij-index`) for code intelligence
@@ -38,6 +60,11 @@
 
 - God objects like PVars/KVars are used intentionally because the game's
   developer (Anuke) also has such an object: `mindustry.Vars`.
+- This exception applies ONLY to PVars/KVars. It does not apply to any other
+  file. Any other oversized file (e.g. a command handler or event listener
+  file growing past a reasonable size) is a real violation of the "one class
+  per file" rule in Code style, not a sanctioned god object, and should be
+  split up.
 
 ## Localization
 
