@@ -6,6 +6,7 @@ import arc.files.Fi
 import arc.func.Cons
 import arc.math.geom.Point2
 import arc.net.Connection
+import arc.struct.Seq
 import arc.util.Http
 import arc.util.Log
 import arc.util.Reflect
@@ -16,6 +17,7 @@ import mindustry.Vars.saveDirectory
 import mindustry.Vars.saveExtension
 import mindustry.ai.UnitCommand
 import mindustry.ctype.UnlockableContent
+import mindustry.entities.abilities.Ability
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.io.SaveIO
@@ -537,3 +539,8 @@ fun InetAddress.toIntKey(): Int {
 }
 
 fun Player.infoString(): String = "${plainName()} [${uuid()}] (${ip()})"
+
+fun mindustry.gen.Unit.addAbility(a: Ability) {
+    abilities = abilities.copyOf(abilities.size + 1)
+    abilities[abilities.lastIndex] = a
+}
