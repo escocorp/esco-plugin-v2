@@ -114,6 +114,8 @@ class CustomHandler {
         runner: CommandRunner<Player>,
     ) {
         // CommandData cd = new CommandData(name, args, perm);
+        // a real command always wins over a pseudo one with the same name
+        commands.removeAll { c: CommandData? -> c?.name == name }
         commands.add(CommandData(name, args, perm))
 
         handler.register(
@@ -142,7 +144,8 @@ class CustomHandler {
         // addPseudoCommand("votekick", "[player] [reason...]");
         // addPseudoCommand("vote", "<y/n/c>");
         // addPseudoCommand("sync", "");
-        val tmp = Seq.with("sync", "t", "help", "a", "vote", "votekick")
+        // these are re-registered by the plugin itself later, so they'd end up listed twice
+        val tmp = Seq.with("sync", "help", "a", "vote", "votekick")
         handler.commandList?.each { command ->
             if (tmp.contains(command.text)) return@each
             addPseudoCommand(command.text, command.paramText ?: "")
@@ -161,6 +164,7 @@ class CustomHandler {
         args: String,
         perm: Permission?,
     ) {
+        if (commands.contains { c: CommandData? -> c?.name == name }) return
         commands.add(CommandData(name, args, perm))
     }
 

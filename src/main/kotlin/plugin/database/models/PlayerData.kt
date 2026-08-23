@@ -308,6 +308,17 @@ fun getPlayerData(uuid: String): PlayerData? =
         { rs: ResultSet -> getPlayerData(rs) },
     )
 
+/**
+ * Looks a player up by their last known name. Case-insensitive, partial match.
+ * No caching.
+ * */
+fun getPlayerDataByName(name: String): PlayerData? =
+    executeQuery(
+        "SELECT * FROM players WHERE last_name ILIKE ? ORDER BY last_seen DESC NULLS LAST LIMIT 1",
+        { stmt: PreparedStatement -> stmt.setString(1, "%$name%") },
+        { rs: ResultSet -> getPlayerData(rs) },
+    )
+
 fun getPlayerId(player: Player): Int? {
     if (playerDataCache.containsKey(player)) return playerDataCache.get(player).id
     logExpectedCacheMiss(player, "playerDataCache(id)")

@@ -37,6 +37,7 @@ import plugin.menus.Menu
 import plugin.menus.ScrollableMenu
 import plugin.menus.ScrollableTextMenu
 import plugin.menus.showShop
+import plugin.model.gameServers
 import plugin.model.getLinkCode
 import plugin.model.getStatus
 import plugin.model.isFake
@@ -62,12 +63,20 @@ fun register(handler: CustomHandler) {
     handler.registerCommand("owo", "") { _: Array<String>, player: Player ->
         val status = player.getStatus()
         status.owoAccent = !status.owoAccent
+        player.getData()?.let { pd ->
+            pd.prefs.owoAccent = status.owoAccent
+            globalScope.launch { pd.updatePrefs() }
+        }
         Bundle.sendMessage(if (status.owoAccent) "command.owo.on" else "command.owo.off", player)
     }
 
     handler.registerCommand("ohio", "") { _: Array<String>, player: Player ->
         val status = player.getStatus()
         status.ohioAccent = !status.ohioAccent
+        player.getData()?.let { pd ->
+            pd.prefs.ohioAccent = status.ohioAccent
+            globalScope.launch { pd.updatePrefs() }
+        }
         Bundle.sendMessage(if (status.ohioAccent) "command.ohio.on" else "command.ohio.off", player)
     }
 
@@ -85,6 +94,7 @@ fun register(handler: CustomHandler) {
                 "From ${parseBool(pd.prefs.showWelcomeMenu, colored = true)} -> ${parseBool(!pd.prefs.showWelcomeMenu, colored = true)}",
             )
             pd.prefs.showWelcomeMenu = !pd.prefs.showWelcomeMenu
+            globalScope.launch { pd.updatePrefs() }
         }
 
         menu.add("${Bundle.get("menu.settings.owo", player.locale)}\n${parseBool(pd.prefs.owoAccent)}") { p ->
@@ -185,7 +195,21 @@ fun register(handler: CustomHandler) {
     })*/
 
     handler.registerCommand("hub") { _: Array<String>, p: Player ->
-        Call.connect(p.con, hubIp, hubPort)
+        if (gameServers.isEmpty) {
+            Call.connect(p.con, hubIp, hubPort)
+            return@registerCommand
+        }
+
+        val menu = ScrollableMenu("@menu.hub.title", "@menu.hub.message", rowPerItems = 2)
+        menu.add(Bundle.get("menu.hub.hub", p.locale)) { pl: Player ->
+            Call.connect(pl.con, hubIp, hubPort)
+        }
+        gameServers.each { server ->
+            menu.add(server.name) { pl: Player ->
+                Call.connect(pl.con, server.ip, server.port)
+            }
+        }
+        menu.show(p)
     }
 
     handler.registerCommand("testmenus", "", Permission.Test) { _: Array<String>, p: Player ->
@@ -270,8 +294,25 @@ fun register(handler: CustomHandler) {
             player.sendMessage(Bundle.get("command.pay.sent", player.locale, target.coloredName(), amount, commision))
         },
     )
-    handler.registerCommand("economy", "") { _: Array<String?>?, p: Player? ->
-        Bundle.infoMessage("command.economy.guide", p)
+    handler.registerCommand("economy", "") { _: Array<String>, p: Player ->
+        val gamemode = PVars.gamemode
+        val sb = StringBuilder(Bundle.get("command.economy.guide", p.locale)).append("\n\n")
+
+        if (gamemode.blockCost > 0) {
+            sb.append(Bundle.get("command.economy.blocks", p.locale, gamemode.blockCost, 50)).append("\n")
+        }
+        if (gamemode.waveCost > 0) {
+            sb.append(Bundle.get("command.economy.waves", p.locale, gamemode.waveCost)).append("\n")
+        }
+        if (gamemode.winCost > 0) {
+            sb.append(Bundle.get("command.economy.win", p.locale, gamemode.winCost)).append("\n")
+        }
+        sb
+            .append(Bundle.get("command.economy.pay", p.locale))
+            .append("\n")
+            .append(Bundle.get("command.economy.shop", p.locale))
+
+        Call.infoMessage(p.con, sb.toString())
     }
     /*handler.registerCommand("slot", "<bet>", CommandRunner { a: Array<String>, p: Player ->
         if (!Strings.canParseInt(a[0])) {
@@ -386,14 +427,23 @@ fun register(handler: CustomHandler) {
             .queue()
     }
 
-    handler.registerCommand("stats", "[playerid]") { a: Array<String>, p: Player ->
+    handler.registerCommand("stats", "[player...]") { a: Array<String>, p: Player ->
         val stats: PlayerData?
         if (a.isNotEmpty()) {
-            if (!Strings.canParseInt(a[0])) {
-                Bundle.sendMessage("command.argument.must-be-number", p, "[playerid]")
+            if (!Permission.getPerms(p).contains(Permission.Admin)) {
+                Bundle.sendMessage("error.no-permission", p)
                 return@registerCommand
             }
-            stats = getPlayerData(Strings.parseInt(a[0]))
+
+            val query = a[0].trim().removePrefix("#")
+            stats =
+                if (Strings.canParseInt(query)) {
+                    getPlayerData(Strings.parseInt(query))
+                } else {
+                    val online = Groups.player.find { pl: Player -> pl.plainName().equals(query, ignoreCase = true) }
+                    if (online != null) getPlayerData(online)?.also { it.updateStats(online, false) } else getPlayerDataByName(query)
+                }
+
             if (stats == null) {
                 Bundle.sendMessage("error.player-not-found", p)
                 return@registerCommand
@@ -408,6 +458,7 @@ fun register(handler: CustomHandler) {
         }
 
         val sb = StringBuilder(Bundle.get("command.stats.header", p.locale)).append("\n")
+        sb.append(Bundle.get("command.stats.player", p.locale, stats.lastName ?: "", stats.id)).append("\n")
         sb.append(Bundle.get("command.stats.blocks-built", p.locale, stats.blocksBuild)).append("\n")
         sb.append(Bundle.get("command.stats.blocks-broken", p.locale, stats.blocksBroken)).append("\n")
         sb.append(Bundle.get("command.stats.waves-survived", p.locale, stats.wavesSurvived)).append("\n")
@@ -418,19 +469,9 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("top", "") { _: Array<String>, p: Player ->
         Menu("@command.top.select-title", "")
-            .add("@command.top.type.balance") { pl ->
-                globalScope.launch {
-                    val top = getTopByBalance(10)
-                    Core.app.post {
-                        val sb = StringBuilder(Bundle.get("command.top.header", pl.locale)).append("\n")
-                        top.forEachIndexed { i, e ->
-                            sb.append(Bundle.get("command.top.entry", pl.locale, i + 1, e.name ?: "", e.id, e.balance)).append("\n")
-                        }
-                        pl.sendMessage(sb.toString().trimEnd())
-                    }
-                }
-            }
-            // TODO: add more top types here
+            .add("@command.top.type.balance") { pl -> showTop(pl, TopType.Balance) }
+            .add("@command.top.type.blocks") { pl -> showTop(pl, TopType.Blocks) }
+            .add("@command.top.type.playtime") { pl -> showTop(pl, TopType.Playtime) }
             .row()
             .add("@menu.close")
             .show(p)
@@ -602,12 +643,12 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand(
         "hidden",
-        "<bool>",
+        "[1/0]",
         Permission.Admin,
         CommandRunner { a: Array<String>, p: Player ->
-            val i = parseBool(a[0])
             val idOpt = getPlayerId(p) ?: return@CommandRunner
             val id: Int = idOpt
+            val i = if (a.isEmpty()) (if (p.admin) 1 else -1) else parseBool(a[0])
             when (i) {
                 1 -> {
                     updateAdminHidden(id, true)
@@ -835,6 +876,7 @@ fun register(handler: CustomHandler) {
         },
     )
 }
+
 /*
 private fun registerHexedCommands(handler: CustomHandler) {
     handler.registerCommand(
