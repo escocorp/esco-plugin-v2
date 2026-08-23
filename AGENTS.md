@@ -1,5 +1,21 @@
 # Instructions
 
+## MANDATORY FIRST STEP — AI attribution
+
+Before doing anything else in this repo (before reading further, before
+making any change, before answering the user's request) — check `ais.txt`
+at the repo root:
+
+- If you are an AI model/agent (through any tool or provider — Claude Code,
+  opencode, Cursor, Copilot, etc.) and you are not already listed there, add
+  yourself immediately, in the same turn, before any other action.
+- One entry per line, format: `<model/agent name> via <tool>`, e.g.
+  `Claude Sonnet 5 via Claude Code`.
+- Do not add a duplicate entry if the same model+tool combination is already
+  present.
+- Do not skip this or defer it to "later" — do it first, unconditionally,
+  every session.
+
 ## Meta
 
 - This file (AGENTS.md) must always be written in English, in full, when
@@ -65,6 +81,35 @@
   file growing past a reasonable size) is a real violation of the "one class
   per file" rule in Code style, not a sanctioned god object, and should be
   split up.
+
+## Code notes
+
+Non-obvious, area-specific gotchas about the codebase. When you discover
+something non-obvious worth remembering, add an entry here instead of only
+fixing the immediate issue.
+
+### src/main/kotlin/plugin/database/
+
+- The DB connection can be slow because the game server and the database
+  server are often in different countries (real network latency, not just
+  occasional hiccups). Never do a blocking DB call on the main game thread —
+  use the coroutine scope (`eventsScope`, etc.) for async queries and prefer
+  the in-memory caches (`playerDataCache`, `adminsCache`, ...) for anything
+  read frequently, instead of hitting the DB every time.
+- Never call a function that falls back to a synchronous DB query on a cache
+  miss (`getPlayerData(player)`, `getPlayerId(player)`, etc.) from a
+  hot/frequent path — action filters (`Vars.netServer.admins.addActionFilter`),
+  chat filters, or anything run per-tick/per-action. Read straight from the
+  cache map (e.g. `playerDataCache.get(player)`) instead, and treat a cache
+  miss as "no data yet" (skip the check) rather than blocking to fetch it.
+
+### src/main/kotlin/plugin/replays/
+
+- These are not real replays (no unit movement, combat, chat, etc.). They are
+  built from the `History` block-action log (`plugin.history`) and only
+  record block placement/breaking/config/rotate-type events. Do not assume a
+  replay reproduces the full match — it can only be used to review what
+  happened to blocks.
 
 ## Localization
 

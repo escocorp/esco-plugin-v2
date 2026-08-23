@@ -78,7 +78,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    implementation(platform("software.amazon.awssdk:bom:2.51.1"))
+    implementation(platform("software.amazon.awssdk:bom:2.54.0"))
     implementation("software.amazon.awssdk:s3")
 
     // compileOnly(files("nohorny-client.jar"))
@@ -92,7 +92,7 @@ dependencies {
     compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
     compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
 
-    implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
 }
 
 tasks.withType<JavaCompile>().configureEach {

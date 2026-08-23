@@ -167,3 +167,5 @@ android/libs/
 
 .env
 .env.*
+
+/.mcp.json
