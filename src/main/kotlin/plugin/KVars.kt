@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import plugin.model.ChatMessageData
+import plugin.model.GlobalConfig
 import java.lang.management.ManagementFactory
 
 object KVars {
@@ -26,4 +27,7 @@ object KVars {
     const val frozenTag = "[white]<\uF7B5>[]"
 
     val os = ManagementFactory.getOperatingSystemMXBean() as OperatingSystemMXBean
+
+    var globalConfigLink: String? = null
+    var globalConfig: GlobalConfig? = null
 }

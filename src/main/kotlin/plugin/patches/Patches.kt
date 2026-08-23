@@ -19,7 +19,7 @@ import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock
 import plugin.Bundle
 import plugin.PVars
-import plugin.ai.DumbAI
+import plugin.units.ai.DumbAI
 import plugin.discord.Bot.sendConsoleMessage
 import plugin.Gamemode
 import plugin.utils.addLog

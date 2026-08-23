@@ -1,4 +1,4 @@
-package plugin.ai
+package plugin.units.ai
 
 import mindustry.entities.units.AIController
 
