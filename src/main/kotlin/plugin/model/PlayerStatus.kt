@@ -9,6 +9,7 @@ data class PlayerStatus(
     var schemeSizeUser: Boolean = false,
     var foosUser: Boolean = false,
     var agzamModUser: Boolean = false,
+    var griefModUser: Boolean = false,
     var historyEnabled: Boolean = false,
     var owoAccent: Boolean = false,
     var ohioAccent: Boolean = false,

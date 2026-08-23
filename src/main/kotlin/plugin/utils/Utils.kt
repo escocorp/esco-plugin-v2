@@ -515,3 +515,7 @@ fun InetAddress.toIntKey(): Int {
             (b[2].toInt() and 0xFF shl 8) or
             (b[3].toInt() and 0xFF)
 }
+
+fun Player.infoString(): String {
+    return "${plainName()} [${uuid()}] (${ip()})"
+}

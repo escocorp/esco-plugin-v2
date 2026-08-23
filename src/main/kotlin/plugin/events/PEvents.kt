@@ -3,7 +3,6 @@ package plugin.events
 // import plugin.gamemodes.hexed.HexData
 import arc.Core.app
 import arc.Events
-import arc.func.Cons
 import arc.util.Log
 import arc.util.Strings
 import arc.util.Timekeeper
@@ -60,11 +59,16 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
 
-var antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
-
 fun loadEvents() {
-    Events.on(ConnectPacketEvent::class.java) { e ->
-        if (DDoSProtect.checkRatelimit(e.connection.address)) return@on
+    EventRegistrar.register(PEvents())
+}
+
+class PEvents {
+    private val antigriefCooldown: Timekeeper = Timekeeper.ofSeconds(3f)
+
+    @EventListener
+    fun connectPacket(e: ConnectPacketEvent) {
+        if (DDoSProtect.checkRatelimit(e.connection.address)) return
 
         val region = e.packet.uuid.hashCode()
         val cachedRegion = joinDemographics.get(region)
@@ -75,12 +79,14 @@ fun loadEvents() {
             sendLog("Blacklisting ${e.connection.address} due to suspicious UUIDs")
         }
     }
-    Events.on(PlayerConnect::class.java) { e: PlayerConnect ->  // pre-connect
+
+    @EventListener
+    fun playerConnect(e: PlayerConnect) {  // pre-connect
         val player = e.player
 
-        if(player.plainName().isEmpty()) {
+        if (player.plainName().isEmpty()) {
             player.kick(Bundle.get("kick.name-empty", player.locale), 0)
-            return@on
+            return
         }
 
         eventsScope.launch {
@@ -156,7 +162,8 @@ fun loadEvents() {
         }
     }
 
-    onAsync(PlayerJoin::class.java) { e ->
+    @EventListener(async = true)
+    fun playerJoin(e: PlayerJoin) {
         // full connect
         val player: Player = e.player
 
@@ -165,7 +172,7 @@ fun loadEvents() {
             app.post {
                 player.kick(Bundle.get("kick.player-create-failed", player.locale), 0)
             }
-            return@onAsync
+            return
         }
         //val pd = pdOpt.get()
         PlayerData.setJoinTime(player)
@@ -198,7 +205,8 @@ fun loadEvents() {
         }, 2f)
     }
 
-    Events.on(PlayerLeave::class.java) { e ->
+    @EventListener
+    fun playerLeave(e: PlayerLeave) {
         val player = e.player
         PVars.SSUsers.remove(player.id)
 
@@ -209,7 +217,7 @@ fun loadEvents() {
             pid = pd.id
             putLog(pd.id, "event", "Player disconnected")
 
-            if(player.isAdded) {
+            if (player.isAdded) {
                 Bundle.sendMessage("message.leave", pd.id.toString(), player.coloredName())
                 sendLeaveMessage(player, pd.id)
             }
@@ -244,7 +252,8 @@ fun loadEvents() {
         }, 0.2f)
     }
 
-    onAsync(PlayerChatEvent::class.java) { e ->
+    @EventListener(async = true)
+    fun playerChat(e: PlayerChatEvent) {
         val player = e.player
         val message = e.message
 
@@ -259,9 +268,10 @@ fun loadEvents() {
         }
     }
 
-    onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
+    @EventListener(async = true)
+    fun classification(e: ClassificationEvent) {
         val response = e.response
-        if (response.rating != Rating.NSFW) return@onAsync
+        if (response.rating != Rating.NSFW) return
 
         val embed = EmbedBuilder()
             .setColor(Color.red)
@@ -298,8 +308,9 @@ fun loadEvents() {
         message.queue()
     }
 
-    Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
-        if (e.tile == null || e.unit == null) return@Cons
+    @EventListener
+    fun blockBuildEnd(e: BlockBuildEndEvent) {
+        if (e.tile == null || e.unit == null) return
         val player = e.unit.player
 
         if (player != null) getPlayerData(player)?.let { s ->
@@ -314,7 +325,7 @@ fun loadEvents() {
             } else s.adjBlocksBuild()
         }
 
-        if (e.breaking) return@Cons
+        if (e.breaking) return
 
         val unit = e.unit
         val tile = e.tile
@@ -338,10 +349,11 @@ fun loadEvents() {
                 rotation
             )
         }
-    })
+    }
 
-    Events.on(BlockBuildBeginEvent::class.java, Cons { e: BlockBuildBeginEvent ->
-        if (e.tile == null || e.unit == null || !e.breaking) return@Cons
+    @EventListener
+    fun blockBuildBegin(e: BlockBuildBeginEvent) {
+        if (e.tile == null || e.unit == null || !e.breaking) return
         val player = e.unit.player
         val unit = e.unit
         val tile = e.tile
@@ -364,10 +376,11 @@ fun loadEvents() {
                 0
             )
         }
-    })
+    }
 
-    Events.on(BuildRotateEvent::class.java, Cons { e: BuildRotateEvent ->
-        if (e.build == null || e.unit == null || e.unit.player == null) return@Cons
+    @EventListener
+    fun buildRotate(e: BuildRotateEvent) {
+        if (e.build == null || e.unit == null || e.unit.player == null) return
         val player = e.unit.player
         val build = e.build
         var name: String? = null
@@ -388,10 +401,11 @@ fun loadEvents() {
                 e.build.rotation
             )
         }
-    })
+    }
 
-    Events.on(ConfigEvent::class.java, Cons { e: ConfigEvent ->
-        if (e.player == null || e.tile == null) return@Cons
+    @EventListener
+    fun config(e: ConfigEvent) {
+        if (e.player == null || e.tile == null) return
         val player = e.player
         val build = e.tile
         val name = player.coloredName()
@@ -408,10 +422,11 @@ fun loadEvents() {
                 e.value
             )
         }
-    })
+    }
 
-    Events.on(BlockDestroyEvent::class.java, Cons { e: BlockDestroyEvent ->
-        if (e.tile == null || e.tile.block() == null) return@Cons
+    @EventListener
+    fun blockDestroy(e: BlockDestroyEvent) {
+        if (e.tile == null || e.tile.block() == null) return
 
         History.write(
             e.tile,
@@ -423,9 +438,10 @@ fun loadEvents() {
             e.tile.team(),
             0
         )
-    })
+    }
 
-    Events.on(WaveEvent::class.java) { _: WaveEvent ->
+    @EventListener
+    fun wave(e: WaveEvent) {
         Groups.player.each { p ->
             eventsScope.launch {
                 getPlayerData(p)?.let { stats ->
@@ -437,8 +453,9 @@ fun loadEvents() {
         }
     }
 
-    Events.on(BlockBuildEndEvent::class.java, Cons { e ->
-        val build = e.tile?.build as? LogicBlock.LogicBuild ?: return@Cons
+    @EventListener
+    fun attemCheck(e: BlockBuildEndEvent) {
+        val build = e.tile?.build as? LogicBlock.LogicBuild ?: return
 
         eventsScope.launch { // The regex can be slow
             if (!isAttem(build.code)) return@launch
@@ -448,16 +465,17 @@ fun loadEvents() {
                 Bundle.label("notice.attem83", 2f, build.x, build.y)
             }
         }
-    })
+    }
 
-    Events.on(PickupEvent::class.java) { e ->
-        e.build ?: return@on
-        e.unit ?: return@on
+    @EventListener
+    fun pickup(e: PickupEvent) {
+        e.build ?: return
+        e.unit ?: return
 
         val player: Player? = e.unit.player
         val build = e.build
         val name = player?.coloredName()
-        val pid = if(player == null) null else getPlayerId(player)
+        val pid = if (player == null) null else getPlayerId(player)
         eventsScope.launch {
             History.write(
                 build.tile,
@@ -473,14 +491,15 @@ fun loadEvents() {
     }
 
     // DRY
-    Events.on(PayloadDropEvent::class.java) { e ->
-        e.build ?: return@on
-        e.unit ?: return@on
+    @EventListener
+    fun payloadDrop(e: PayloadDropEvent) {
+        e.build ?: return
+        e.unit ?: return
 
         val player: Player? = e.unit.player
         val build = e.build
         val name = player?.coloredName()
-        val pid = if(player == null) null else getPlayerId(player)
+        val pid = if (player == null) null else getPlayerId(player)
         eventsScope.launch {
             History.write(
                 build.tile,
@@ -495,10 +514,11 @@ fun loadEvents() {
         }
     }
 
-    Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
+    @EventListener
+    fun gameOver(e: GameOverEvent) {
         if (PVars.mapVote != null) PVars.mapVote.cancel()
 
-        if(S3Enabled) {
+        if (S3Enabled) {
             val oldHistory = History.copy()
             eventsScope.launch {
                 val mapName = Vars.state.map.name()
@@ -518,7 +538,8 @@ fun loadEvents() {
         }
     }
 
-    Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
+    @EventListener
+    fun serverLoad(e: ServerLoadEvent) {
         loadAfterStart()
         Vars.netServer.admins.addActionFilter { filter ->
             val status = filter.player.getStatus()
@@ -538,7 +559,8 @@ fun loadEvents() {
         }
     }
 
-    Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
+    @EventListener
+    fun worldLoad(e: WorldLoadEvent) {
         Timer.schedule({
             if (gamemode == Gamemode.sandbox) {
                 /*Vars.state.rules.unitDamageMultiplier = 0f
@@ -560,8 +582,9 @@ fun loadEvents() {
         }, 1f)
     }
 
-    Events.on(TapEvent::class.java) { e: TapEvent ->
-        if (e.player == null || e.tile == null || !e.player.getStatus().historyEnabled) return@on
+    @EventListener
+    fun tap(e: TapEvent) {
+        if (e.player == null || e.tile == null || !e.player.getStatus().historyEnabled) return
         Call.setHudText(e.player.con, History.getMessage(e.tile.pos()))
     }
 }
