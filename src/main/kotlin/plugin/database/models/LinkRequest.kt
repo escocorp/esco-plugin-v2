@@ -13,38 +13,38 @@ data class LinkRequest(
     val state: String,
     val playerId: Int,
     val createdAt: Instant,
-    val usedAt: Instant?
+    val usedAt: Instant?,
 )
 
 @Throws(SQLException::class)
-fun getLinkRequest(rs: ResultSet): LinkRequest {
-    return LinkRequest(
+fun getLinkRequest(rs: ResultSet): LinkRequest =
+    LinkRequest(
         rs.getInt("id"),
         rs.getString("state"),
         rs.getInt("player_id"),
         rs.getTimestamp("created_at").toInstant(),
-        rs.getTimestamp("used_at")?.toInstant()
+        rs.getTimestamp("used_at")?.toInstant(),
     )
-}
 
-fun newLinkRequest(state: String, playerId: Int): Boolean {
-    return Database.executeUpdate(
+fun newLinkRequest(
+    state: String,
+    playerId: Int,
+): Boolean =
+    Database.executeUpdate(
         "INSERT INTO link_requests (state, player_id) VALUES (?, ?)",
         { stmt ->
             stmt.setString(1, state)
             stmt.setInt(2, playerId)
-        }
+        },
     )
-}
 
-fun getLinkRequest(pd: Int): LinkRequest? {
-    return Database.executeQuery(
+fun getLinkRequest(pd: Int): LinkRequest? =
+    Database.executeQuery(
         "SELECT * FROM link_requests WHERE player_id = ?",
         { stmt ->
             stmt.setInt(1, pd)
         },
         {
             getLinkRequest(it)
-        }
+        },
     )
-}

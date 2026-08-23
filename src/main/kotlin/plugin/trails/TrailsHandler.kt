@@ -34,9 +34,10 @@ object TrailsHandler {
      * Currently, a stub that grants access to everyone.
      */
     @Suppress("UNUSED_PARAMETER")
-    fun hasAccess(player: Player, trail: Trails): Boolean {
-        return true
-    }
+    fun hasAccess(
+        player: Player,
+        trail: Trails,
+    ): Boolean = true
 
     fun remove(player: Player) {
         activeTrails.remove(player)
@@ -56,13 +57,19 @@ object TrailsHandler {
         menu.show(player)
     }
 
-    private fun itemLabel(player: Player, trails: Trails): String {
+    private fun itemLabel(
+        player: Player,
+        trails: Trails,
+    ): String {
         val trail = trails.trail
         val marker = if (activeTrails[player]?.name == trail.name) "[green]> " else ""
         return "$marker[#${trail.color}]${trail.name}"
     }
 
-    private fun select(player: Player, trails: Trails) {
+    private fun select(
+        player: Player,
+        trails: Trails,
+    ) {
         if (!hasAccess(player, trails)) {
             player.sendBundle("command.trail.no-access")
             return

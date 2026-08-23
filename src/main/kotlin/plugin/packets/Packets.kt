@@ -13,14 +13,14 @@ import plugin.utils.infoString
 object Packets {
     fun load() {
         Vars.net.handleServer(
-            AdminRequestCallPacket::class.java
+            AdminRequestCallPacket::class.java,
         ) { con: NetConnection, packet: AdminRequestCallPacket -> AdminRequest.handle(con, packet) }
         Vars.net.handleServer(
-            SendChatMessageCallPacket::class.java
+            SendChatMessageCallPacket::class.java,
         ) { con: NetConnection, packet: SendChatMessageCallPacket -> SendChatMessage.handle(con, packet) }
 
         Vars.net.handleServer(
-            ClientSnapshotCallPacket::class.java
+            ClientSnapshotCallPacket::class.java,
         ) { con, packet ->
             handleClientSnapshot(con, packet)
         }

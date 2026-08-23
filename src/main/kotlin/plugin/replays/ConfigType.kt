@@ -4,5 +4,5 @@ enum class ConfigType {
     item,
     point2,
     liquid, // Liquids$2
-    point2Array
+    point2Array,
 }

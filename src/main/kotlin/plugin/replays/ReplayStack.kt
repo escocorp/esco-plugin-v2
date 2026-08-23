@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReplayStack(
-    val stack: MutableList<ReplayRecord> = mutableListOf()
+    val stack: MutableList<ReplayRecord> = mutableListOf(),
 ) {
     fun size() = stack.size
 

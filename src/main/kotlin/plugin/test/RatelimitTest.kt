@@ -7,7 +7,7 @@ fun test() {
     val keep = Ratekeeper()
 
     for (i in 1..10) {
-        if(keep.allow(1000, 5)) {
+        if (keep.allow(1000, 5)) {
             Log.info("Allowed!")
             // doing something...
         } else {

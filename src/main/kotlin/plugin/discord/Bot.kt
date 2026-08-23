@@ -21,9 +21,11 @@ object Bot {
         try {
             MessageRequest.setDefaultMentions(emptyList())
 
-            val jda = JDABuilder.create(PVars.botToken, intents)
-                .addEventListeners(MessageListener())
-                .build()
+            val jda =
+                JDABuilder
+                    .create(PVars.botToken, intents)
+                    .addEventListeners(MessageListener())
+                    .build()
 
             jda.awaitReady()
 
@@ -61,8 +63,11 @@ object Bot {
     }
 
     fun sendLog(message: String?) {
-        if (PVars.logsChannel != null) PVars.logsChannel.sendMessage(("[" + PVars.gamemode.simpleName + "] " + message).take(2000))
-            .queue()
+        if (PVars.logsChannel != null) {
+            PVars.logsChannel
+                .sendMessage(("[" + PVars.gamemode.simpleName + "] " + message).take(2000))
+                .queue()
+        }
     }
 
     fun sendServerMessage(message: String) {
@@ -70,23 +75,34 @@ object Bot {
         PVars.serverChannel.sendMessage(message.take(2000)).queue()
     }
 
-    fun sendJoinMessage(player: Player, id: Int) {
+    fun sendJoinMessage(
+        player: Player,
+        id: Int,
+    ) {
         if (PVars.serverChannel == null) return
-        val embed = EmbedBuilder()
-            .setColor(Color.green)
-            .addField("", "[" + id + "] " + player.plainName() + " joined!", false)
+        val embed =
+            EmbedBuilder()
+                .setColor(Color.green)
+                .addField("", "[" + id + "] " + player.plainName() + " joined!", false)
         PVars.serverChannel.sendMessageEmbeds(embed.build()).queue()
     }
 
-    fun sendLeaveMessage(player: Player, id: Int) {
+    fun sendLeaveMessage(
+        player: Player,
+        id: Int,
+    ) {
         if (PVars.serverChannel == null) return
-        val embed = EmbedBuilder()
-            .setColor(Color.red)
-            .addField("", "[" + id + "] " + player.plainName() + " left!", false)
+        val embed =
+            EmbedBuilder()
+                .setColor(Color.red)
+                .addField("", "[" + id + "] " + player.plainName() + " left!", false)
         PVars.serverChannel.sendMessageEmbeds(embed.build()).queue()
     }
 
-    fun reply(message: Message, content: String) {
+    fun reply(
+        message: Message,
+        content: String,
+    ) {
         message.reply(content.take(2000)).queue()
     }
 

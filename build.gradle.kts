@@ -2,6 +2,7 @@ plugins {
     java
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.serialization") version "2.4.10"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
 version = "1.0"
@@ -14,6 +15,12 @@ java {
 
 kotlin {
     jvmToolchain(javaVersion)
+}
+
+ktlint {
+    version.set("1.7.1")
+    android.set(false)
+    ignoreFailures.set(true)
 }
 
 repositories {
@@ -74,12 +81,13 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.51.1"))
     implementation("software.amazon.awssdk:s3")
 
-    //compileOnly(files("nohorny-client.jar"))
+    // compileOnly(files("nohorny-client.jar"))
     compileOnly(
-        if (useLatest)
+        if (useLatest) {
             "Anuken:MindustryBuilds:latest"
-        else
+        } else {
             "Anuken:Mindustry:$mindustryVersion"
+        },
     )
     compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
     compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
@@ -93,59 +101,67 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(javaVersion.toString()))
+        jvmTarget.set(
+            org.jetbrains.kotlin.gradle.dsl.JvmTarget
+                .fromTarget(javaVersion.toString()),
+        )
     }
 }
 
 val versionGitDir = layout.buildDirectory.dir("version-git")
 
-val writeVersionFile = tasks.register("writeVersionFile") {
-    group = "build"
-    description = "Writes current Git commit version into the version file"
+val writeVersionFile =
+    tasks.register("writeVersionFile") {
+        group = "build"
+        description = "Writes current Git commit version into the version file"
 
-    val gitDir = file("${rootDir}/.git")
+        val gitDir = file("$rootDir/.git")
 
-    if (gitDir.exists()) {
-        inputs.file("${gitDir}/HEAD")
+        if (gitDir.exists()) {
+            inputs.file("$gitDir/HEAD")
 
-        val packed = file("${gitDir}/packed-refs")
-        if (packed.exists()) {
-            inputs.file(packed)
+            val packed = file("$gitDir/packed-refs")
+            if (packed.exists()) {
+                inputs.file(packed)
+            }
+
+            val refs = file("$gitDir/refs")
+            if (refs.exists()) {
+                inputs.dir(refs)
+            }
         }
 
-        val refs = file("${gitDir}/refs")
-        if (refs.exists()) {
-            inputs.dir(refs)
+        outputs.dir(versionGitDir)
+
+        doLast {
+            val dir = versionGitDir.get().asFile
+            dir.mkdirs()
+
+            val versionFile = dir.resolve("version")
+
+            val proc =
+                ProcessBuilder(
+                    "git",
+                    "rev-parse",
+                    "--short",
+                    "HEAD",
+                ).directory(rootDir)
+                    .start()
+
+            proc.waitFor()
+
+            versionFile.writeText(
+                if (proc.exitValue() == 0) {
+                    proc.inputStream
+                        .bufferedReader()
+                        .readText()
+                        .trim()
+                } else {
+                    "unknown"
+                },
+            )
         }
     }
-
-    outputs.dir(versionGitDir)
-
-    doLast {
-        val dir = versionGitDir.get().asFile
-        dir.mkdirs()
-
-        val versionFile = dir.resolve("version")
-
-        val proc = ProcessBuilder(
-            "git",
-            "rev-parse",
-            "--short",
-            "HEAD"
-        )
-            .directory(rootDir)
-            .start()
-
-        proc.waitFor()
-
-        versionFile.writeText(
-            if (proc.exitValue() == 0)
-                proc.inputStream.bufferedReader().readText().trim()
-            else
-                "unknown"
-        )
-    }
-}
 
 tasks.jar {
     dependsOn(writeVersionFile)
@@ -153,7 +169,8 @@ tasks.jar {
     archiveFileName.set("${project.name}.jar")
 
     from({
-        configurations.runtimeClasspath.get()
+        configurations.runtimeClasspath
+            .get()
             .map { if (it.isDirectory) it else zipTree(it) }
     })
 
@@ -169,9 +186,11 @@ val localesFile = file("src/main/resources/locales")
 
 tasks.processResources {
     if (bundlesDir.exists() && localesFile.exists()) {
-        val locales = localesFile.readLines()
-            .map(String::trim)
-            .filter { it.isNotBlank() }
+        val locales =
+            localesFile
+                .readLines()
+                .map(String::trim)
+                .filter { it.isNotBlank() }
 
         exclude("bundles/**")
 

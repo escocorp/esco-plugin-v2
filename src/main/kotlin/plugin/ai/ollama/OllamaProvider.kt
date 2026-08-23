@@ -9,27 +9,33 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-class OllamaProvider(private val apiUrl: String) : Provider {
+class OllamaProvider(
+    private val apiUrl: String,
+) : Provider {
     private val client = HttpClient.newHttpClient()
 
-    override suspend fun getVersion(): ProviderVersionResponse =
-        get("/api/version")
+    override suspend fun getVersion(): ProviderVersionResponse = get("/api/version")
 
     private suspend inline fun <reified T> get(path: String): T =
         send(
-            HttpRequest.newBuilder()
+            HttpRequest
+                .newBuilder()
                 .uri(URI.create("$apiUrl$path"))
                 .GET()
-                .build()
+                .build(),
         )
 
-    private suspend inline fun <reified T> post(path: String, body: Any): T =
+    private suspend inline fun <reified T> post(
+        path: String,
+        body: Any,
+    ): T =
         send(
-            HttpRequest.newBuilder()
+            HttpRequest
+                .newBuilder()
                 .uri(URI.create("$apiUrl$path"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(PVars.objectMapper.writeValueAsString(body)))
-                .build()
+                .build(),
         )
 
     private suspend inline fun <reified T> send(request: HttpRequest): T {

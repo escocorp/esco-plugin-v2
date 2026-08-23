@@ -30,7 +30,7 @@ class PPlugin : Plugin() {
     override fun registerClientCommands(handler: CommandHandler) {
         PVars.clientCommands = CustomHandler(handler)
         Foos.init()
-        //ClientCommands.register(clientCommands);
+        // ClientCommands.register(clientCommands);
         register(PVars.clientCommands)
 
         Events.fire(RegisterEscoCommandsEvent(PVars.clientCommands))

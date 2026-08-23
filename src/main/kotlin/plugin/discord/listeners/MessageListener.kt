@@ -45,12 +45,14 @@ class MessageListener : ListenerAdapter() {
                 Log.info("@: @", username, content)
                 val colorHex: String = Color(member.colors.primaryRaw).toString()
                 val sanitizedContent = sanitizeDiscordMessage(content)
-                val mindustryMessage = MessageFormat.format(
-                    "[blue]\uE80D[tan][[[#{0}]{1}[tan]][white]: {2}",
-                    colorHex,
-                    username,
-                    sanitizedContent
-                ).take(250)
+                val mindustryMessage =
+                    MessageFormat
+                        .format(
+                            "[blue]\uE80D[tan][[[#{0}]{1}[tan]][white]: {2}",
+                            colorHex,
+                            username,
+                            sanitizedContent,
+                        ).take(250)
                 Call.sendMessage(mindustryMessage)
             }
         }
@@ -64,8 +66,8 @@ class MessageListener : ListenerAdapter() {
                         "Too few arguments!\nUsage **{0}{1}** {2}",
                         PVars.gamemode.botPrefix,
                         response.command.text,
-                        response.command.paramText
-                    )
+                        response.command.paramText,
+                    ),
                 )
             } else if (response.type == CommandHandler.ResponseType.manyArguments) {
                 reply(
@@ -74,8 +76,8 @@ class MessageListener : ListenerAdapter() {
                         "Too many arguments!\nUsage **{0}{1}** {2}",
                         PVars.gamemode.botPrefix,
                         response.command.text,
-                        response.command.paramText
-                    )
+                        response.command.paramText,
+                    ),
                 )
             }
         }

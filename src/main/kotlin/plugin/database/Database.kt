@@ -34,19 +34,20 @@ object Database {
         dbPort: Int,
         db: String,
         dbUser: String,
-        dbPassword: String
+        dbPassword: String,
     ) {
         if (dataSource != null) {
             throw IllegalStateException("Database has already been loaded!")
         }
 
-        dataSource = createDataSource(
-            dbHost,
-            dbPort,
-            db,
-            dbUser,
-            dbPassword
-        )
+        dataSource =
+            createDataSource(
+                dbHost,
+                dbPort,
+                db,
+                dbUser,
+                dbPassword,
+            )
         dataSource?.let { Events.fire(DatabaseLoadEvent(it)) }
     }
 
@@ -70,7 +71,10 @@ object Database {
      * @param player the player whose cache entry was missing
      * @param cacheName the name of the cache
      */
-    fun logExpectedCacheMiss(player: Player, cacheName: String) {
+    fun logExpectedCacheMiss(
+        player: Player,
+        cacheName: String,
+    ) {
         // During gameplay these caches should usually be warmed on connect.
         val key = "$cacheName:${player.uuid()}"
         val now = Time.millis()
@@ -80,7 +84,7 @@ object Database {
         cacheMissLogCooldown.put(key, now)
         putLog(
             "cache_miss",
-            "Expected warm cache miss in $cacheName for uuid=${player.uuid()} name=${player.plainName()} id=${player.id} connected=${player.con?.isConnected ?: false}"
+            "Expected warm cache miss in $cacheName for uuid=${player.uuid()} name=${player.plainName()} id=${player.id} connected=${player.con?.isConnected ?: false}",
         )
     }
 
@@ -94,31 +98,31 @@ object Database {
         dbPort: Int,
         db: String,
         dbUser: String,
-        dbPassword: String
-    ): HikariDataSource? {
-        return try {
+        dbPassword: String,
+    ): HikariDataSource? =
+        try {
             Class.forName("org.postgresql.Driver")
 
-            val config = HikariConfig().apply {
-                jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/$db"
-                username = dbUser
+            val config =
+                HikariConfig().apply {
+                    jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/$db"
+                    username = dbUser
 
-                if (dbPassword != "empty" && dbPassword.isNotEmpty()) {
-                    password = dbPassword
+                    if (dbPassword != "empty" && dbPassword.isNotEmpty()) {
+                        password = dbPassword
+                    }
+
+                    maximumPoolSize = 10
+                    minimumIdle = 3
+                    idleTimeout = 30_000
+                    connectionTimeout = 5_000
                 }
-
-                maximumPoolSize = 10
-                minimumIdle = 3
-                idleTimeout = 30_000
-                connectionTimeout = 5_000
-            }
 
             HikariDataSource(config)
         } catch (err: ClassNotFoundException) {
             Log.err(err)
             null
         }
-    }
 
     /**
      * Executes a query and maps the first row of the result set.
@@ -134,9 +138,9 @@ object Database {
     fun <T> executeQuery(
         sql: String,
         setter: StatementSetter<PreparedStatement>,
-        mapper: (ResultSet) -> T
-    ): T? {
-        return try {
+        mapper: (ResultSet) -> T,
+    ): T? =
+        try {
             dataSource!!.connection.use { conn ->
                 conn.prepareStatement(sql).use { stmt ->
                     setter.accept(stmt)
@@ -154,7 +158,6 @@ object Database {
             Log.err("SQL query failed @ @", sql, e)
             null
         }
-    }
 
     /**
      * Executes an UPDATE/INSERT statement.
@@ -166,9 +169,9 @@ object Database {
     @JvmStatic
     fun executeUpdate(
         sql: String,
-        statementSetter: StatementSetter<PreparedStatement>
-    ): Boolean {
-        return try {
+        statementSetter: StatementSetter<PreparedStatement>,
+    ): Boolean =
+        try {
             dataSource!!.connection.use { conn ->
                 conn.prepareStatement(sql).use { pstmt ->
                     statementSetter.accept(pstmt)
@@ -180,7 +183,6 @@ object Database {
             Log.err("SQL query failed @ @", sql, e)
             false
         }
-    }
 
     /**
      * Executes a query and maps every row of the result set into a list.
@@ -195,7 +197,7 @@ object Database {
     fun <T> executeQueryList(
         sql: String,
         statementSetter: StatementSetter<PreparedStatement>,
-        serializer: Serializer<ResultSet, T>
+        serializer: Serializer<ResultSet, T>,
     ): List<T> {
         val results = mutableListOf<T>()
 

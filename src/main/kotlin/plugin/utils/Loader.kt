@@ -45,13 +45,12 @@ import plugin.trails.TrailsHandler
 import kotlin.system.exitProcess
 
 object Loader {
-
     @JvmStatic
     fun load() {
         try {
             Config.load()
 
-            if(gamemode == Gamemode.unknown) {
+            if (gamemode == Gamemode.unknown) {
                 Log.warn("This server running unknown gamemode!")
             }
 
@@ -72,8 +71,9 @@ object Loader {
 
             loadGlobalConfig()
 
-            if(S3Enabled)
+            if (S3Enabled) {
                 S3 = S3(S3BaseUrl, S3AccessKey, S3SecretKey)
+            }
 
             version = getResource("version")?.readString() ?: ""
 
@@ -99,7 +99,6 @@ object Loader {
 
             Core.settings.put("autorestarted", false)
         }*/
-
         } catch (e: Exception) {
             Log.err(e)
         }
@@ -112,14 +111,14 @@ object Loader {
     }
 
     private fun loadGlobalConfig() {
-        Http.get(KVars.globalConfigLink)
+        Http
+            .get(KVars.globalConfigLink)
             .addPluginAuth()
             .timeout(5000)
             .error {
                 Log.err("Failed to load global config, fallback to cache", it)
                 KVars.globalConfig = readGlobalConfigCache()
-            }
-            .submit { resp ->
+            }.submit { resp ->
                 val raw = resp.resultAsString
                 KVars.globalConfig = objectMapper.readValue(raw, GlobalConfig::class.java)
                 globalConfigCache.writeString(raw)
@@ -181,10 +180,11 @@ object Loader {
             saveMessages()
         }, (5 * 60).toFloat(), (5 * 60).toFloat())
 
-        if (lokiLoggingEnabled)
+        if (lokiLoggingEnabled) {
             Timer.schedule({
                 pushLogs()
             }, 0f, (5 * 60).toFloat())
+        }
 
         Timer.schedule({
             DDoSProtect.update()
@@ -193,12 +193,15 @@ object Loader {
 
     fun loadServerId() {
         val serverOpt = Server.getOrCreateServer()
-        if (serverOpt != null) serverId = serverOpt.id
-        else Log.err("Сannot create/get server record. Server is unstable")
+        if (serverOpt != null) {
+            serverId = serverOpt.id
+        } else {
+            Log.err("Сannot create/get server record. Server is unstable")
+        }
     }
 
     fun saveLogs() {
-        if(logsBuffer.isEmpty) return
+        if (logsBuffer.isEmpty) return
         Log.info("Saving @ logs", logsBuffer.size)
 
         while (logsBuffer.size > 0) {
@@ -210,7 +213,7 @@ object Loader {
     }
 
     fun saveMessages() {
-        if(messageBuffer.isEmpty) return
+        if (messageBuffer.isEmpty) return
         Log.info("Saving @ messages", messageBuffer.size)
         while (messageBuffer.size > 0) {
             val message = messageBuffer.pop()

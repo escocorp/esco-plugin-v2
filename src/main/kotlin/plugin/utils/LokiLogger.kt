@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 data class LogEntry(
     val level: String,
     val message: String,
-    val ts: Long = now()
+    val ts: Long = now(),
 )
 
 val logs = CopyOnWriteArrayList<LogEntry>()
@@ -19,7 +19,10 @@ val logs = CopyOnWriteArrayList<LogEntry>()
  * @param level the log level
  * @param message the log message
  */
-fun addLog(level: String, message: String) {
+fun addLog(
+    level: String,
+    message: String,
+) {
     logs.add(LogEntry(level, message))
 }
 
@@ -45,7 +48,6 @@ fun pushLogs() {
     var firstStream = true
 
     for ((level, entries) in grouped) {
-
         val sorted = entries.sortedBy { it.ts }
 
         if (!firstStream) sb.append(',')
@@ -107,9 +109,7 @@ fun escapeJson(s: String): String {
  *
  * @return the current timestamp in nanoseconds
  */
-fun now(): Long {
-    return System.currentTimeMillis() * 1_000_000L
-}
+fun now(): Long = System.currentTimeMillis() * 1_000_000L
 /*
 fun send(payload: String) {
     Log.debug(payload)
@@ -143,12 +143,13 @@ fun send(payload: String) {
 fun send(payload: String) {
     Log.debug(payload)
 
-    Http.post(lokiApi)
+    Http
+        .post(lokiApi)
         .content(payload)
         .header("Content-Type", "application/json")
         .header("Authorization", "Basic $apiAuth")
         .error { fail -> Log.err(fail) }
         .submit(
-            { res -> Log.info("Sent logs to loki!") }
+            { res -> Log.info("Sent logs to loki!") },
         )
 }

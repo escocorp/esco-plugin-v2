@@ -9,13 +9,19 @@ import mindustry.gen.Call
 import mindustry.gen.Player
 import plugin.Bundle
 
-class Menu(var title: String, var message: String) {
+class Menu(
+    var title: String,
+    var message: String,
+) {
     lateinit var player: Player
     var id: Int = 0
     val rows: Seq<Seq<String>> = Seq()
     val handlers: Seq<Cons<Player>> = Seq()
 
-    fun add(text: String, handler: Cons<Player>): Menu {
+    fun add(
+        text: String,
+        handler: Cons<Player>,
+    ): Menu {
         if (rows.isEmpty) {
             rows.add(Seq<String>())
         }
@@ -40,7 +46,10 @@ class Menu(var title: String, var message: String) {
         return this
     }
 
-    fun resolve(text: String, player: Player): String {
+    fun resolve(
+        text: String,
+        player: Player,
+    ): String {
         if (text.startsWith("@")) {
             val key = text.substring(1)
             val value = Bundle.get(key, player.locale)
@@ -55,10 +64,11 @@ class Menu(var title: String, var message: String) {
         return this
     }
 
-    fun buildRows(player: Player): Array<Array<String>> = Array(rows.size) { i ->
-        val row = rows[i]
-        Array(row.size) { o -> resolve(row[o], player) }
-    }
+    fun buildRows(player: Player): Array<Array<String>> =
+        Array(rows.size) { i ->
+            val row = rows[i]
+            Array(row.size) { o -> resolve(row[o], player) }
+        }
 
     companion object {
         var lastId = 0

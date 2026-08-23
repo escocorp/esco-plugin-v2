@@ -31,7 +31,11 @@ val ipsBlock = Seq<String>()
  * @param isp the player's ISP, may be `null`
  * @param pd the player's database data
  */
-fun apply(p: Player, isp: String?, pd: PlayerData) {
+fun apply(
+    p: Player,
+    isp: String?,
+    pd: PlayerData,
+) {
     if (pd.discordId == null && (isps.contains(isp) || ipMatches(ips, p.ip()))) {
         p.kick(Bundle.get("kick.graylisted", p.locale, PVars.discordLink), 0)
         putLog(pd.id, "graylist", "Player graylisted by IP ${p.ip()}")
@@ -58,47 +62,47 @@ fun loadGraylist() {
  */
 fun reloadGraylist() {
     try {
-        Http.get(ispsUrl)
+        Http
+            .get(ispsUrl)
             .error { e ->
                 Log.err("Failed to load ISPs list", e)
-            }
-            .submit { response ->
+            }.submit { response ->
                 isps.clear()
                 isps.addAll(
                     response.resultAsString
                         .lines()
                         .map { it.trim() }
-                        .filter { it.isNotEmpty() }
+                        .filter { it.isNotEmpty() },
                 )
                 Log.info("Loaded ${isps.size} ISPs")
             }
 
-        Http.get(ipsUrl)
+        Http
+            .get(ipsUrl)
             .error { e ->
                 Log.err("Failed to load IPs list", e)
-            }
-            .submit { response ->
+            }.submit { response ->
                 ips.clear()
                 ips.addAll(
                     response.resultAsString
                         .lines()
                         .map { it.trim() }
-                        .filter { it.isNotEmpty() }
+                        .filter { it.isNotEmpty() },
                 )
                 Log.info("Loaded ${ips.size} IPs")
             }
 
-        Http.get(ipsBlockUrl)
+        Http
+            .get(ipsBlockUrl)
             .error { e ->
                 Log.err("Failed to load blocked IPs list", e)
-            }
-            .submit { response ->
+            }.submit { response ->
                 ipsBlock.clear()
                 ipsBlock.addAll(
                     response.resultAsString
                         .lines()
                         .map { it.trim() }
-                        .filter { it.isNotEmpty() }
+                        .filter { it.isNotEmpty() },
                 )
                 Log.info("Loaded ${ipsBlock.size} blocked IPs")
             }
@@ -114,7 +118,10 @@ fun reloadGraylist() {
  * @param ip the IP to check
  * @return `true` if the IP matches, `false` otherwise
  */
-private fun ipMatches(list: Seq<String>, ip: String): Boolean {
+private fun ipMatches(
+    list: Seq<String>,
+    ip: String,
+): Boolean {
     for (entry in list) {
         if (entry == ip) return true
 
@@ -133,7 +140,10 @@ private fun ipMatches(list: Seq<String>, ip: String): Boolean {
  * @param cidr the CIDR range, e.g. `192.168.0.0/24`
  * @return `true` if the IP is in the range, `false` otherwise
  */
-private fun cidrMatch(ip: String, cidr: String): Boolean {
+private fun cidrMatch(
+    ip: String,
+    cidr: String,
+): Boolean {
     return try {
         val parts = cidr.split("/", limit = 2)
         if (parts.size != 2) return false
@@ -149,11 +159,12 @@ private fun cidrMatch(ip: String, cidr: String): Boolean {
         for (i in network.indices) {
             if (bits <= 0) break
 
-            val mask = if (bits >= 8) {
-                0xFF
-            } else {
-                (0xFF shl (8 - bits)) and 0xFF
-            }
+            val mask =
+                if (bits >= 8) {
+                    0xFF
+                } else {
+                    (0xFF shl (8 - bits)) and 0xFF
+                }
 
             if ((network[i].toInt() and mask) != (address[i].toInt() and mask)) {
                 return false

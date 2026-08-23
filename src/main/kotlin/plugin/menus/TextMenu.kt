@@ -10,7 +10,9 @@ import mindustry.gen.Call
 import mindustry.gen.Player
 import plugin.Bundle
 
-class TextMenu(private val handler: Cons2<Player, String>) {
+class TextMenu(
+    private val handler: Cons2<Player, String>,
+) {
     lateinit var player: Player
     val id: Int = ++lastId
 

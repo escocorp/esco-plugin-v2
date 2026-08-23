@@ -39,21 +39,31 @@ object BanListener {
                             while (true) {
                                 val notifications = pgCon.notifications
 
-                                if (notifications != null) for (notify in notifications) {
-                                    val payload = notify.parameter
-                                    if (!Strings.canParseInt(payload)) continue
-                                    val i = Strings.parseInt(payload)
-                                    getBan(i)?.let { ban ->
-                                        getPlayerById(ban.playerId).ifPresent(Consumer { p: Player? ->
-                                            Bundle.sendMessage(
-                                                "announce.ban",
-                                                ban.playerId,
-                                                p!!.coloredName(),
-                                                if (ban.unbanTime == null) "never" else formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000),
-                                                ban.reason
+                                if (notifications != null) {
+                                    for (notify in notifications) {
+                                        val payload = notify.parameter
+                                        if (!Strings.canParseInt(payload)) continue
+                                        val i = Strings.parseInt(payload)
+                                        getBan(i)?.let { ban ->
+                                            getPlayerById(ban.playerId).ifPresent(
+                                                Consumer { p: Player? ->
+                                                    Bundle.sendMessage(
+                                                        "announce.ban",
+                                                        ban.playerId,
+                                                        p!!.coloredName(),
+                                                        if (ban.unbanTime ==
+                                                            null
+                                                        ) {
+                                                            "never"
+                                                        } else {
+                                                            formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000)
+                                                        },
+                                                        ban.reason,
+                                                    )
+                                                    ban.kickPlayer(p)
+                                                },
                                             )
-                                            ban.kickPlayer(p)
-                                        })
+                                        }
                                     }
                                 }
 

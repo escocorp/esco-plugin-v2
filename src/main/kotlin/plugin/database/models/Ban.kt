@@ -31,15 +31,15 @@ class Ban(
     val adminId: Int,
     val banTime: Instant,
     val unbanTime: Instant?,
-    val source: String
+    val source: String,
 ) {
-
     fun kickPlayer(player: Player) {
-        val time = if (unbanTime == null) {
-            "Never (perm-ban)"
-        } else {
-            formatTime(unbanTime.epochSecond - Clock.System.now().epochSeconds)
-        }
+        val time =
+            if (unbanTime == null) {
+                "Never (perm-ban)"
+            } else {
+                formatTime(unbanTime.epochSecond - Clock.System.now().epochSeconds)
+            }
 
         player.kick(
             MessageFormat.format(
@@ -47,33 +47,43 @@ class Ban(
                 reason,
                 time,
                 discordLink,
-                id
+                id,
             ),
-            0
+            0,
         )
     }
 }
 
-
 // region Ban
 
-fun ban(pid: Int, aid: Int, reason: String?, unban: Long, source: String): Boolean {
-    return executeUpdate(
-        "INSERT INTO bans (player_id, admin_id, reason, unban_time, source) VALUES (?, ?, ?, ?, ?)"
+fun ban(
+    pid: Int,
+    aid: Int,
+    reason: String?,
+    unban: Long,
+    source: String,
+): Boolean =
+    executeUpdate(
+        "INSERT INTO bans (player_id, admin_id, reason, unban_time, source) VALUES (?, ?, ?, ?, ?)",
     ) { stmt: PreparedStatement ->
         stmt.setInt(1, pid)
         stmt.setInt(2, aid)
         stmt.setString(3, reason)
         stmt.setTimestamp(
             4,
-            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) }
+            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) },
         )
         stmt.setString(5, source)
     }
-}
 
-fun ban(pid: Int, admin: Player, reason: String?, unban: Long, source: String): Boolean {
-    return executeUpdate(
+fun ban(
+    pid: Int,
+    admin: Player,
+    reason: String?,
+    unban: Long,
+    source: String,
+): Boolean =
+    executeUpdate(
         """
         INSERT INTO bans (player_id, admin_id, reason, unban_time, source)
         VALUES (
@@ -83,22 +93,27 @@ fun ban(pid: Int, admin: Player, reason: String?, unban: Long, source: String): 
             ?,
             ?
         )
-    
-    """.trimIndent()
+        
+        """.trimIndent(),
     ) { stmt: PreparedStatement ->
         stmt.setInt(1, pid)
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
         stmt.setTimestamp(
             4,
-            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) }
+            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) },
         )
         stmt.setString(5, source)
     }
-}
 
-fun ban(player: Player, admin: Player, reason: String?, unban: Long, source: String): Boolean {
-    return executeUpdate(
+fun ban(
+    player: Player,
+    admin: Player,
+    reason: String?,
+    unban: Long,
+    source: String,
+): Boolean =
+    executeUpdate(
         """
         INSERT INTO bans (player_id, admin_id, reason, unban_time, source)
         VALUES (
@@ -108,30 +123,28 @@ fun ban(player: Player, admin: Player, reason: String?, unban: Long, source: Str
             ?,
             ?
         )
-    
-    """.trimIndent()
+        
+        """.trimIndent(),
     ) { stmt: PreparedStatement ->
         stmt.setString(1, player.uuid())
         stmt.setString(2, admin.uuid())
         stmt.setString(3, reason)
         stmt.setTimestamp(
             4,
-            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) }
+            getUnbanTime(unban)?.let { Timestamp.from(it.toJavaInstant()) },
         )
         stmt.setString(5, source)
     }
-}
 
-fun getBan(id: Int): Ban? {
-    return executeQuery(
+fun getBan(id: Int): Ban? =
+    executeQuery(
         "SELECT * FROM bans WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
-        { rs: ResultSet -> getBan(rs) }
+        { rs: ResultSet -> getBan(rs) },
     )
-}
 
-fun getBan(player: Player): Ban? {
-    return executeQuery(
+fun getBan(player: Player): Ban? =
+    executeQuery(
         """
 SELECT DISTINCT b.*
 FROM bans b
@@ -161,7 +174,7 @@ WHERE b.active = true
 ORDER BY b.ban_time DESC
 LIMIT 1;
                 
-                """.trimIndent(),
+        """.trimIndent(),
         { stmt: PreparedStatement ->
             stmt.setString(1, player.uuid())
             stmt.setString(2, player.ip())
@@ -170,13 +183,12 @@ LIMIT 1;
             stmt.setString(5, player.usid())
             stmt.setString(6, player.uuid())
         },
-        { rs: ResultSet -> getBan(rs) }
+        { rs: ResultSet -> getBan(rs) },
     )
-}
 
 @Throws(SQLException::class)
-fun getBan(rs: ResultSet): Ban {
-    return Ban(
+fun getBan(rs: ResultSet): Ban =
+    Ban(
         rs.getInt("id"),
         rs.getBoolean("active"),
         rs.getBoolean("can_be_removed"),
@@ -185,8 +197,7 @@ fun getBan(rs: ResultSet): Ban {
         rs.getInt("admin_id"),
         rs.getTimestamp("ban_time")?.toInstant()!!,
         rs.getTimestamp("unban_time")?.toInstant(),
-        rs.getString("source")
+        rs.getString("source"),
     )
-}
 
 // endregion

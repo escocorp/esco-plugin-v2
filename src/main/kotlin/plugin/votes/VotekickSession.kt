@@ -18,7 +18,11 @@ import plugin.model.unfreeze
 import java.awt.Color
 import java.text.MessageFormat
 
-class VotekickSession(var target: Player, var started: Player, var reason: String) {
+class VotekickSession(
+    var target: Player,
+    var started: Player,
+    var reason: String,
+) {
     var voted: ObjectIntMap<String?> = ObjectIntMap<String?>()
     var task: Timer.Task
     var votes: Int = 0
@@ -26,13 +30,14 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
     var startedId: Int = 0
 
     init {
-        this.task = Timer.schedule({
-            if (!checkPass()) {
-                //Call.sendMessage(Strings.format("[lightgray]Vote failed. Not enough votes to kick[orange] @[lightgray].", target.name));
-                Bundle.sendMessage("command.votekick.failed", target.coloredName())
-                cancel()
-            }
-        }, NetServer.voteDuration)
+        this.task =
+            Timer.schedule({
+                if (!checkPass()) {
+                    // Call.sendMessage(Strings.format("[lightgray]Vote failed. Not enough votes to kick[orange] @[lightgray].", target.name));
+                    Bundle.sendMessage("command.votekick.failed", target.coloredName())
+                    cancel()
+                }
+            }, NetServer.voteDuration)
         var id = getPlayerId(started)
         if (id != null) startedId = id
         id = getPlayerId(target)
@@ -41,13 +46,28 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
         target.freeze()
     }
 
-    fun vote(player: Player, d: Int) {
-        val lastVote = voted.get(player.uuid(), 0) or voted.get(Vars.netServer.admins.getInfo(player.uuid()).lastIP, 0)
+    fun vote(
+        player: Player,
+        d: Int,
+    ) {
+        val lastVote =
+            voted.get(player.uuid(), 0) or
+                voted.get(
+                    Vars.netServer.admins
+                        .getInfo(player.uuid())
+                        .lastIP,
+                    0,
+                )
         votes -= lastVote
 
         votes += d
         voted.put(player.uuid(), d)
-        voted.put(Vars.netServer.admins.getInfo(player.uuid()).lastIP, d)
+        voted.put(
+            Vars.netServer.admins
+                .getInfo(player.uuid())
+                .lastIP,
+            d,
+        )
 
         /*Call.sendMessage(Strings.format("[lightgray]@[lightgray] has voted on kicking[orange] @[lightgray].[accent] (@/@)\n[lightgray]Type[orange] /vote <y/n>[] to agree.",
                 player.name, target.name, votes, votesRequired()));*/
@@ -60,7 +80,7 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
         if (votes >= votesRequired()) {
             // Call.sendMessage(Strings.format("[orange]Vote passed.[scarlet] @[orange] will be banned from the server for @ minutes.", target.name, (kickDuration / 60)));
             Bundle.sendMessage("command.votekick.passed", target.coloredName(), (NetServer.kickDuration / 60))
-            //Groups.player.each(p -> p.uuid().equals(target.uuid()), p -> p.kick(Packets.KickReason.vote, kickDuration * 1000));
+            // Groups.player.each(p -> p.uuid().equals(target.uuid()), p -> p.kick(Packets.KickReason.vote, kickDuration * 1000));
             cancel()
 
             sendEmbed(startedId, targetId)
@@ -92,26 +112,36 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
      * @param stId database ID of the player who started the votekick session.
      * @param tId  database ID of the player targeted by the votekick.
      */
-    fun sendEmbed(stId: Int, tId: Int) {
+    fun sendEmbed(
+        stId: Int,
+        tId: Int,
+    ) {
         if (PVars.votekicksChannel == null) return
 
         val embed = EmbedBuilder()
 
-        embed.setColor(Color.red)
+        embed
+            .setColor(Color.red)
             .addField(
-                "Votekick", MessageFormat.format(
+                "Votekick",
+                MessageFormat.format(
                     """
-                                Started by: [{0}] {1}
-                                Target: [{2}] {3}
-                                Votes: {4}
-                                Reason: {5}
-                                Server: {6}
-                                
-                                """.trimIndent(),
-                    stId, started.plainName(),
-                    tId, target.plainName(),
-                    votes, reason, PVars.gamemode.simpleName
-                ), false
+                    Started by: [{0}] {1}
+                    Target: [{2}] {3}
+                    Votes: {4}
+                    Reason: {5}
+                    Server: {6}
+                    
+                    """.trimIndent(),
+                    stId,
+                    started.plainName(),
+                    tId,
+                    target.plainName(),
+                    votes,
+                    reason,
+                    PVars.gamemode.simpleName,
+                ),
+                false,
             )
 
         val votedFor = StringBuilder()
@@ -132,8 +162,6 @@ class VotekickSession(var target: Player, var started: Player, var reason: Strin
     }
 
     companion object {
-        fun votesRequired(): Int {
-            return 2 + (if (Groups.player.size() > 4) 1 else 0)
-        }
+        fun votesRequired(): Int = 2 + (if (Groups.player.size() > 4) 1 else 0)
     }
 }

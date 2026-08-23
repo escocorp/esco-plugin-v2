@@ -10,4 +10,7 @@ package plugin.discord.register
  * @param message The error description to display to the Discord user.
  * @param cause An optional underlying cause for chaining purposes.
  */
-class DiscordCommandException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class DiscordCommandException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)

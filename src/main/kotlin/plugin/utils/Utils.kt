@@ -54,26 +54,30 @@ private const val characters = "qwertyuiopasdfghjklzxcvbnm123456789"
  * Checks if an IP is a proxy/VPN/anonymizer
  * [ip] - Target IP to check
  * */
-fun isAnon(ip: String?, callback: Cons<VPNApiResponse>) {
-    Http.get(PVars.vpnApi + ip)
+fun isAnon(
+    ip: String?,
+    callback: Cons<VPNApiResponse>,
+) {
+    Http
+        .get(PVars.vpnApi + ip)
         .header("Authorization", "Basic $apiAuth")
         .timeout(5000)
         .error { th ->
             Log.err("Failed to check ip $ip", th)
-        }
-        .submit { resp ->
+        }.submit { resp ->
             Log.debug("Received IpApi response")
             try {
-                val apiResponse = PVars.objectMapper.readValue(
-                    resp.resultAsString,
-                    VPNApiResponse::class.java
-                )
+                val apiResponse =
+                    PVars.objectMapper.readValue(
+                        resp.resultAsString,
+                        VPNApiResponse::class.java,
+                    )
                 if (!apiResponse.status.equals("success")) {
                     Log.err("Failed to check ip $ip messsage ${apiResponse.message}")
                     return@submit
                 }
                 callback.get(
-                    apiResponse
+                    apiResponse,
                 )
             } catch (e: Exception) {
                 Log.err("Failed to parse api response", e)
@@ -109,7 +113,10 @@ fun Http.HttpRequest.addPluginAuth(): Http.HttpRequest {
  * Download file to some path
  * [url] - target url
  * */
-fun download(url: String, dest: Path) {
+fun download(
+    url: String,
+    dest: Path,
+) {
     val req = HttpRequest.newBuilder(URI.create(url)).GET().build()
     val resp = httpClient.send(req, HttpResponse.BodyHandlers.ofFile(dest))
     require(resp.statusCode() in 200..299) { "HTTP ${resp.statusCode()}" }
@@ -125,24 +132,27 @@ fun httpGetString(url: String): String {
     require(resp.statusCode() in 200..299) { "HTTP ${resp.statusCode()}" }
     return resp.body().trim()
 }
+
 /**
  * converts y/yes/true to bool
  * [bool] - bool as string
  * */
-fun parseBool(bool: String): Int {
-    return when (bool.lowercase(Locale.getDefault())) {
+fun parseBool(bool: String): Int =
+    when (bool.lowercase(Locale.getDefault())) {
         "y", "yes", "д", "да", "+", "t", "true", "1" -> 1
         "n", "no", "н", "нет", "-", "f", "false", "0" -> -1
         else -> 0
     }
-}
 
 /**
  * converts bool to string
  * [bool] - target bool
  * [colored] Should the output be colored
  * */
-fun parseBool(bool: Boolean, colored: Boolean = false): String =
+fun parseBool(
+    bool: Boolean,
+    colored: Boolean = false,
+): String =
     when {
         colored && bool -> "[green]Yes"
         colored -> "[red]No"
@@ -185,9 +195,11 @@ fun getSecureRandomString(len: Int): String {
  * @return the resource as [Fi], or `null` if the plugin is not found
  *         or the resource does not exist
  */
-fun getResource(name: String): Fi? {
-    return Vars.mods.locateMod("plugin").root.child(name)
-}
+fun getResource(name: String): Fi? =
+    Vars.mods
+        .locateMod("plugin")
+        .root
+        .child(name)
 
 /**
  * Removes all characters in the [0xF80, 0x107F] range (Tibetan and Myanmar blocks)
@@ -203,6 +215,7 @@ fun stripFoo(string: String): String {
     }
     return var1.toString()
 }
+
 /**
  * Formats a duration in seconds into a compact string like `1d2h3m4s`.
  * Units with a zero value are omitted; if the result would be empty, `0s` is returned.
@@ -224,6 +237,7 @@ fun formatTime(time: Long): String {
 
     return sb.toString().trim { it <= ' ' }
 }
+
 /**
  * Parses a duration string into seconds. Supported formats:
  * a bare number (treated as minutes) or a number followed by a unit suffix:
@@ -256,18 +270,21 @@ fun parseTime(time: String?): Long {
     if (timeMod == 'y') return parsed * 60 * 60 * 24 * 365
     return parsed
 }
+
 /**
  * Resolves the player's UDP remote address as a string.
  *
  * @param player the player whose UDP address to retrieve
  * @return the UDP address string (without the leading `/`)
  */
-fun getUDPAddress(player: Player): String {
-    return Reflect.get<Connection>(player.con, "connection").remoteAddressUDP.address.toString().substring(1)
-}
+fun getUDPAddress(player: Player): String =
+    Reflect
+        .get<Connection>(player.con, "connection")
+        .remoteAddressUDP.address
+        .toString()
+        .substring(1)
 
-fun NetConnection.getUDPAddress(): InetAddress =
-    Reflect.get<Connection>(this, "connection").remoteAddressUDP.address
+fun NetConnection.getUDPAddress(): InetAddress = Reflect.get<Connection>(this, "connection").remoteAddressUDP.address
 
 /**
  * Checks whether the player has the given permission.
@@ -275,9 +292,8 @@ fun NetConnection.getUDPAddress(): InetAddress =
  * @param perm the permission to check
  * @return `true` if the player has the permission, `false` otherwise
  */
-fun Player.hasPerms(perm: Permission): Boolean {
-    return getPerms(this).contains(perm)
-}
+fun Player.hasPerms(perm: Permission): Boolean = getPerms(this).contains(perm)
+
 /**
  * Finds a custom map whose name contains the given substring.
  *
@@ -286,11 +302,14 @@ fun Player.hasPerms(perm: Permission): Boolean {
  */
 fun findMap(name: String): Map? {
     val maps = Vars.maps.customMaps()
-    for (map in maps)
-        if (map.name().contains(name))
+    for (map in maps) {
+        if (map.name().contains(name)) {
             return map
+        }
+    }
     return null
 }
+
 /**
  * Subscribes to an event and invokes the listener on the async events scope.
  *
@@ -298,7 +317,10 @@ fun findMap(name: String): Map? {
  * @param type the event class to subscribe to
  * @param listener the listener invoked with the event
  */
-fun <T> onAsync(type: Class<T>, listener: Cons<T>) {
+fun <T> onAsync(
+    type: Class<T>,
+    listener: Cons<T>,
+) {
     Events.on(type) { e: T ->
         eventsScope.launch {
             listener.get(e)
@@ -356,7 +378,10 @@ fun Player.sendBundle(req: String) {
  * @param req the bundle key of the message
  * @param params the format parameters
  */
-fun Player.sendBundle(req: String, vararg params: Any) {
+fun Player.sendBundle(
+    req: String,
+    vararg params: Any,
+) {
     Bundle.sendMessage(req, this, *params)
 }
 
@@ -366,9 +391,7 @@ fun Player.sendBundle(req: String, vararg params: Any) {
  *
  * @return the player count
  */
-fun getPlayersCount(): Int {
-    return if (Core.settings.getInt("totalPlayers") == 0) Groups.player.size() else Core.settings.getInt("totalPlayers")
-}
+fun getPlayersCount(): Int = if (Core.settings.getInt("totalPlayers") == 0) Groups.player.size() else Core.settings.getInt("totalPlayers")
 
 /**
  * Extracts the IDs from a list of Discord roles.
@@ -390,10 +413,7 @@ fun getRoleIDs(roles: List<Role>): List<String> {
  * @param id the role ID to check
  * @return `true` if the member has the role, `false` otherwise
  */
-fun Member.hasRole(id: String): Boolean {
-    return getRoleIDs(this.roles).contains(id)
-}
-
+fun Member.hasRole(id: String): Boolean = getRoleIDs(this.roles).contains(id)
 
 /**
  * Computes the unban timestamp for a ban of [seconds] seconds.
@@ -414,9 +434,7 @@ fun getUnbanTime(seconds: Long): Instant? {
  * @param message the message to sanitize
  * @return the sanitized message
  */
-fun sanitizeDiscordMessage(message: String): String {
-    return Strings.stripColors(message.replace("\\", "\\\\").take(200)).trim()
-}
+fun sanitizeDiscordMessage(message: String): String = Strings.stripColors(message.replace("\\", "\\\\").take(200)).trim()
 
 /**
  * Formats a Unix timestamp in milliseconds as a relative time string,
@@ -453,46 +471,50 @@ fun formatAgo(time: Long): String {
  * @param block the block the config belongs to
  * @return the readable config string, or `null` if it cannot be represented
  */
-fun configAsString(config: Any?, block: Block): String? {
-    var result = when (config) {
-        is UnlockableContent -> config.emoji()
+fun configAsString(
+    config: Any?,
+    block: Block,
+): String? {
+    var result =
+        when (config) {
+            is UnlockableContent -> config.emoji()
 
-        is String -> config
+            is String -> config
 
-        is Point2 -> config.toString()
+            is Point2 -> config.toString()
 
-        is Array<*> -> {
-            val points = config.filterIsInstance<Point2>()
+            is Array<*> -> {
+                val points = config.filterIsInstance<Point2>()
 
-            if (points.isEmpty()) return null
+                if (points.isEmpty()) return null
 
-            points.joinToString(prefix = "[", postfix = "]") {
-                it.toString()
-            }
-        }
-
-        is Int -> {
-            if (block is UnitFactory) {
-                val plans = block.plans
-                if (config > plans.size) {
-                    Log.err("config index out of bounds: config=$config, plansSize=${plans.size}")
-                    return "[scarlet]ERR"
+                points.joinToString(prefix = "[", postfix = "]") {
+                    it.toString()
                 }
-                return plans[config].unit.emoji()
-            } else if(block is PowerNode) {
-                return Point2.unpack(config).toString()
             }
-            null
+
+            is Int -> {
+                if (block is UnitFactory) {
+                    val plans = block.plans
+                    if (config > plans.size) {
+                        Log.err("config index out of bounds: config=$config, plansSize=${plans.size}")
+                        return "[scarlet]ERR"
+                    }
+                    return plans[config].unit.emoji()
+                } else if (block is PowerNode) {
+                    return Point2.unpack(config).toString()
+                }
+                null
+            }
+
+            is UnitCommand -> {
+                return config.emoji.toString()
+            }
+
+            else -> null
         }
 
-        is UnitCommand -> {
-            return config.emoji.toString()
-        }
-
-        else -> null
-    }
-
-    if(result == null && block is UnitFactory) {
+    if (result == null && block is UnitFactory) {
         result = "default"
     }
 
@@ -504,18 +526,14 @@ fun configAsString(config: Any?, block: Block): String? {
  *
  * @return the mention string, e.g. `<@123456789>`
  */
-fun Long.discordMention(): String {
-    return "<@$this>"
-}
+fun Long.discordMention(): String = "<@$this>"
 
 fun InetAddress.toIntKey(): Int {
     val b = address // byte[4]
     return (b[0].toInt() and 0xFF shl 24) or
-            (b[1].toInt() and 0xFF shl 16) or
-            (b[2].toInt() and 0xFF shl 8) or
-            (b[3].toInt() and 0xFF)
+        (b[1].toInt() and 0xFF shl 16) or
+        (b[2].toInt() and 0xFF shl 8) or
+        (b[3].toInt() and 0xFF)
 }
 
-fun Player.infoString(): String {
-    return "${plainName()} [${uuid()}] (${ip()})"
-}
+fun Player.infoString(): String = "${plainName()} [${uuid()}] (${ip()})"

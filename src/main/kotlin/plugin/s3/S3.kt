@@ -10,28 +10,37 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectResponse
 import java.net.URI
 
-class S3(baseUrl: String, accessKey: String, secretKey: String) {
-    val client:  S3Client = S3Client.builder()
-        .endpointOverride(URI.create(baseUrl))
-        .region(Region.EU_WEST_1)
-        .credentialsProvider(
-            StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(
-                    accessKey,
-                    secretKey
-                )
-            )
-        )
-        .forcePathStyle(true)
-        .build()
+class S3(
+    baseUrl: String,
+    accessKey: String,
+    secretKey: String,
+) {
+    val client: S3Client =
+        S3Client
+            .builder()
+            .endpointOverride(URI.create(baseUrl))
+            .region(Region.EU_WEST_1)
+            .credentialsProvider(
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(
+                        accessKey,
+                        secretKey,
+                    ),
+                ),
+            ).forcePathStyle(true)
+            .build()
 
-    fun putObject(bucket: String, name: String, bytes: ByteArray): PutObjectResponse {
-        return client.putObject(
-            PutObjectRequest.builder()
+    fun putObject(
+        bucket: String,
+        name: String,
+        bytes: ByteArray,
+    ): PutObjectResponse =
+        client.putObject(
+            PutObjectRequest
+                .builder()
                 .bucket(bucket)
-                .key("${PVars.gamemode.simpleName}/${name}")
+                .key("${PVars.gamemode.simpleName}/$name")
                 .build(),
-            RequestBody.fromBytes(bytes)
+            RequestBody.fromBytes(bytes),
         )
-    }
 }

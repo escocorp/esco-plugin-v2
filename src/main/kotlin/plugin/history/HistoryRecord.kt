@@ -16,7 +16,7 @@ data class HistoryRecord(
     val center: Boolean,
     val team: Team,
     val rotation: Int,
-    val configAfter: Any?
+    val configAfter: Any?,
 ) {
     fun getMessage(): String {
         var actorText = "[white]" + (actor?.name ?: unit?.emoji() ?: "unknown")
@@ -27,30 +27,31 @@ data class HistoryRecord(
 
         val ago = "[lightgray][${formatAgo(time)}] "
 
-        return ago + when (type) {
-            HistoryType.Rotate ->
-                "$actorText [tan]rotated [white]${block.emoji()}"
+        return ago +
+            when (type) {
+                HistoryType.Rotate ->
+                    "$actorText [tan]rotated [white]${block.emoji()}"
 
-            HistoryType.BreakBlock ->
-                "$actorText [red]broken [white]${block.emoji()}"
+                HistoryType.BreakBlock ->
+                    "$actorText [red]broken [white]${block.emoji()}"
 
-            HistoryType.BuildBlock ->
-                "$actorText [green]built [white]${block.emoji()}"
+                HistoryType.BuildBlock ->
+                    "$actorText [green]built [white]${block.emoji()}"
 
-            HistoryType.Configure -> {
-                val cfg = configAsString(configAfter, block)
+                HistoryType.Configure -> {
+                    val cfg = configAsString(configAfter, block)
 
-                Log.info("CONFIG RAW IZ $cfg (${configAfter?.javaClass})")
+                    Log.info("CONFIG RAW IZ $cfg (${configAfter?.javaClass})")
 
-                "$actorText [tan]configured [white]${block.emoji()}" +
+                    "$actorText [tan]configured [white]${block.emoji()}" +
                         if (cfg.isNullOrBlank()) "" else " [lightgray]to $cfg"
+                }
+
+                HistoryType.DestroyBlock ->
+                    "[white]${team.emoji}${block.emoji()} [red]destroyed"
+
+                else ->
+                    "$actorText [tan]${type.name} [white]${block.emoji()}"
             }
-
-            HistoryType.DestroyBlock ->
-                "[white]${team.emoji}${block.emoji()} [red]destroyed"
-
-            else ->
-                "$actorText [tan]${type.name} [white]${block.emoji()}"
-        }
     }
 }

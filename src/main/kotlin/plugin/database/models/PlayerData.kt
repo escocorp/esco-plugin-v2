@@ -21,8 +21,16 @@ import java.sql.SQLException
 import java.util.*
 
 class PlayerData(
-    var id: Int, var uuid: String?, var discordId: Long?, var prefs: PlayerPrefs, var lastName: String?, // stats
-    var playtime: Long, var blocksBuild: Int, var blocksBroken: Int, var balance: Int, var wavesSurvived: Int
+    var id: Int,
+    var uuid: String?,
+    var discordId: Long?,
+    var prefs: PlayerPrefs,
+    var lastName: String?, // stats
+    var playtime: Long,
+    var blocksBuild: Int,
+    var blocksBroken: Int,
+    var balance: Int,
+    var wavesSurvived: Int,
 ) {
     var cachedUsid: String? = null
 
@@ -33,33 +41,35 @@ class PlayerData(
         if (cachedUsid != null) {
             return cachedUsid
         }
-        val usidOpt = executeQuery(
-            """
-                        SELECT usid FROM usid_list
-                        WHERE player_id = ? AND server = ?
-                        
-                        """.trimIndent(),
-            { stmt: PreparedStatement ->
-                stmt.setInt(1, id)
-                stmt.setInt(2, serverId)
-            },
-            { rs: ResultSet -> rs.getString("usid") }
-        )
+        val usidOpt =
+            executeQuery(
+                """
+                SELECT usid FROM usid_list
+                WHERE player_id = ? AND server = ?
+                
+                """.trimIndent(),
+                { stmt: PreparedStatement ->
+                    stmt.setInt(1, id)
+                    stmt.setInt(2, serverId)
+                },
+                { rs: ResultSet -> rs.getString("usid") },
+            )
         if (usidOpt != null) cachedUsid = usidOpt
         return usidOpt
     }
 
     fun updateDiscordId(dsid: Long): Boolean {
-        val updated = Database.executeUpdate(
-            """
-                        UPDATE players SET discord_id = ?
-                        WHERE id = ?
-                        
-                        """.trimIndent()
-        ) { stmt: PreparedStatement ->
-            stmt.setLong(1, dsid)
-            stmt.setInt(2, id)
-        }
+        val updated =
+            Database.executeUpdate(
+                """
+                UPDATE players SET discord_id = ?
+                WHERE id = ?
+                
+                """.trimIndent(),
+            ) { stmt: PreparedStatement ->
+                stmt.setLong(1, dsid)
+                stmt.setInt(2, id)
+            }
         if (updated) this.discordId = dsid
         return updated
     }
@@ -71,9 +81,9 @@ class PlayerData(
             `object`.setValue(PVars.objectMapper.writeValueAsString(prefs))
             return Database.executeUpdate(
                 """
-                            UPDATE players SET prefs = ? WHERE id = ?
-                            
-                            """.trimIndent()
+                UPDATE players SET prefs = ? WHERE id = ?
+                
+                """.trimIndent(),
             ) { stmt: PreparedStatement ->
                 stmt.setObject(1, `object`)
                 stmt.setInt(2, id)
@@ -89,9 +99,9 @@ class PlayerData(
         return this
     }
 
-    fun write(): Boolean {
-        return Database.executeUpdate(
-            "UPDATE players SET playtime = ?, blocks_build = ?, blocks_broken = ?, balance = ?, waves_survived = ? WHERE id = ?"
+    fun write(): Boolean =
+        Database.executeUpdate(
+            "UPDATE players SET playtime = ?, blocks_build = ?, blocks_broken = ?, balance = ?, waves_survived = ? WHERE id = ?",
         ) { stmt: PreparedStatement? ->
             stmt!!.setLong(1, playtime)
             stmt.setInt(2, blocksBuild)
@@ -100,7 +110,6 @@ class PlayerData(
             stmt.setInt(5, wavesSurvived)
             stmt.setInt(6, id)
         }
-    }
 
     fun adjBlocksBuild(): PlayerData {
         this.blocksBuild += 1
@@ -119,9 +128,7 @@ class PlayerData(
         return this
     }
 
-    fun adjWins(): PlayerData {
-        return adjBalance(PVars.gamemode.winCost)
-    }
+    fun adjWins(): PlayerData = adjBalance(PVars.gamemode.winCost)
 
     @JvmOverloads
     fun adjBalance(count: Int = 1): PlayerData {
@@ -134,7 +141,10 @@ class PlayerData(
         return this
     }
 
-    fun updateStats(player: Player, purge: Boolean): PlayerData {
+    fun updateStats(
+        player: Player,
+        purge: Boolean,
+    ): PlayerData {
         synchronized(joinTime) {
             val time: Long? = joinTime.remove(player.uuid())
             if (time != null) {
@@ -157,50 +167,47 @@ class PlayerData(
     }
 }
 
-
 // region PlayerData
 
-fun deepSearchNames(player: Player): List<String> {
-    return executeQueryList(
+fun deepSearchNames(player: Player): List<String> =
+    executeQueryList(
         """
-                SELECT DISTINCT p.last_name
-                FROM players p
-                LEFT JOIN usid_list u ON u.player_id = p.id
-                LEFT JOIN connections c ON c.player_id = p.id
-                WHERE p.last_ip = ?
-                   OR u.usid = ?
-                   OR c.address = ?
-                
-                """.trimIndent(),
+        SELECT DISTINCT p.last_name
+        FROM players p
+        LEFT JOIN usid_list u ON u.player_id = p.id
+        LEFT JOIN connections c ON c.player_id = p.id
+        WHERE p.last_ip = ?
+           OR u.usid = ?
+           OR c.address = ?
+        
+        """.trimIndent(),
         { stmt: PreparedStatement ->
             stmt.setString(1, player.ip())
             stmt.setString(2, player.usid())
             stmt.setString(3, player.ip())
         },
-        { rs: ResultSet -> rs.getString("last_name") }
+        { rs: ResultSet -> rs.getString("last_name") },
     )
-}
 
-fun deepSearch(player: Player): List<PlayerData> {
-    return executeQueryList(
+fun deepSearch(player: Player): List<PlayerData> =
+    executeQueryList(
         """
-                SELECT DISTINCT p.*
-                FROM players p
-                LEFT JOIN usid_list u ON u.player_id = p.id
-                LEFT JOIN connections c ON c.player_id = p.id
-                WHERE p.last_ip = ?
-                   OR u.usid = ?
-                   OR c.address = ?
-                
-                """.trimIndent(),
+        SELECT DISTINCT p.*
+        FROM players p
+        LEFT JOIN usid_list u ON u.player_id = p.id
+        LEFT JOIN connections c ON c.player_id = p.id
+        WHERE p.last_ip = ?
+           OR u.usid = ?
+           OR c.address = ?
+        
+        """.trimIndent(),
         { stmt: PreparedStatement ->
             stmt.setString(1, player.ip())
             stmt.setString(2, player.usid())
             stmt.setString(3, player.ip())
         },
-        { rs: ResultSet -> getPlayerData(rs) }
+        { rs: ResultSet -> getPlayerData(rs) },
     )
-}
 
 fun getPlayerById(id: Int): Optional<Player> {
     val pd = getPlayerData(id)
@@ -216,92 +223,90 @@ fun getOrCreatePlayerData(p: Player): PlayerData? {
         return playerDataCache.get(p)
     }
 
-    val pd = executeQuery(
-        """
-                        WITH update_players AS (
-                            INSERT INTO players (uuid, last_name, last_ip, locale, color)
-                            VALUES (?, ?, ?::INET, ?, ?)
-                            ON CONFLICT (uuid) DO UPDATE SET
-                                last_name = EXCLUDED.last_name,
-                                last_ip   = EXCLUDED.last_ip,
-                                color     = EXCLUDED.color,
-                                locale    = EXCLUDED.locale,
-                                last_seen = NOW()
-                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs, playtime, blocks_build, blocks_broken, waves_survived, balance
-                        ),
-                        insert_usid AS (
-                            INSERT INTO usid_list (player_id, usid, server)
-                            SELECT id, ?, ?
-                            FROM update_players
-                            ON CONFLICT DO NOTHING
-                        ),
-                        insert_connection AS (
-                            INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
-                            SELECT last_name, last_ip, ?::INET, ?, id
-                            FROM update_players
-                        ),
-                        insert_stats AS (
-                            INSERT INTO statistics (player_id)
-                            SELECT id
-                            FROM update_players
-                            ON CONFLICT (player_id) DO NOTHING
-                        )
-                        SELECT *
-                        FROM update_players;
-                        
-                        """.trimIndent(),
-        { stmt: PreparedStatement ->
-            stmt.setString(1, p.uuid())
-            stmt.setString(2, p.name())
-            stmt.setString(3, p.ip())
-            stmt.setString(4, p.locale)
-            stmt.setString(5, p.color.toString())
-            stmt.setString(6, p.usid())
-            stmt.setInt(7, serverId)
-            stmt.setString(8, getUDPAddress(p))
-            stmt.setInt(9, serverId)
-        },
-        { rs: ResultSet -> getPlayerData(rs) }
-    )
+    val pd =
+        executeQuery(
+            """
+            WITH update_players AS (
+                INSERT INTO players (uuid, last_name, last_ip, locale, color)
+                VALUES (?, ?, ?::INET, ?, ?)
+                ON CONFLICT (uuid) DO UPDATE SET
+                    last_name = EXCLUDED.last_name,
+                    last_ip   = EXCLUDED.last_ip,
+                    color     = EXCLUDED.color,
+                    locale    = EXCLUDED.locale,
+                    last_seen = NOW()
+                RETURNING id, uuid, last_name, last_ip, locale, color, discord_id, prefs, playtime, blocks_build, blocks_broken, waves_survived, balance
+            ),
+            insert_usid AS (
+                INSERT INTO usid_list (player_id, usid, server)
+                SELECT id, ?, ?
+                FROM update_players
+                ON CONFLICT DO NOTHING
+            ),
+            insert_connection AS (
+                INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
+                SELECT last_name, last_ip, ?::INET, ?, id
+                FROM update_players
+            ),
+            insert_stats AS (
+                INSERT INTO statistics (player_id)
+                SELECT id
+                FROM update_players
+                ON CONFLICT (player_id) DO NOTHING
+            )
+            SELECT *
+            FROM update_players;
+            
+            """.trimIndent(),
+            { stmt: PreparedStatement ->
+                stmt.setString(1, p.uuid())
+                stmt.setString(2, p.name())
+                stmt.setString(3, p.ip())
+                stmt.setString(4, p.locale)
+                stmt.setString(5, p.color.toString())
+                stmt.setString(6, p.usid())
+                stmt.setInt(7, serverId)
+                stmt.setString(8, getUDPAddress(p))
+                stmt.setInt(9, serverId)
+            },
+            { rs: ResultSet -> getPlayerData(rs) },
+        )
     if (!playerDataCache.containsKey(p) && pd != null) playerDataCache.put(p, pd)
     return pd
 }
 
-fun getPlayerData(id: Int): PlayerData? {
-    return executeQuery(
+fun getPlayerData(id: Int): PlayerData? =
+    executeQuery(
         "SELECT * FROM players WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
-        { rs: ResultSet -> getPlayerData(rs) }
+        { rs: ResultSet -> getPlayerData(rs) },
     )
-}
 
 fun getPlayerData(player: Player): PlayerData? {
     if (playerDataCache.containsKey(player)) return playerDataCache.get(player)
     logExpectedCacheMiss(player, "playerDataCache")
 
-    val pd = executeQuery(
-        "SELECT * FROM players WHERE uuid = ?",
-        { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
-        { rs: ResultSet -> getPlayerData(rs) }
-    )
+    val pd =
+        executeQuery(
+            "SELECT * FROM players WHERE uuid = ?",
+            { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
+            { rs: ResultSet -> getPlayerData(rs) },
+        )
     if (pd != null) playerDataCache.put(player, pd)
     return pd
 }
 
-fun Player.getData(): PlayerData? {
-    return getPlayerData(this)
-}
+fun Player.getData(): PlayerData? = getPlayerData(this)
 
 /**
  * no cache
  * */
-fun getPlayerData(uuid: String): PlayerData? {
-    return executeQuery(
+fun getPlayerData(uuid: String): PlayerData? =
+    executeQuery(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
-        { rs: ResultSet -> getPlayerData(rs) }
+        { rs: ResultSet -> getPlayerData(rs) },
     )
-}
 
 fun getPlayerId(player: Player): Int? {
     if (playerDataCache.containsKey(player)) return playerDataCache.get(player).id
@@ -310,29 +315,29 @@ fun getPlayerId(player: Player): Int? {
     return executeQuery(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
-        { rs: ResultSet -> rs.getInt("id") }
+        { rs: ResultSet -> rs.getInt("id") },
     )
 }
 
 /*
 * No caching!!!
 * */
-fun getPlayerId(uuid: String): Int? {
-    return executeQuery(
+fun getPlayerId(uuid: String): Int? =
+    executeQuery(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
-        { rs: ResultSet -> rs.getInt("id") }
+        { rs: ResultSet -> rs.getInt("id") },
     )
-}
 
 @Throws(SQLException::class)
 fun getPlayerData(rs: ResultSet): PlayerData {
-    val prefs = try {
-        PVars.objectMapper.readValue(rs.getString("prefs"), PlayerPrefs::class.java)
-    } catch (e: Exception) {
-        Log.err(e)
-        PlayerPrefs()
-    }
+    val prefs =
+        try {
+            PVars.objectMapper.readValue(rs.getString("prefs"), PlayerPrefs::class.java)
+        } catch (e: Exception) {
+            Log.err(e)
+            PlayerPrefs()
+        }
 
     val discordIdRaw = rs.getLong("discord_id")
     val discordId: Long? = if (rs.wasNull()) null else discordIdRaw

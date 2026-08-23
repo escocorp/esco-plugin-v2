@@ -18,10 +18,10 @@ import mindustry.net.Administration
 import mindustry.type.UnitType
 import mindustry.world.blocks.storage.CoreBlock
 import plugin.Bundle
-import plugin.PVars
-import plugin.units.ai.DumbAI
-import plugin.discord.Bot.sendConsoleMessage
 import plugin.Gamemode
+import plugin.PVars
+import plugin.discord.Bot.sendConsoleMessage
+import plugin.units.ai.DumbAI
 import plugin.utils.addLog
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -36,9 +36,11 @@ object Patches {
 
     fun load() {
         if (PVars.gamemode == Gamemode.sandbox) {
-            Vars.content.units().each(Cons { u: UnitType ->
-                if (!u.hidden) u.controller = Func { _: Unit -> DumbAI() }
-            })
+            Vars.content.units().each(
+                Cons { u: UnitType ->
+                    if (!u.hidden) u.controller = Func { _: Unit -> DumbAI() }
+                },
+            )
 
             Timer.schedule({ despawnUnits() }, (30 * 60).toFloat(), (30 * 60).toFloat())
 
@@ -68,35 +70,50 @@ object Patches {
     fun despawnUnits() {
         Log.info("Time to despawn unused units!")
         Bundle.sendMessage("notice.unit-despawn")
-        Groups.unit.each(Cons { u: Unit ->
-            if (!u.controller().toString().lowercase(Locale.getDefault()).startsWith("player")) u.kill()
-        })
+        Groups.unit.each(
+            Cons { u: Unit ->
+                if (!u
+                        .controller()
+                        .toString()
+                        .lowercase(Locale.getDefault())
+                        .startsWith("player")
+                ) {
+                    u.kill()
+                }
+            },
+        )
     }
 
     fun loadLogger() {
-        Log.logger = Log.LogHandler { level1: Log.LogLevel, text: String ->
-            var text = text
-            //err has red text instead of reset.
-            if (level1 == Log.LogLevel.err) text =
-                text.replace(ColorCodes.reset, ColorCodes.lightRed + ColorCodes.bold)
+        Log.logger =
+            Log.LogHandler { level1: Log.LogLevel, text: String ->
+                var text = text
+                // err has red text instead of reset.
+                if (level1 == Log.LogLevel.err) {
+                    text =
+                        text.replace(ColorCodes.reset, ColorCodes.lightRed + ColorCodes.bold)
+                }
 
-            val result =
-                ColorCodes.bold + ColorCodes.lightBlack + "[" + dateTime.format(LocalDateTime.now()) + "] " + ColorCodes.reset + Log.format(
-                    tags[level1.ordinal] + " " + text + "&fr"
-                )
-            println(result)
-            addLog(level1.name, text)
+                val result =
+                    ColorCodes.bold + ColorCodes.lightBlack + "[" + dateTime.format(LocalDateTime.now()) + "] " + ColorCodes.reset +
+                        Log.format(
+                            tags[level1.ordinal] + " " + text + "&fr",
+                        )
+                println(result)
+                addLog(level1.name, text)
 
-            val cleanText = "[" + dateTime.format(LocalDateTime.now()) + "] " + Log.formatColors(
-                tags[level1.ordinal] + " " + text + "&fr",
-                false
-            )
+                val cleanText =
+                    "[" + dateTime.format(LocalDateTime.now()) + "] " +
+                        Log.formatColors(
+                            tags[level1.ordinal] + " " + text + "&fr",
+                            false,
+                        )
 
-            sendConsoleMessage(cleanText.replace("\u001B\\[[;\\d]*m".toRegex(), "").take(1999))
-            if (Administration.Config.logging.bool()) {
-                logToFile(cleanText)
+                sendConsoleMessage(cleanText.replace("\u001B\\[[;\\d]*m".toRegex(), "").take(1999))
+                if (Administration.Config.logging.bool()) {
+                    logToFile(cleanText)
+                }
             }
-        }
     }
 
     fun logToFile(text: String) {
@@ -104,7 +121,7 @@ object Patches {
         if (currentLogFile != null && currentLogFile!!.length() > Administration.Config.maxLogLength.num()) {
             currentLogFile!!.writeString(
                 "[End of log file. Date: " + dateTime.format(LocalDateTime.now()) + "]\n",
-                true
+                true,
             )
             currentLogFile = null
         }

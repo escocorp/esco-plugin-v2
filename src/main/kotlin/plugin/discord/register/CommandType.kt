@@ -11,5 +11,5 @@ enum class CommandType {
     GLOBAL,
 
     /** Registers the command to both the default and global command handlers. */
-    ALL
+    ALL,
 }

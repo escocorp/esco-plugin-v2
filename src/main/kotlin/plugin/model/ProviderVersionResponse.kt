@@ -1,3 +1,5 @@
 package plugin.model
 
-data class ProviderVersionResponse(val version: String)
+data class ProviderVersionResponse(
+    val version: String,
+)

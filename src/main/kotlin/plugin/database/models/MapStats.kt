@@ -22,15 +22,14 @@ data class MapStats(
     val maxPlaytime: Int,
     val wins: Int,
     val loses: Int,
-    val skips: Int
+    val skips: Int,
 )
-
 
 // region map stats
 
 @Throws(SQLException::class)
-fun getMapStats(rs: ResultSet): MapStats {
-    return MapStats(
+fun getMapStats(rs: ResultSet): MapStats =
+    MapStats(
         rs.getInt("id"),
         rs.getString("name"),
         rs.getInt("server"),
@@ -42,12 +41,11 @@ fun getMapStats(rs: ResultSet): MapStats {
         rs.getInt("max_playtime"),
         rs.getInt("wins"),
         rs.getInt("loses"),
-        rs.getInt("skips")
+        rs.getInt("skips"),
     )
-}
 
-fun getMapStats(id: Int): MapStats? {
-    return executeQuery(
+fun getMapStats(id: Int): MapStats? =
+    executeQuery(
         """
         SELECT
             id,
@@ -66,12 +64,11 @@ fun getMapStats(id: Int): MapStats? {
         WHERE id = ?
         """.trimIndent(),
         { stmt -> stmt.setInt(1, id) },
-        { rs -> getMapStats(rs) }
+        { rs -> getMapStats(rs) },
     )
-}
 
-fun createOrGetMapStats(name: String): MapStats? {
-    return executeQuery(
+fun createOrGetMapStats(name: String): MapStats? =
+    executeQuery(
         """
         WITH inserted AS (
             INSERT INTO maps (name, server)
@@ -118,9 +115,8 @@ fun createOrGetMapStats(name: String): MapStats? {
             stmt.setString(3, name)
             stmt.setInt(4, serverId)
         },
-        { rs -> getMapStats(rs) }
+        { rs -> getMapStats(rs) },
     )
-}
 
 fun updateMapStats(
     name: String,
@@ -130,9 +126,9 @@ fun updateMapStats(
     maxPlaytime: Int,
     wins: Int,
     loses: Int,
-    skips: Int
-): Boolean {
-    return executeUpdate(
+    skips: Int,
+): Boolean =
+    executeUpdate(
         """
         UPDATE maps SET
             min_wave = ?,
@@ -143,7 +139,7 @@ fun updateMapStats(
             loses = ?,
             skips = ?
         WHERE name = ? AND server = ?
-        """.trimIndent()
+        """.trimIndent(),
     ) { stmt ->
         stmt.setInt(1, minWave)
         stmt.setInt(2, maxWave)
@@ -155,21 +151,19 @@ fun updateMapStats(
         stmt.setString(8, name)
         stmt.setInt(9, serverId)
     }
-}
 
-fun getNextMap(excluded: String): String? {
-    return executeQuery(
+fun getNextMap(excluded: String): String? =
+    executeQuery(
         "SELECT name, loses + wins + skips AS rounds_total FROM maps " +
-                "WHERE name != ? AND server == ? " +
-                "ORDER BY rounds_total LIMIT 1",
+            "WHERE name != ? AND server == ? " +
+            "ORDER BY rounds_total LIMIT 1",
         { stmt ->
             stmt.setString(1, excluded)
             stmt.setInt(2, serverId)
         },
         { rs ->
             rs.getString("name")
-        }
+        },
     )
-}
 
 // endregion

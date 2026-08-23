@@ -15,11 +15,12 @@ import plugin.model.getStatus
 object Foos {
     private val sb = StringBuilder()
     private val version = "2.1"
-    private val transmissions = Config(
-        "fooForwardTransmissions",
-        "Whether client transmissions (chat, dms, and more) are relayed through the server",
-        true
-    ) { enableTransmissions() }
+    private val transmissions =
+        Config(
+            "fooForwardTransmissions",
+            "Whether client transmissions (chat, dms, and more) are relayed through the server",
+            true,
+        ) { enableTransmissions() }
     private val commands =
         Config("fooCommandList", "Whether Foo's users are sent the command list on join (for autocomplete)", true)
 
@@ -47,8 +48,11 @@ object Foos {
     /** @since v2 Informs clients of the transmission forwarding state. When [player] is null, the status is sent to everyone */
     private fun enableTransmissions(player: Player? = null) {
         val enabled = transmissions.bool().toString()
-        if (player != null) Call.clientPacketReliable(player.con, "fooTransmissionEnabled", enabled)
-        else Call.clientPacketReliable("fooTransmissionEnabled", enabled)
+        if (player != null) {
+            Call.clientPacketReliable(player.con, "fooTransmissionEnabled", enabled)
+        } else {
+            Call.clientPacketReliable("fooTransmissionEnabled", enabled)
+        }
     }
 
     /** @since v2 Sends the list of commands to a player */
@@ -59,13 +63,18 @@ object Foos {
 
         with(Jval.newObject()) {
             add("prefix", Reflect.get<String>(Vars.netServer.clientCommands, "prefix"))
-            add("commands", Jval.newObject().apply {
-                if (clientCommands != null)
-                    clientCommands.commands.each { command: CustomHandler.CommandData ->
-                        if (perms.contains(command.permission))
-                            add(command.name, command.args)
+            add(
+                "commands",
+                Jval.newObject().apply {
+                    if (clientCommands != null) {
+                        clientCommands.commands.each { command: CustomHandler.CommandData ->
+                            if (perms.contains(command.permission)) {
+                                add(command.name, command.args)
+                            }
+                        }
                     }
-            })
+                },
+            )
             Call.clientPacketReliable(player.con, "commandList", this.toString())
         }
     }

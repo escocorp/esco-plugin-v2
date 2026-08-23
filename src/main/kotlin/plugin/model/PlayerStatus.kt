@@ -20,20 +20,17 @@ data class PlayerStatus(
 
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
 
-fun getOrCreatePlayerStatus(player: Player): PlayerStatus {
-    return playerStatuses.getOrPut(player) { PlayerStatus() }
-}
+fun getOrCreatePlayerStatus(player: Player): PlayerStatus = playerStatuses.getOrPut(player) { PlayerStatus() }
 
-fun Player.getStatus(): PlayerStatus {
-    return getOrCreatePlayerStatus(this)
-}
+fun Player.getStatus(): PlayerStatus = getOrCreatePlayerStatus(this)
 
 fun Player.freeze(): PlayerStatus {
     val status = this.getStatus()
 
     status.frozen = true
-    if (!this.name.contains(frozenTag))
+    if (!this.name.contains(frozenTag)) {
         this.name = "$frozenTag ${this.coloredName()}"
+    }
 
     // this.sendMessage("Your frozen!")
 
@@ -53,9 +50,7 @@ fun purgePlayerStatus(player: Player) {
     playerStatuses.remove(player)
 }
 
-fun Player.getLinkCode(): String? {
-    return this.getStatus().linkCode
-}
+fun Player.getLinkCode(): String? = this.getStatus().linkCode
 
 fun Player.setLinkCode(code: String) {
     this.getStatus().linkCode = code
@@ -65,13 +60,9 @@ fun Player.removeLinkCode() {
     this.getStatus().linkCode = null
 }
 
-fun findPlayerByLinkCode(code: String): Player? {
-    return playerStatuses.entries.firstOrNull { it.value.linkCode == code }?.key
-}
+fun findPlayerByLinkCode(code: String): Player? = playerStatuses.entries.firstOrNull { it.value.linkCode == code }?.key
 
-fun Player.isFake(): Boolean {
-    return this.getStatus().fake
-}
+fun Player.isFake(): Boolean = this.getStatus().fake
 
 fun Player.setFake(value: Boolean) {
     this.getStatus().fake = value

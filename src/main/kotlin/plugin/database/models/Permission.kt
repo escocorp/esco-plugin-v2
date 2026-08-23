@@ -23,7 +23,8 @@ enum class Permission {
     Replays,
     MegaBan,
     ManagePerms,
-    ManagePlayers;
+    ManagePlayers,
+    ;
 
     companion object {
         val cache = ObjectMap<Player, Seq<Permission>>()
@@ -45,15 +46,16 @@ enum class Permission {
 
             if (cache.containsKey(p)) return cache.get(p)
 
-            val r = executeQuery(
-                "SELECT ar.permissions\n" +
+            val r =
+                executeQuery(
+                    "SELECT ar.permissions\n" +
                         "        FROM players p\n" +
                         "        LEFT JOIN admins a ON a.player_id = p.id\n" +
                         "        LEFT JOIN admin_ranks ar ON ar.id = a.rank_id\n" +
                         "        WHERE p.uuid = ?",
-                { stmt: PreparedStatement -> stmt.setString(1, p.uuid()) },
-                { rs: ResultSet -> getPerms(rs) }
-            )
+                    { stmt: PreparedStatement -> stmt.setString(1, p.uuid()) },
+                    { rs: ResultSet -> getPerms(rs) },
+                )
 
             val seq = r ?: Seq.with(None)
 
@@ -64,15 +66,16 @@ enum class Permission {
         }
 
         fun getPermsByDiscordId(discordId: Long): Seq<Permission> {
-            val r = executeQuery(
-                "SELECT ar.permissions\n" +
+            val r =
+                executeQuery(
+                    "SELECT ar.permissions\n" +
                         "        FROM players p\n" +
                         "        LEFT JOIN admins a ON a.player_id = p.id\n" +
                         "        LEFT JOIN admin_ranks ar ON ar.id = a.rank_id\n" +
                         "        WHERE p.discord_id = ?",
-                { stmt: PreparedStatement -> stmt.setLong(1, discordId) },
-                { rs: ResultSet -> getPerms(rs) }
-            )
+                    { stmt: PreparedStatement -> stmt.setLong(1, discordId) },
+                    { rs: ResultSet -> getPerms(rs) },
+                )
 
             val seq = r ?: Seq.with(None)
             if (!seq.contains(None)) seq.add(None)

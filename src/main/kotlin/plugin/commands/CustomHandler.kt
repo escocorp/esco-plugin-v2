@@ -19,40 +19,45 @@ class CustomHandler {
     constructor(handler: CommandHandler) {
         this.handler = handler
         registerPseudoCommands()
-        Vars.netServer.invalidHandler = InvalidCommandHandler { player: Player, response: CommandResponse ->
-            //val command = response.command
-            Log.debug("Type " + response.type)
-            if (response.type == CommandHandler.ResponseType.manyArguments) {
-                //return "[scarlet]Too many arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
-                return@InvalidCommandHandler Bundle.get(
-                    "command.many-arguments",
-                    player.locale,
-                    response.command.text,
-                    response.command.paramText
-                )
-            } else if (response.type == CommandHandler.ResponseType.fewArguments) {
-                //return "[scarlet]Too few arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
-                return@InvalidCommandHandler Bundle.get(
-                    "command.few-arguments",
-                    player.locale,
-                    response.command.text,
-                    response.command.paramText
-                )
-            } else { //unknown command
-                //val closest = getClosest(response.runCommand)
-                val closest: CommandHandler.Command? = getClosest(response.runCommand, player)
+        Vars.netServer.invalidHandler =
+            InvalidCommandHandler { player: Player, response: CommandResponse ->
+                // val command = response.command
+                Log.debug("Type " + response.type)
+                if (response.type == CommandHandler.ResponseType.manyArguments) {
+                    // return "[scarlet]Too many arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
+                    return@InvalidCommandHandler Bundle.get(
+                        "command.many-arguments",
+                        player.locale,
+                        response.command.text,
+                        response.command.paramText,
+                    )
+                } else if (response.type == CommandHandler.ResponseType.fewArguments) {
+                    // return "[scarlet]Too few arguments. Usage:[lightgray] " + response.command.text + "[gray] " + response.command.paramText;
+                    return@InvalidCommandHandler Bundle.get(
+                        "command.few-arguments",
+                        player.locale,
+                        response.command.text,
+                        response.command.paramText,
+                    )
+                } else { // unknown command
+                    // val closest = getClosest(response.runCommand)
+                    val closest: CommandHandler.Command? = getClosest(response.runCommand, player)
 
-                if (closest != null) {
-                    return@InvalidCommandHandler Bundle.get("command.did-you-mean", player.locale)
-                        .replace("{0}", closest.text)
-                } else {
-                    return@InvalidCommandHandler Bundle.get("command.unknown", player.locale)
+                    if (closest != null) {
+                        return@InvalidCommandHandler Bundle
+                            .get("command.did-you-mean", player.locale)
+                            .replace("{0}", closest.text)
+                    } else {
+                        return@InvalidCommandHandler Bundle.get("command.unknown", player.locale)
+                    }
                 }
             }
-        }
     }
 
-    fun getClosest(name: String, player: Player): CommandHandler.Command? {
+    fun getClosest(
+        name: String,
+        player: Player,
+    ): CommandHandler.Command? {
         var minDst = 0
         var closest: CommandHandler.Command? = null
         val perms = Permission.getPerms(player)
@@ -85,35 +90,50 @@ class CustomHandler {
         return closest
     }
 
-    fun getCommand(name: String?): CommandData? {
-        return commands.find { c: CommandData? -> c!!.name == name }
-    }
+    fun getCommand(name: String?): CommandData? = commands.find { c: CommandData? -> c!!.name == name }
 
-    fun registerCommand(name: String, runner: CommandRunner<Player>) {
+    fun registerCommand(
+        name: String,
+        runner: CommandRunner<Player>,
+    ) {
         registerCommand(name, "", Permission.None, runner)
     }
 
-    fun registerCommand(name: String, args: String, runner: CommandRunner<Player>) {
+    fun registerCommand(
+        name: String,
+        args: String,
+        runner: CommandRunner<Player>,
+    ) {
         registerCommand(name, args, Permission.None, runner)
     }
 
-    fun registerCommand(name: String, args: String, perm: Permission, runner: CommandRunner<Player>) {
+    fun registerCommand(
+        name: String,
+        args: String,
+        perm: Permission,
+        runner: CommandRunner<Player>,
+    ) {
         // CommandData cd = new CommandData(name, args, perm);
         commands.add(CommandData(name, args, perm))
 
-        handler.register(name, args, "", CommandRunner { a: Array<String?>?, p: Player ->
-            if (!Permission.getPerms(p).contains(perm)) {
-                //Bundle.sendMessage("error.no-permission", p);
-                val command = getClosest(name, p)
-                if (command == null) {
-                    Bundle.sendMessage("command.unknown", p)
-                } else {
-                    Bundle.sendMessage("command.did-you-mean", p, command.text)
+        handler.register(
+            name,
+            args,
+            "",
+            CommandRunner { a: Array<String?>?, p: Player ->
+                if (!Permission.getPerms(p).contains(perm)) {
+                    // Bundle.sendMessage("error.no-permission", p);
+                    val command = getClosest(name, p)
+                    if (command == null) {
+                        Bundle.sendMessage("command.unknown", p)
+                    } else {
+                        Bundle.sendMessage("command.did-you-mean", p, command.text)
+                    }
+                    return@CommandRunner
                 }
-                return@CommandRunner
-            }
-            runner.accept(a, p)
-        })
+                runner.accept(a, p)
+            },
+        )
     }
 
     fun registerPseudoCommands() {
@@ -124,20 +144,31 @@ class CustomHandler {
         // addPseudoCommand("sync", "");
         val tmp = Seq.with("sync", "t", "help", "a", "vote", "votekick")
         handler.commandList?.each { command ->
-            if(tmp.contains(command.text)) return@each
+            if (tmp.contains(command.text)) return@each
             addPseudoCommand(command.text, command.paramText ?: "")
         }
     }
 
-    fun addPseudoCommand(name: String, args: String) {
+    fun addPseudoCommand(
+        name: String,
+        args: String,
+    ) {
         addPseudoCommand(name, args, Permission.None)
     }
 
-    fun addPseudoCommand(name: String, args: String, perm: Permission?) {
+    fun addPseudoCommand(
+        name: String,
+        args: String,
+        perm: Permission?,
+    ) {
         commands.add(CommandData(name, args, perm))
     }
 
-    class CommandData internal constructor(var name: String, var args: String, var permission: Permission?) {
+    class CommandData internal constructor(
+        var name: String,
+        var args: String,
+        var permission: Permission?,
+    ) {
         fun getDesc(p: Player): String {
             val req = "command." + this.name + ".description"
             var desc = Bundle.get(req, p.locale)

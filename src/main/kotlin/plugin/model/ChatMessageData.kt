@@ -6,5 +6,5 @@ data class ChatMessageData(
     val playerId: Int,
     val unformatted: String,
     val formatted: String,
-    val timestamp: Instant
+    val timestamp: Instant,
 )

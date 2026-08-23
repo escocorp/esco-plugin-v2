@@ -10,7 +10,12 @@ import plugin.PVars
 import plugin.database.models.Permission
 import plugin.database.models.Permission.Companion.getPermsByDiscordId
 
-class Context(var message: Message, var channel: MessageChannelUnion, var author: User, var global: Boolean) {
+class Context(
+    var message: Message,
+    var channel: MessageChannelUnion,
+    var author: User,
+    var global: Boolean,
+) {
     var attachments: List<Attachment> = this.message.attachments
 
     fun hasPerm(perm: Permission): Boolean {
@@ -22,7 +27,7 @@ class Context(var message: Message, var channel: MessageChannelUnion, var author
     }
 
     fun reply(content: String) {
-        message.reply((if(global) "[${PVars.gamemode.name}]" else "") + content).queue()
+        message.reply((if (global) "[${PVars.gamemode.name}]" else "") + content).queue()
     }
 
     fun replyEmbed(embed: MessageEmbed) {

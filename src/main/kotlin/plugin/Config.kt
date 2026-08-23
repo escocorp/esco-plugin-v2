@@ -5,10 +5,12 @@ import io.github.cdimascio.dotenv.Dotenv
 import java.util.*
 
 object Config {
-    private val dotenv: Dotenv = Dotenv.configure()
-        .ignoreIfMalformed()
-        .ignoreIfMissing()
-        .load()
+    private val dotenv: Dotenv =
+        Dotenv
+            .configure()
+            .ignoreIfMalformed()
+            .ignoreIfMissing()
+            .load()
 
     fun load() {
         // spec.
@@ -51,12 +53,12 @@ object Config {
         KVars.globalConfigLink = getEnv("GLOBAL_CONFIG", "https://sapi.larzed.icu/globalconfig.json")
     }
 
+    private fun getEnv(name: String): String? = getEnv(name, "")
 
-    private fun getEnv(name: String): String? {
-        return getEnv(name, "")
-    }
-
-    private fun getEnv(name: String, def: String?): String? {
+    private fun getEnv(
+        name: String,
+        def: String?,
+    ): String? {
         var value = dotenv.get(name)
         if (value != null && !value.isEmpty()) {
             // Log.debug(".env @ = @", name, value)

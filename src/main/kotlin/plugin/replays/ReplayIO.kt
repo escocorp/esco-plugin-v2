@@ -13,8 +13,10 @@ import plugin.history.HistoryStack
 import plugin.history.HistoryType
 
 @OptIn(ExperimentalSerializationApi::class)
-fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
-
+fun saveReplay(
+    history: LongMap<HistoryStack>,
+    mapName: String,
+): ByteArray {
     val players = ArrayList<ReplayPlayer>()
     val playerIndexMap = HashMap<Int, Int>() // playerId -> local replay id
 
@@ -28,15 +30,16 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
 
             val dbId = r.actor?.id
 
-            val index = if (dbId == null) {
-                null
-            } else {
-                playerIndexMap.getOrPut(dbId) {
-                    val newIndex = players.size
-                    players.add(ReplayPlayer(r.actor.name, dbId))
-                    newIndex
+            val index =
+                if (dbId == null) {
+                    null
+                } else {
+                    playerIndexMap.getOrPut(dbId) {
+                        val newIndex = players.size
+                        players.add(ReplayPlayer(r.actor.name, dbId))
+                        newIndex
+                    }
                 }
-            }
 
             stack.add(
                 ReplayRecord(
@@ -46,8 +49,8 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
                     unitId = r.unit?.id,
                     time = r.time,
                     team = r.team.id,
-                    rotation = r.rotation
-                )
+                    rotation = r.rotation,
+                ),
             )
         }
 
@@ -55,7 +58,7 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
     }
 
     return ProtoBuf.encodeToByteArray(
-        Replay(mapName, players, map)
+        Replay(mapName, players, map),
     )
 }
 
@@ -94,7 +97,8 @@ private fun applyEvent(event: ReplayEvent) {
         }
 
         HistoryType.DestroyBlock.ordinal,
-        HistoryType.BreakBlock.ordinal -> {
+        HistoryType.BreakBlock.ordinal,
+        -> {
             tile.setNet(Blocks.air)
         }
     }

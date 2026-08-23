@@ -8,16 +8,18 @@ class ScrollableMenu(
     private val title: String,
     private val message: String = "",
     private val itemsPerPage: Int = 9,
-    private val rowPerItems: Int = 3
+    private val rowPerItems: Int = 3,
 ) {
-
     private val items = Seq<String>()
     private val handlers = Seq<(Player) -> Unit>()
 
     private val footerItems = Seq<String>()
     private val footerHandlers = Seq<(Player) -> Unit>()
 
-    fun add(text: String, handler: (Player) -> Unit): ScrollableMenu {
+    fun add(
+        text: String,
+        handler: (Player) -> Unit,
+    ): ScrollableMenu {
         items.add(text)
         handlers.add(handler)
         return this
@@ -28,7 +30,10 @@ class ScrollableMenu(
         return this
     }
 
-    fun addFooter(text: String, handler: (Player) -> Unit): ScrollableMenu {
+    fun addFooter(
+        text: String,
+        handler: (Player) -> Unit,
+    ): ScrollableMenu {
         footerItems.add(text)
         footerHandlers.add(handler)
         return this
@@ -38,20 +43,30 @@ class ScrollableMenu(
         showPage(player, 0)
     }
 
-    private fun showPage(player: Player, page: Int) {
-        val totalPages = kotlin.math.ceil(items.size / itemsPerPage.toDouble()).toInt().coerceAtLeast(1)
+    private fun showPage(
+        player: Player,
+        page: Int,
+    ) {
+        val totalPages =
+            kotlin.math
+                .ceil(items.size / itemsPerPage.toDouble())
+                .toInt()
+                .coerceAtLeast(1)
 
-        val menu = Menu(
-            title,
-            if (message.isEmpty()) Bundle.get("menu.page", player.locale, page + 1, totalPages)
-            else message + "\n" + Bundle.get("menu.page", player.locale, page + 1, totalPages)
-        )
+        val menu =
+            Menu(
+                title,
+                if (message.isEmpty()) {
+                    Bundle.get("menu.page", player.locale, page + 1, totalPages)
+                } else {
+                    message + "\n" + Bundle.get("menu.page", player.locale, page + 1, totalPages)
+                },
+            )
 
         val start = page * itemsPerPage
         val end = minOf(start + itemsPerPage, items.size)
 
         for (i in start until end) {
-
             menu.add(items[i]) { p ->
                 handlers[i](p)
             }

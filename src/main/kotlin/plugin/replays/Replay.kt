@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Replay(
     val map: String,
     val players: List<ReplayPlayer>,
-    val actions: HashMap<Long, ReplayStack>
+    val actions: HashMap<Long, ReplayStack>,
 )

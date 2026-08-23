@@ -6,10 +6,14 @@ import mindustry.maps.Map
 import mindustry.maps.Maps
 
 class EscoMapProvider : Maps.MapProvider {
-    override fun next(mode: Gamemode, previous: Map?): Map? {
+    override fun next(
+        mode: Gamemode,
+        previous: Map?,
+    ): Map? {
         val custom = Vars.maps.customMaps().copy()
-        if(previous != null && custom.size > 1)
+        if (previous != null && custom.size > 1) {
             custom.remove(previous)
+        }
         return custom.shuffle().peek()
     }
 }

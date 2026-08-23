@@ -14,7 +14,10 @@ import plugin.PVars
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-class VoteMap(var initiator: Player, var map: Map?) {
+class VoteMap(
+    var initiator: Player,
+    var map: Map?,
+) {
     var voted: ObjectIntMap<String> = ObjectIntMap<String>()
     var task: Timer.Task
     var votes: Int = 0
@@ -29,27 +32,42 @@ class VoteMap(var initiator: Player, var map: Map?) {
        }, 2 * 60);
    }*/
     init {
-        this.task = Timer.schedule({
-            if (!checkPass()) {
-                Bundle.sendMessage("command.rtv.failed", votes, votesRequired())
-                cancel()
-            }
-        }, (2 * 60).toFloat())
+        this.task =
+            Timer.schedule({
+                if (!checkPass()) {
+                    Bundle.sendMessage("command.rtv.failed", votes, votesRequired())
+                    cancel()
+                }
+            }, (2 * 60).toFloat())
     }
 
-    fun vote(player: Player, d: Int) {
+    fun vote(
+        player: Player,
+        d: Int,
+    ) {
         /*int lastVote = voted.get(player.uuid(), 0) | voted.get(Vars.netServer.admins.getInfo(player.uuid()).lastIP, 0);
         votes -= lastVote;*/
 
         votes += d
-        //voted.put(player.uuid(), d);
-        voted.put(Vars.netServer.admins.getInfo(player.uuid()).lastIP, d)
+        // voted.put(player.uuid(), d);
+        voted.put(
+            Vars.netServer.admins
+                .getInfo(player.uuid())
+                .lastIP,
+            d,
+        )
         if (map == null) {
-            if (d == 1) Bundle.sendMessage("command.rtv.voted-yes", player.coloredName(), votes, votesRequired())
-            else Bundle.sendMessage("command.rtv.voted-no", player.coloredName(), votes, votesRequired())
+            if (d == 1) {
+                Bundle.sendMessage("command.rtv.voted-yes", player.coloredName(), votes, votesRequired())
+            } else {
+                Bundle.sendMessage("command.rtv.voted-no", player.coloredName(), votes, votesRequired())
+            }
         } else {
-            if (d == 1) Bundle.sendMessage("command.rtv.voted-yes-map", player.coloredName(), votes, votesRequired(), map!!.name())
-            else Bundle.sendMessage("command.rtv.voted-no-map", player.coloredName(), votes, votesRequired(), map!!.name())
+            if (d == 1) {
+                Bundle.sendMessage("command.rtv.voted-yes-map", player.coloredName(), votes, votesRequired(), map!!.name())
+            } else {
+                Bundle.sendMessage("command.rtv.voted-no-map", player.coloredName(), votes, votesRequired(), map!!.name())
+            }
         }
         checkPass()
     }
@@ -71,7 +89,5 @@ class VoteMap(var initiator: Player, var map: Map?) {
         this.task.cancel()
     }
 
-    fun votesRequired(): Int {
-        return max(1, (Groups.player.size() * 0.75).roundToInt())
-    }
+    fun votesRequired(): Int = max(1, (Groups.player.size() * 0.75).roundToInt())
 }

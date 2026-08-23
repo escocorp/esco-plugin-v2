@@ -6,13 +6,12 @@ import plugin.Bundle
 
 class PagedMenu(
     private val title: String,
-    private val message: String = ""
+    private val message: String = "",
 ) {
-
     private data class Item(
         val text: String,
         val handler: (Player) -> Unit,
-        val rowAfter: Boolean
+        val rowAfter: Boolean,
     )
 
     private val pages = Seq<Seq<Item>>()
@@ -24,7 +23,7 @@ class PagedMenu(
 
     fun add(
         text: String,
-        handler: (Player) -> Unit = {}
+        handler: (Player) -> Unit = {},
     ): PagedMenu {
         currentPage.add(Item(text, handler, false))
         return this
@@ -35,7 +34,7 @@ class PagedMenu(
             val last = currentPage.peek()
             currentPage.set(
                 currentPage.size - 1,
-                last.copy(rowAfter = true)
+                last.copy(rowAfter = true),
             )
         }
         return this
@@ -51,14 +50,19 @@ class PagedMenu(
         showPage(player, 0)
     }
 
-    private fun showPage(player: Player, page: Int) {
-        val menu = Menu(
-            title,
-            if (message.isEmpty())
-                Bundle.get("menu.page", player.locale, page + 1, pages.size)
-            else
-                message + "\n" + Bundle.get("menu.page", player.locale, page + 1, pages.size)
-        )
+    private fun showPage(
+        player: Player,
+        page: Int,
+    ) {
+        val menu =
+            Menu(
+                title,
+                if (message.isEmpty()) {
+                    Bundle.get("menu.page", player.locale, page + 1, pages.size)
+                } else {
+                    message + "\n" + Bundle.get("menu.page", player.locale, page + 1, pages.size)
+                },
+            )
 
         for (item in pages[page]) {
             menu.add(item.text) { p ->
@@ -73,8 +77,9 @@ class PagedMenu(
         menu.row()
 
         menu.add("@menu.prev") { p ->
-            if (page > 0)
+            if (page > 0) {
                 showPage(p, page - 1)
+            }
         }
 
         menu.add("@menu.cancel") {
@@ -82,8 +87,9 @@ class PagedMenu(
         }
 
         menu.add("@menu.next") { p ->
-            if (page < pages.size - 1)
+            if (page < pages.size - 1) {
                 showPage(p, page + 1)
+            }
         }
 
         menu.show(player)

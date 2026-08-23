@@ -1,0 +1,64 @@
+name: Auto Format
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          fetch-depth: 0
+          submodules: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: gradle
+
+      - name: Measure diff size
+        id: diffsize
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }} --depth=1
+            SIZE=$(git diff origin/${{ github.base_ref }}...HEAD | wc -c)
+          else
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              SIZE=$(git show HEAD | wc -c)
+            else
+              SIZE=$(git diff "$BEFORE"...HEAD | wc -c)
+            fi
+          fi
+          echo "Diff size: $SIZE chars"
+          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
+
+      - name: Run ktlintFormat
+        if: github.event_name == 'workflow_dispatch' || fromJSON(steps.diffsize.outputs.size) > 1000
+        run: ./gradlew ktlintFormat
+
+      - name: Commit formatting changes
+        if: github.event_name == 'workflow_dispatch' || fromJSON(steps.diffsize.outputs.size) > 1000
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore: auto-format with ktlint"
+            git push origin HEAD:${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          else
+            echo "Nothing to format."
+          fi

@@ -33,8 +33,8 @@ object History {
         return sb.toString()
     }
 
-    fun copy(): LongMap<HistoryStack> {
-        return synchronized(history) {
+    fun copy(): LongMap<HistoryStack> =
+        synchronized(history) {
             val copyMap = LongMap<HistoryStack>(history.size)
 
             history.forEach { entry ->
@@ -49,7 +49,6 @@ object History {
 
             copyMap
         }
-    }
 
     fun write(
         tile: Tile?,
@@ -68,17 +67,18 @@ object History {
 
         val actor = getActor(playerName, playerId)
 
-        val record = HistoryRecord(
-            actor,
-            type,
-            block,
-            unit,
-            time,
-            false,
-            team,
-            rotation,
-            configAfter
-        )
+        val record =
+            HistoryRecord(
+                actor,
+                type,
+                block,
+                unit,
+                time,
+                false,
+                team,
+                rotation,
+                configAfter,
+            )
 
         tile.getLinkedTiles { t ->
             val pos = t.pos().toLong()
@@ -86,7 +86,7 @@ object History {
             if (t.isCenter) {
                 addTile(
                     pos,
-                    record.copy(center = true)
+                    record.copy(center = true),
                 )
             } else {
                 addTile(pos, record)
@@ -94,7 +94,10 @@ object History {
         }
     }
 
-    private fun getActor(name: String?, id: Int?): HistoryActor? {
+    private fun getActor(
+        name: String?,
+        id: Int?,
+    ): HistoryActor? {
         if (name == null && id == null) return null
 
         if (id == null) {
@@ -106,7 +109,10 @@ object History {
         }
     }
 
-    private fun addTile(pos: Long, record: HistoryRecord) {
+    private fun addTile(
+        pos: Long,
+        record: HistoryRecord,
+    ) {
         synchronized(history) {
             var stack = history.get(pos)
 

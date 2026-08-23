@@ -16,22 +16,27 @@ class VoteWave {
     var task: Timer.Task? = null
 
     constructor() {
-        task = Timer.schedule({
-            if (!checkPass()) {
-                Bundle.sendMessage("command.vnw.failed")
-                cancel()
-            }
-        }, 30f)
+        task =
+            Timer.schedule({
+                if (!checkPass()) {
+                    Bundle.sendMessage("command.vnw.failed")
+                    cancel()
+                }
+            }, 30f)
     }
 
-    fun vote(player: Player, d: Int) {
+    fun vote(
+        player: Player,
+        d: Int,
+    ) {
         votes += d
         voted.put(player.ip(), d)
 
-        if (d == 1)
+        if (d == 1) {
             Bundle.sendMessage("command.vnw.voted-yes", player.coloredName(), votes, votesRequired())
-        else
+        } else {
             Bundle.sendMessage("command.vnw.voted-no", player.coloredName(), votes, votesRequired())
+        }
 
         checkPass()
     }
@@ -52,7 +57,5 @@ class VoteWave {
         waveVote = null
     }
 
-    fun votesRequired(): Int {
-        return max(1, (Groups.player.size() * 0.75).roundToInt())
-    }
+    fun votesRequired(): Int = max(1, (Groups.player.size() * 0.75).roundToInt())
 }

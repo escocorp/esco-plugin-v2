@@ -5,6 +5,10 @@ import javax.sql.DataSource
 
 class EscoPluginLoadEvent
 
-data class RegisterEscoCommandsEvent(val handler: CustomHandler)
+data class RegisterEscoCommandsEvent(
+    val handler: CustomHandler,
+)
 
-class DatabaseLoadEvent(dataSource: DataSource)
+class DatabaseLoadEvent(
+    dataSource: DataSource,
+)

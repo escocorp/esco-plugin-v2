@@ -60,9 +60,12 @@ class Commands {
         name = "updgray",
         type = CommandType.ALL,
         requiredPerm = Permission.EditServer,
-        desc = "Update graylist"
+        desc = "Update graylist",
     )
-    fun updateGraylist(arr: Array<String>, ctx: Context) {
+    fun updateGraylist(
+        arr: Array<String>,
+        ctx: Context,
+    ) {
         reloadGraylist()
         ctx.reply("IDK, update probably")
     }
@@ -72,13 +75,17 @@ class Commands {
         args = "[ver]",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.EditServer
+        requiredPerm = Permission.EditServer,
     )
-    fun update(arr: Array<String>, ctx: Context) {
+    fun update(
+        arr: Array<String>,
+        ctx: Context,
+    ) {
         globalExecutor.submit {
             try {
-                val ver = arr.firstOrNull()?.takeIf { it.isNotBlank() }?.trim()
-                    ?: httpGetString(buildsLatestTxtUrl)
+                val ver =
+                    arr.firstOrNull()?.takeIf { it.isNotBlank() }?.trim()
+                        ?: httpGetString(buildsLatestTxtUrl)
                 if (version.equals(ver)) {
                     return@submit
                 }
@@ -86,13 +93,13 @@ class Commands {
                 val tmpFi = modFi.parent().child(modFi.name() + ".part")
                 download(
                     "$buildsBaseUrl/$ver/plugin.jar",
-                    tmpFi.file().toPath()
+                    tmpFi.file().toPath(),
                 )
                 modFi.delete()
                 Files.move(
                     tmpFi.file().toPath(),
                     modFi.file().toPath(),
-                    StandardCopyOption.REPLACE_EXISTING
+                    StandardCopyOption.REPLACE_EXISTING,
                 )
                 ctx.reply("Successful!\n$version -> $ver")
             } catch (e: Exception) {
@@ -105,20 +112,28 @@ class Commands {
     @DiscordCommand(
         name = "debug",
         desc = "SS",
-        requiredPerm = Permission.EditServer
+        requiredPerm = Permission.EditServer,
     )
-    fun debug(arr: Array<String>, ctx: Context) {
+    fun debug(
+        arr: Array<String>,
+        ctx: Context,
+    ) {
         val pool = Database.dataSource!!.hikariPoolMXBean
-        ctx.reply("Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}MB\nVersion: v${Version.build}\nMindustry ver: v${Version.build} (${Version.commitHash})\nJava Version: ${Runtime.version()}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version")
+        ctx.reply(
+            "Restart: ${PVars.needRestart}\nFPS: ${Core.graphics.framesPerSecond}\nHeap: ${Core.app.javaHeap / 1024 / 1024}MB\nVersion: v${Version.build}\nMindustry ver: v${Version.build} (${Version.commitHash})\nJava Version: ${Runtime.version()}\n\nDatabase\nTotal: ${pool.totalConnections}\nActive: ${pool.activeConnections}\nIdle: ${pool.idleConnections}\n\nPlugin\nVersion: $version",
+        )
     }
 
     @DiscordCommand(
         name = "restart",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.EditServer
+        requiredPerm = Permission.EditServer,
     )
-    fun restart(arr: Array<String>, ctx: Context) {
+    fun restart(
+        arr: Array<String>,
+        ctx: Context,
+    ) {
         sendLog("Restart scheduled")
         if (Groups.player.isEmpty) {
             Timer.schedule({ Loader.exit() }, 1f)
@@ -129,43 +144,59 @@ class Commands {
     @DiscordCommand(
         name = "uploadmap",
         desc = "SS",
-        requiredPerm = Permission.EditMaps
+        requiredPerm = Permission.EditMaps,
     )
-    fun uploadmap(arr: Array<String>, ctx: Context) {
+    fun uploadmap(
+        arr: Array<String>,
+        ctx: Context,
+    ) {
         val msg = ctx.message
         val attachments = Seq<Attachment?>()
-        msg.attachments.forEach(Consumer { a: Attachment ->
-            if (a.fileExtension == Vars.mapExtension) attachments.add(a)
-        })
+        msg.attachments.forEach(
+            Consumer { a: Attachment ->
+                if (a.fileExtension == Vars.mapExtension) attachments.add(a)
+            },
+        )
         if (attachments.size > 4) {
             ctx.reply("Too many maps!")
             return
         }
-        attachments.each(Cons { map: Attachment ->
-            val file = Vars.customMapDirectory.child(map.fileName)
-            if (file.exists()) {
-                ctx.reply("File " + file.name() + " already exists!")
-                return@Cons
-            }
-            map.proxy.downloadToFile(file.file()).thenAccept(Consumer { _: File? ->
-                ctx.reply("File " + file.name() + " downloaded!")
-                Vars.maps.reload()
-            }).exceptionally(Function { t: Throwable? ->
-                Log.err("Failed to download map!", t)
-                null
-            })
-        })
+        attachments.each(
+            Cons { map: Attachment ->
+                val file = Vars.customMapDirectory.child(map.fileName)
+                if (file.exists()) {
+                    ctx.reply("File " + file.name() + " already exists!")
+                    return@Cons
+                }
+                map.proxy
+                    .downloadToFile(file.file())
+                    .thenAccept(
+                        Consumer { _: File? ->
+                            ctx.reply("File " + file.name() + " downloaded!")
+                            Vars.maps.reload()
+                        },
+                    ).exceptionally(
+                        Function { t: Throwable? ->
+                            Log.err("Failed to download map!", t)
+                            null
+                        },
+                    )
+            },
+        )
     }
 
     @DiscordCommand(
         name = "help",
-        desc = "What a dog doing?"
+        desc = "What a dog doing?",
     )
-    fun help(args: Array<String>, ctx: Context) {
-        val commandsList = PVars.discordCommands.commandList.sort(
-            Comparator.comparing(
-                Function { commandx: CommandHandler.Command -> commandx.text })
-        )
+    fun help(
+        args: Array<String>,
+        ctx: Context,
+    ) {
+        val commandsList =
+            PVars.discordCommands.commandList.sort(
+                Comparator.comparing(Function { commandx: CommandHandler.Command -> commandx.text }),
+            )
         val commands = StringBuilder()
 
         for (command in commandsList) {
@@ -176,19 +207,22 @@ class Commands {
 
             commands.append(" - ").append(command.description).append("\n")
         }
-        //reply(m, "Available commands:\n"+commands.toString());
+        // reply(m, "Available commands:\n"+commands.toString());
         ctx.reply("Available commands:\n$commands")
     }
 
     @DiscordCommand(
         name = "status",
-        desc = "Check server status"
+        desc = "Check server status",
     )
-    fun status(args: Array<String>, ctx: Context) {
+    fun status(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         val sb = StringBuilder()
         val embed = EmbedBuilder()
         Groups.player.each { p: Player ->
-            getPlayerData(p)?.let( { pd: PlayerData ->
+            getPlayerData(p)?.let({ pd: PlayerData ->
                 sb.append("[").append(pd.id).append("] ")
             })
             sb.append(p.plainName()).append("\n")
@@ -203,26 +237,36 @@ class Commands {
 
         embed.addField("TPS", Core.graphics.framesPerSecond.toString(), false)
         embed.addField("CPU", "CPU: %.1f%%".format(cpu * 100), false)
-        embed.addField("RAM", "RAM: %.2f / %.2f GB (%.1f%%)".format(
-            usedRam / 1024.0 / 1024 / 1024,
-            totalRam / 1024.0 / 1024 / 1024,
-            usedRam * 100.0 / totalRam
-        ), false)
+        embed.addField(
+            "RAM",
+            "RAM: %.2f / %.2f GB (%.1f%%)".format(
+                usedRam / 1024.0 / 1024 / 1024,
+                totalRam / 1024.0 / 1024 / 1024,
+                usedRam * 100.0 / totalRam,
+            ),
+            false,
+        )
 
         embed.addField("Wave", Vars.state.wave.toString(), false)
         embed.addField("Players: " + getPlayersCount(), sb.toString(), true)
         embed.setColor(Color.green)
         embed.setImage("attachment://minimap.png")
         val image = MapPreview.parseTiles(Vars.world.tiles)
-        ctx.message.replyEmbeds(embed.build()).addFiles(FileUpload.fromData(image, "minimap.png")).queue()
+        ctx.message
+            .replyEmbeds(embed.build())
+            .addFiles(FileUpload.fromData(image, "minimap.png"))
+            .queue()
     }
 
     @DiscordCommand(
         name = "link",
         desc = "Link Discord account with server profile",
-        args = "<code>"
+        args = "<code>",
     )
-    fun link(args: Array<String>, ctx: Context) {
+    fun link(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         if (args[0].length > 15) return
         val player = findPlayerByLinkCode(args[0])
         if (player == null) {
@@ -230,18 +274,24 @@ class Commands {
             return
         }
         player.removeLinkCode()
-        getPlayerData(player)?.let( { p: PlayerData ->
-            if (p.updateDiscordId(ctx.author.idLong)) ctx.reply("Success!")
-            else ctx.reply("Failed")
+        getPlayerData(player)?.let({ p: PlayerData ->
+            if (p.updateDiscordId(ctx.author.idLong)) {
+                ctx.reply("Success!")
+            } else {
+                ctx.reply("Failed")
+            }
         })
     }
 
     @DiscordCommand(
         name = "maps",
         desc = "Show custom maps list",
-        args = "[page]"
+        args = "[page]",
     )
-    fun maps(args: Array<String>, ctx: Context) {
+    fun maps(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         val mapsList = Vars.maps.customMaps()
         if (mapsList.isEmpty) {
             ctx.reply("No custom maps on server")
@@ -267,7 +317,7 @@ class Commands {
                     .setColor(Color.green)
                     .setTitle(Strings.format("Maps: @. Page @/@", mapsList.size, page + 1, pages))
                     .addField("", maps.toString(), false)
-                    .build()
+                    .build(),
             )
         } else {
             ctx.reply("Unknown page. Avail. pages 1-$pages")
@@ -277,9 +327,12 @@ class Commands {
     @DiscordCommand(
         name = "map",
         desc = "Get detailed information about a map",
-        args = "<name...>"
+        args = "<name...>",
     )
-    fun map(args: Array<String>, ctx: Context) {
+    fun map(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         val mapsList = Vars.maps.customMaps()
         if (mapsList.isEmpty) {
             ctx.reply("No custom maps on server")
@@ -291,16 +344,17 @@ class Commands {
             return
         }
         val embed = EmbedBuilder()
-        embed.setColor(Color.magenta)
+        embed
+            .setColor(Color.magenta)
             .setTitle(map.name())
             .setFooter(map.width.toString() + "x" + map.height)
             .setAuthor(map.author())
 
         // .setDescription(map.description())
-        //.setImage("attachment://minimap.png");
+        // .setImage("attachment://minimap.png");
         val msg = ctx.channel.sendMessageEmbeds(embed.build())
         msg.addFiles(FileUpload.fromData(map.file.file(), map.file.name()))
-        //msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
+        // msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
         msg.queue()
     }
 
@@ -308,9 +362,12 @@ class Commands {
         name = "delmap",
         desc = "Delete a custom map from the server",
         args = "<name...>",
-        requiredPerm = Permission.EditMaps
+        requiredPerm = Permission.EditMaps,
     )
-    fun delmap(args: Array<String>, ctx: Context) {
+    fun delmap(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         val mapsList = Vars.maps.customMaps()
         if (mapsList.isEmpty) {
             ctx.reply("No custom maps on server")
@@ -322,16 +379,17 @@ class Commands {
             return
         }
         val embed = EmbedBuilder()
-        embed.setColor(Color.red)
+        embed
+            .setColor(Color.red)
             .setTitle("Deleted " + map.name())
             .setFooter(map.width.toString() + "x" + map.height)
             .setAuthor(map.author())
 
         // .setDescription(map.description())
-        //.setImage("attachment://minimap.png");
+        // .setImage("attachment://minimap.png");
         val msg = ctx.channel.sendMessageEmbeds(embed.build())
         msg.addFiles(FileUpload.fromData(map.file.file(), map.file.name()))
-        //msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
+        // msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
         map.file.delete()
         Vars.maps.reload()
         msg.queue()
@@ -340,9 +398,12 @@ class Commands {
     @DiscordCommand(
         name = "ver",
         desc = "SS",
-        type = CommandType.ALL
+        type = CommandType.ALL,
     )
-    fun ver(args: Array<String>, ctx: Context) {
+    fun ver(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         globalExecutor.submit {
             ctx.reply("Current: $version  Latest: ${httpGetString(buildsLatestTxtUrl)}")
         }
@@ -352,9 +413,12 @@ class Commands {
         name = "reloadbundle",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.EditServer
+        requiredPerm = Permission.EditServer,
     )
-    fun reloadBundle(args: Array<String>, ctx: Context) {
+    fun reloadBundle(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         Bundle.load()
         ctx.reply("IDK, reloaded probably")
     }
@@ -363,9 +427,12 @@ class Commands {
         name = "gc",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.EditServer
+        requiredPerm = Permission.EditServer,
     )
-    fun collectGarbage(args: Array<String>, ctx: Context) {
+    fun collectGarbage(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         val before = Core.app.javaHeap / 1024 / 1024
         System.gc()
         val after = Core.app.javaHeap / 1024 / 1024
@@ -376,9 +443,12 @@ class Commands {
         name = "forcerestart",
         desc = "SS",
         type = CommandType.ALL,
-        requiredPerm = Permission.EditServer
+        requiredPerm = Permission.EditServer,
     )
-    fun forceRestart(args: Array<String>, ctx: Context) {
+    fun forceRestart(
+        args: Array<String>,
+        ctx: Context,
+    ) {
         sendLog("Force restarting.")
         Timer.schedule({
             exitProcess(0)

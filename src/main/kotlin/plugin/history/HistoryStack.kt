@@ -5,9 +5,7 @@ import arc.struct.Seq
 class HistoryStack {
     var stack: Seq<HistoryRecord> = Seq<HistoryRecord>()
 
-    fun size(): Int {
-        return stack.size
-    }
+    fun size(): Int = stack.size
 
     fun add(record: HistoryRecord) {
         stack.add(record)

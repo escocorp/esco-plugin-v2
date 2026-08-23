@@ -9,7 +9,6 @@ import java.sql.Timestamp
 import java.time.Instant
 
 class Log {
-
     val id: Int
     val serverId: Int
     val playerId: Int?
@@ -26,7 +25,7 @@ class Log {
         playerId: Int?,
         type: String,
         message: String,
-        timestamp: Instant
+        timestamp: Instant,
     ) {
         this.id = id
         this.serverId = serverId
@@ -41,7 +40,7 @@ class Log {
     constructor(
         playerId: Int?,
         type: String,
-        message: String
+        message: String,
     ) {
         this.id = -1
         this.serverId = PVars.serverId
@@ -59,7 +58,7 @@ class Log {
             """
             INSERT INTO logs (type, message, timestamp, server_id, player_id)
             VALUES (?, ?, ?, ?, ?)
-            """.trimIndent()
+            """.trimIndent(),
         ) { stmt ->
             stmt.setString(1, type)
             stmt.setString(2, message)
@@ -75,55 +74,69 @@ class Log {
     }
 }
 
-
 // region Log
 
-fun putLog(type: String, message: String) {
+fun putLog(
+    type: String,
+    message: String,
+) {
     PVars.logsBuffer.add(Log(null, type, message))
 }
 
-fun putLog(pid: Int, type: String, message: String) {
+fun putLog(
+    pid: Int,
+    type: String,
+    message: String,
+) {
     PVars.logsBuffer.add(Log(pid, type, message))
 }
 
-fun putLog(action: PlayerAction, pd: PlayerData) {
+fun putLog(
+    action: PlayerAction,
+    pd: PlayerData,
+) {
     val message: String?
     val type = action.type
 
     val tile = action.tile ?: return
     if (tile.block().isAir) return
 
-    message = when (type) {
-        Administration.ActionType.breakBlock -> Strings.format(
-            "Player break block @ at @ @",
-            tile.block().name,
-            tile.x,
-            tile.y
-        )
+    message =
+        when (type) {
+            Administration.ActionType.breakBlock ->
+                Strings.format(
+                    "Player break block @ at @ @",
+                    tile.block().name,
+                    tile.x,
+                    tile.y,
+                )
 
-        Administration.ActionType.placeBlock -> Strings.format(
-            "Player placed block @ at @ @",
-            action.block,
-            tile.x,
-            tile.y
-        )
+            Administration.ActionType.placeBlock ->
+                Strings.format(
+                    "Player placed block @ at @ @",
+                    action.block,
+                    tile.x,
+                    tile.y,
+                )
 
-        Administration.ActionType.rotate -> Strings.format(
-            "Player rotated block @ at @ @",
-            tile.block().name,
-            tile.x,
-            tile.y
-        )
+            Administration.ActionType.rotate ->
+                Strings.format(
+                    "Player rotated block @ at @ @",
+                    tile.block().name,
+                    tile.x,
+                    tile.y,
+                )
 
-        Administration.ActionType.configure -> Strings.format(
-            "Player configured block @ at @ @",
-            tile.block().name,
-            tile.x,
-            tile.y
-        )
+            Administration.ActionType.configure ->
+                Strings.format(
+                    "Player configured block @ at @ @",
+                    tile.block().name,
+                    tile.x,
+                    tile.y,
+                )
 
-        else -> return
-    }
+            else -> return
+        }
 
     putLog(pd.id, "action", message)
 }

@@ -72,8 +72,9 @@ class PEvents {
 
         val region = e.packet.uuid.hashCode()
         val cachedRegion = joinDemographics.get(region)
-        if (cachedRegion == null) joinDemographics.put(region, e.packet.uuid)
-        else if (cachedRegion != e.packet.uuid) {
+        if (cachedRegion == null) {
+            joinDemographics.put(region, e.packet.uuid)
+        } else if (cachedRegion != e.packet.uuid) {
             Vars.netServer.admins.blacklistDos(e.connection.address)
             Log.info("Blacklisting IP @ due to suspicious UUIDs", e.connection.address)
             sendLog("Blacklisting ${e.connection.address} due to suspicious UUIDs")
@@ -81,7 +82,7 @@ class PEvents {
     }
 
     @EventListener
-    fun playerConnect(e: PlayerConnect) {  // pre-connect
+    fun playerConnect(e: PlayerConnect) { // pre-connect
         val player = e.player
 
         if (player.plainName().isEmpty()) {
@@ -104,7 +105,7 @@ class PEvents {
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             }
-            if (gamemode != Gamemode.hub && vpnApiEnabled)
+            if (gamemode != Gamemode.hub && vpnApiEnabled) {
                 isAnon(player.ip()) { resp: VPNApiResponse ->
                     if (resp.anon && pd.discordId == null) {
                         putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
@@ -119,23 +120,26 @@ class PEvents {
                             Bundle.infoMessage("kick.vpn-detected", player, discordLink)
                         }
                     }
-                    //AntiFimoz.apply(resp.isp, player);
-                    //if(player.con.isConnected())
+                    // AntiFimoz.apply(resp.isp, player);
+                    // if(player.con.isConnected())
                     app.post {
                         apply(player, resp.isp, pd)
                     }
                 }
+            }
 
             val ban = getBan(player)
             if (ban != null) {
-                //val ban = banOpt.get()
+                // val ban = banOpt.get()
                 app.post {
                     ban.kickPlayer(player)
                 }
                 putLog(pd.id, "system", "Ban " + ban.id + " hit!")
                 sendLog(
-                    "New ban hit!\nReason: " + ban.reason + "\n" + "ID: " + ban.id + "\nNickname: " + player.plainName()
-                        .replace("@", "")
+                    "New ban hit!\nReason: " + ban.reason + "\n" + "ID: " + ban.id + "\nNickname: " +
+                        player
+                            .plainName()
+                            .replace("@", ""),
                 )
                 return@launch
             }
@@ -148,7 +152,11 @@ class PEvents {
                 getAdmin(player)?.let { a: Admin ->
                     app.post {
                         if (a.perms.contains(Permission.Admin) && !a.hidden) player.admin(true)
-                        if (a.perms.size > 1) player.sendMessage(Bundle.get("message.permissions", player.locale, Permission.seqToString(a.perms)))
+                        if (a.perms.size >
+                            1
+                        ) {
+                            player.sendMessage(Bundle.get("message.permissions", player.locale, Permission.seqToString(a.perms)))
+                        }
                     }
                 }
             }
@@ -174,10 +182,10 @@ class PEvents {
             }
             return
         }
-        //val pd = pdOpt.get()
+        // val pd = pdOpt.get()
         PlayerData.setJoinTime(player)
 
-        //pd.setOriginalName(player.coloredName());
+        // pd.setOriginalName(player.coloredName());
         getPlayerData(player)
 
         app.post {
@@ -194,7 +202,6 @@ class PEvents {
             if (pd.prefs.owoAccent) player.getStatus().owoAccent = true
             if (pd.prefs.ohioAccent) player.getStatus().ohioAccent = true
         }
-
 
         // simple bot check
         Timer.schedule({
@@ -231,14 +238,13 @@ class PEvents {
                 PVars.currentlyKicking.startedId,
                 "AutoBan: Leave during votekick\n" + PVars.currentlyKicking.reason,
                 (2 * 60 * 60).toLong(),
-                "votekick"
+                "votekick",
             )
             PVars.currentlyKicking.cancel()
             Bundle.sendMessage("command.votekick.target-left")
         }
 
         purgeData(player)
-
 
         /*if(rtvVotes.contains(player)) {
                 rtvVotes.remove(player);
@@ -273,10 +279,11 @@ class PEvents {
         val response = e.response
         if (response.rating != Rating.NSFW) return
 
-        val embed = EmbedBuilder()
-            .setColor(Color.red)
-            .setTitle("NSFW detected on ${gamemode.name} (Confidence: ${(response.confidence * 100).toInt()}%)")
-            .setImage("attachment://image.png")
+        val embed =
+            EmbedBuilder()
+                .setColor(Color.red)
+                .setTitle("NSFW detected on ${gamemode.name} (Confidence: ${(response.confidence * 100).toInt()}%)")
+                .setImage("attachment://image.png")
 
         var playerId: Int? = null
 
@@ -292,8 +299,8 @@ class PEvents {
         playerId?.let {
             message.addComponents(
                 ActionRow.of(
-                    Button.danger("$nohornyBanId:$it", "🔨Ban")
-                )
+                    Button.danger("$nohornyBanId:$it", "🔨Ban"),
+                ),
             )
         }
 
@@ -313,16 +320,20 @@ class PEvents {
         if (e.tile == null || e.unit == null) return
         val player = e.unit.player
 
-        if (player != null) getPlayerData(player)?.let { s ->
-            if (e.breaking) {
-                s.adjBlocksBroken()
-                if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
-                    ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"), "antigrief")
-                    player.kick(Bundle.get("kick.possible-griefer", player.locale), 0)
-                    player.con.close()
-                    antigriefCooldown.reset()
+        if (player != null) {
+            getPlayerData(player)?.let { s ->
+                if (e.breaking) {
+                    s.adjBlocksBroken()
+                    if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
+                        ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"), "antigrief")
+                        player.kick(Bundle.get("kick.possible-griefer", player.locale), 0)
+                        player.con.close()
+                        antigriefCooldown.reset()
+                    }
+                } else {
+                    s.adjBlocksBuild()
                 }
-            } else s.adjBlocksBuild()
+            }
         }
 
         if (e.breaking) return
@@ -346,7 +357,7 @@ class PEvents {
                 tile.block(),
                 unit.type(),
                 actorTeam,
-                rotation
+                rotation,
             )
         }
     }
@@ -373,7 +384,7 @@ class PEvents {
                 tile.block(),
                 unit.type(),
                 actorTeam,
-                0
+                0,
             )
         }
     }
@@ -398,7 +409,7 @@ class PEvents {
                 build.block,
                 null,
                 player.team(),
-                e.build.rotation
+                e.build.rotation,
             )
         }
     }
@@ -419,7 +430,7 @@ class PEvents {
                 null,
                 player.team(),
                 build.rotation,
-                e.value
+                e.value,
             )
         }
     }
@@ -436,7 +447,7 @@ class PEvents {
             e.tile.block(),
             null,
             e.tile.team(),
-            0
+            0,
         )
     }
 
@@ -457,7 +468,8 @@ class PEvents {
     fun attemCheck(e: BlockBuildEndEvent) {
         val build = e.tile?.build as? LogicBlock.LogicBuild ?: return
 
-        eventsScope.launch { // The regex can be slow
+        eventsScope.launch {
+            // The regex can be slow
             if (!isAttem(build.code)) return@launch
 
             app.post {
@@ -485,7 +497,7 @@ class PEvents {
                 build.block,
                 e.unit.type,
                 e.unit.team(),
-                build.rotation
+                build.rotation,
             )
         }
     }
@@ -509,7 +521,7 @@ class PEvents {
                 build.block,
                 e.unit.type,
                 e.unit.team(),
-                build.rotation
+                build.rotation,
             )
         }
     }
@@ -522,19 +534,23 @@ class PEvents {
             val oldHistory = History.copy()
             eventsScope.launch {
                 val mapName = Vars.state.map.name()
-                val date = ZonedDateTime.now(ZoneOffset.UTC)
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
-                val name = "$mapName-${date}.replay"
+                val date =
+                    ZonedDateTime
+                        .now(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
+                val name = "$mapName-$date.replay"
 
                 PVars.S3.putObject("replays", name, saveReplay(oldHistory, mapName))
 
-                Log.info("New replay saved with name ${name}!")
+                Log.info("New replay saved with name $name!")
             }
         }
 
         History.clear()
-        if (e.winner !== Team.derelict) Groups.player.each { p: Player ->
-            if (p.team() === e.winner) getPlayerData(p)?.adjWins()
+        if (e.winner !== Team.derelict) {
+            Groups.player.each { p: Player ->
+                if (p.team() === e.winner) getPlayerData(p)?.adjWins()
+            }
         }
     }
 
@@ -569,7 +585,9 @@ class PEvents {
                 Vars.state.rules.blockHealthMultiplier = 0.1f*/
                 Vars.state.rules.coreCapture = false
             } else if (gamemode == Gamemode.campaign) {
-                val core = Vars.state.rules.defaultTeam.core() ?: return@schedule
+                val core =
+                    Vars.state.rules.defaultTeam
+                        .core() ?: return@schedule
                 val items = core.items
                 items.add(Items.copper, 500)
                 items.add(Items.silicon, 300)

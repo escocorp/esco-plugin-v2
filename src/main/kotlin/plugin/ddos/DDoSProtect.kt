@@ -61,7 +61,10 @@ object DDoSProtect {
         return true
     }
 
-    fun handleBot(player: Player, pd: PlayerData?): Boolean {
+    fun handleBot(
+        player: Player,
+        pd: PlayerData?,
+    ): Boolean {
         player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 5)
 
         lastBotTime.set(System.currentTimeMillis())
@@ -70,7 +73,7 @@ object DDoSProtect {
             Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
         }
 
-        if(pd == null) {
+        if (pd == null) {
             putLog("ddosprotect", "Player ${player.uuid()} detected as bot!")
         } else {
             putLog(pd.id, "ddosprotect", "Player ${player.uuid()} detected as bot!")

@@ -21,15 +21,19 @@ fun register(handler: CommandHandler) {
         Patches.despawnUnits()
     }
 
-    handler.register("restart", "set needRestart to true.", Cons { _: Array<String> ->
-        if (Groups.player.isEmpty) {
-            Loader.exit()
-            return@Cons
-        }
-        PVars.needRestart = true
-        sendLog("Now server needs a restart!")
-        Log.info("Ok!")
-    })
+    handler.register(
+        "restart",
+        "set needRestart to true.",
+        Cons { _: Array<String> ->
+            if (Groups.player.isEmpty) {
+                Loader.exit()
+                return@Cons
+            }
+            PVars.needRestart = true
+            sendLog("Now server needs a restart!")
+            Log.info("Ok!")
+        },
+    )
 
     handler.register("savelog", "save logs") { _: Array<String> ->
         Loader.saveLogs()

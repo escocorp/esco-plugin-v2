@@ -6,9 +6,8 @@ import plugin.Bundle
 
 class ScrollableTextMenu(
     val title: String,
-    val itemsPerPage: Int = 5
+    val itemsPerPage: Int = 5,
 ) {
-
     private val items = Seq<String>()
 
     fun add(text: String): ScrollableTextMenu {
@@ -20,18 +19,26 @@ class ScrollableTextMenu(
         showPage(player, 0)
     }
 
-    private fun showPage(player: Player, page: Int) {
-        val totalPages = kotlin.math.ceil(items.size / itemsPerPage.toDouble()).toInt().coerceAtLeast(1)
+    private fun showPage(
+        player: Player,
+        page: Int,
+    ) {
+        val totalPages =
+            kotlin.math
+                .ceil(items.size / itemsPerPage.toDouble())
+                .toInt()
+                .coerceAtLeast(1)
 
         val start = page * itemsPerPage
         val end = minOf(start + itemsPerPage, items.size)
 
-        val pageText = buildString {
-            for (i in start until end) {
-                appendLine(items[i])
+        val pageText =
+            buildString {
+                for (i in start until end) {
+                    appendLine(items[i])
+                }
+                append("\n").append(Bundle.get("menu.page", player.locale, page + 1, totalPages))
             }
-            append("\n").append(Bundle.get("menu.page", player.locale, page + 1, totalPages))
-        }
 
         val menu = Menu(title, pageText)
 

@@ -7,20 +7,23 @@ import java.sql.SQLException
 
 class Server(
     val id: Int,
-    val name: String
+    val name: String,
 ) {
-
     companion object {
         fun getOrCreateServer(): Server? {
-            val server = executeQuery(
-                """
-                SELECT * FROM servers
-                WHERE name = ?
-                """.trimIndent(), { stmt ->
-                    stmt.setString(1, gamemode.simpleName)
-                }, { rs ->
-                    getServer(rs)
-                })
+            val server =
+                executeQuery(
+                    """
+                    SELECT * FROM servers
+                    WHERE name = ?
+                    """.trimIndent(),
+                    { stmt ->
+                        stmt.setString(1, gamemode.simpleName)
+                    },
+                    { rs ->
+                        getServer(rs)
+                    },
+                )
 
             if (server != null) {
                 return server
@@ -36,18 +39,19 @@ class Server(
                 """.trimIndent(),
                 { stmt ->
                     stmt.setString(1, gamemode.simpleName)
-                }, { rs ->
+                },
+                { rs ->
                     getServer(rs)
-                })
+                },
+            )
         }
 
         @JvmStatic
         @Throws(SQLException::class)
-        fun getServer(rs: ResultSet): Server {
-            return Server(
+        fun getServer(rs: ResultSet): Server =
+            Server(
                 rs.getInt("id"),
-                rs.getString("name")
+                rs.getString("name"),
             )
-        }
     }
 }

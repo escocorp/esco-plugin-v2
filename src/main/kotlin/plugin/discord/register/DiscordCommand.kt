@@ -25,5 +25,5 @@ annotation class DiscordCommand(
     val desc: String,
     val args: String = "",
     val type: CommandType = CommandType.DEFAULT,
-    val requiredPerm: Permission = Permission.None
+    val requiredPerm: Permission = Permission.None,
 )

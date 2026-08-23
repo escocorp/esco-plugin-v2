@@ -14,9 +14,10 @@ import plugin.model.GlobalConfig
 import java.lang.management.ManagementFactory
 
 object KVars {
-    val errorHandler = CoroutineExceptionHandler { _, e ->
-        Log.err("Exception in coroutine", e)
-    }
+    val errorHandler =
+        CoroutineExceptionHandler { _, e ->
+            Log.err("Exception in coroutine", e)
+        }
 
     val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + errorHandler)
     val eventsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + errorHandler)

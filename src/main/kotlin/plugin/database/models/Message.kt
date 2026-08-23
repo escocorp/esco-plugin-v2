@@ -18,32 +18,35 @@ data class Message(
     val playerId: Int,
     val unformatted: String,
     val formatted: String,
-    val timestamp: Instant
+    val timestamp: Instant,
 )
 
 @Throws(SQLException::class)
-fun getMessage(rs: ResultSet): Message {
-    return Message(
+fun getMessage(rs: ResultSet): Message =
+    Message(
         rs.getInt("id"),
         rs.getInt("player_id"),
         rs.getString("unformatted"),
         rs.getString("formatted"),
-        rs.getTimestamp("timestamp").toInstant().toKotlinInstant()
+        rs.getTimestamp("timestamp").toInstant().toKotlinInstant(),
     )
-}
 
-fun putMessage(playerId: Int, unformatted: String, formatted: String, timestamp: Instant): Boolean {
-    return executeUpdate(
+fun putMessage(
+    playerId: Int,
+    unformatted: String,
+    formatted: String,
+    timestamp: Instant,
+): Boolean =
+    executeUpdate(
         """
-                INSERT INTO messages (player_id, unformatted, formatted, timestamp, server_id)
-                VALUES (?, ?, ?, ?, ?)
-            """.trimIndent(),
+        INSERT INTO messages (player_id, unformatted, formatted, timestamp, server_id)
+        VALUES (?, ?, ?, ?, ?)
+        """.trimIndent(),
         { stmt ->
             stmt.setInt(1, playerId)
             stmt.setString(2, unformatted)
             stmt.setString(3, formatted)
             stmt.setTimestamp(4, Timestamp.from(timestamp.toJavaInstant()))
             stmt.setInt(5, PVars.serverId)
-        }
+        },
     )
-}

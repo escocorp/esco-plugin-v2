@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 class PlayerPrefs(
     var showWelcomeMenu: Boolean = true,
     var owoAccent: Boolean = false,
-    var ohioAccent: Boolean = false
+    var ohioAccent: Boolean = false,
 )
