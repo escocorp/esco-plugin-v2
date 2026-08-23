@@ -28,6 +28,8 @@ import java.util.function.Consumer
 val unitCosts = ObjectIntMap<UnitType>()
 val itemCosts = ObjectIntMap<Item>()
 
+const val ITEMS_PER_PURCHASE = 1000
+
 fun loadMenus() {
     unitCosts.putAll(
         UnitTypes.crawler,
@@ -85,42 +87,10 @@ fun showShop(
         )
 
     menu.add(Bundle.get("menu.shop.category.units", p.locale)) { pl ->
-        val countMenu = Menu("@menu.shop.count.title", "@menu.shop.count.message")
-        countMenu.add("1") {
-            buyUnits(stats, p, 1)
-        }
-        countMenu.add("5") {
-            buyUnits(stats, p, 5)
-        }
-        countMenu.add("10") {
-            buyUnits(stats, p, 10)
-        }
-        countMenu.row().add("@menu.close")
-        countMenu.show(pl)
+        showCountMenu(pl) { count -> buyUnits(stats, p, count) }
     }
     menu.add(Bundle.get("menu.shop.category.items", p.locale)) { pl ->
-        val itemMenu =
-            ScrollableMenu(Bundle.get("menu.shop.title", p.locale), Bundle.get("menu.shop.balance", p.locale, stats.balance))
-        itemCosts.forEach(
-            Consumer { en: ObjectIntMap.Entry<Item> ->
-                val type = en.key
-                val cost = if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value
-                itemMenu.add(Bundle.get("menu.shop.cost", p.locale, type.emoji(), cost)) { pl: Player ->
-                    if (cost > stats.balance) {
-                        Bundle.sendMessage("menu.shop.no-money", pl)
-                        return@add
-                    }
-                    pl
-                        .team()
-                        .core()
-                        .items
-                        .add(type, 1000)
-                    stats.subBalance(cost)
-                    Bundle.label("menu.shop.unit-bought", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
-                }
-            },
-        )
-        itemMenu.show(pl)
+        showCountMenu(pl) { count -> buyItems(stats, p, count) }
     }
     menu.add(Bundle.get("menu.shop.category.other", p.locale)) { pl ->
         val otherMenu =
@@ -147,6 +117,57 @@ fun showShop(
     }
 
     menu.show(p)
+}
+
+/**
+ * Asks the player how many packs they want to buy and calls [action] with the multiplier.
+ * */
+fun showCountMenu(
+    player: Player,
+    action: (Int) -> Unit,
+) {
+    val countMenu = Menu("@menu.shop.count.title", "@menu.shop.count.message")
+    for (count in intArrayOf(1, 5, 10)) {
+        countMenu.add("x$count") { action(count) }
+    }
+    countMenu.row().add("@menu.close")
+    countMenu.show(player)
+}
+
+/**
+ * Shows the item shop, where a single purchase gives [ITEMS_PER_PURCHASE] * [count] items.
+ * */
+fun buyItems(
+    stats: PlayerData,
+    p: Player,
+    count: Int,
+) {
+    val itemMenu =
+        ScrollableMenu(Bundle.get("menu.shop.title", p.locale), Bundle.get("menu.shop.balance", p.locale, stats.balance))
+
+    itemCosts.forEach(
+        Consumer { en: ObjectIntMap.Entry<Item> ->
+            val type = en.key
+            val cost = (if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value) * count
+            val amount = ITEMS_PER_PURCHASE * count
+            itemMenu.add(Bundle.get("menu.shop.cost", p.locale, "${type.emoji()} x$amount", cost)) { pl: Player ->
+                if (cost > stats.balance) {
+                    Bundle.sendMessage("menu.shop.no-money", pl)
+                    return@add
+                }
+                val core = pl.team().core()
+                if (core == null) {
+                    Bundle.sendMessage("menu.shop.no-money", pl)
+                    return@add
+                }
+                core.items.add(type, amount)
+                stats.subBalance(cost)
+                Bundle.label("menu.shop.unit-bought", 1f, pl.x, pl.y, pl.coloredName(), "${type.emoji()} x$amount", cost)
+            }
+        },
+    )
+
+    itemMenu.show(p)
 }
 
 fun buyUnits(
