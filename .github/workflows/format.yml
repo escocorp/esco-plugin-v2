@@ -50,14 +50,26 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || fromJSON(steps.diffsize.outputs.size) > 1000
         run: ./gradlew ktlintFormat
 
+      - name: Run detekt (autoCorrect)
+        if: github.event_name == 'workflow_dispatch' || fromJSON(steps.diffsize.outputs.size) > 1000
+        run: ./gradlew detekt
+
+      - name: Upload detekt report
+        if: always() && (github.event_name == 'workflow_dispatch' || fromJSON(steps.diffsize.outputs.size) > 1000)
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-report
+          path: build/reports/detekt/detekt.html
+          if-no-files-found: ignore
+
       - name: Commit formatting changes
         if: github.event_name == 'workflow_dispatch' || fromJSON(steps.diffsize.outputs.size) > 1000
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
-            git add -A
-            git commit -m "chore: auto-format with ktlint"
+          if ! git diff --quiet -- '*.kt' '*.kts'; then
+            git add -- '*.kt' '*.kts'
+            git commit -m "chore: auto-format with ktlint/detekt"
             git push origin HEAD:${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
           else
             echo "Nothing to format."
