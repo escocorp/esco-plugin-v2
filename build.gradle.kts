@@ -3,7 +3,6 @@ plugins {
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.serialization") version "2.4.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 version = "1.0"
@@ -22,24 +21,6 @@ ktlint {
     version.set("1.7.1")
     android.set(false)
     ignoreFailures.set(true)
-}
-
-detekt {
-    buildUponDefaultConfig = true
-    config.setFrom(files("$rootDir/detekt.yml"))
-    autoCorrect = true
-    ignoreFailures = true
-}
-
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    jvmTarget = "21"
-    reports {
-        html.required.set(true)
-        xml.required.set(false)
-        txt.required.set(false)
-        sarif.required.set(false)
-        md.required.set(false)
-    }
 }
 
 repositories {
