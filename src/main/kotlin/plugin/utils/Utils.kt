@@ -100,6 +100,11 @@ fun isAnon(ip: String?, callback: Cons<VPNApiResponse>) {
     )*/
 }
 
+fun Http.HttpRequest.addPluginAuth(): Http.HttpRequest {
+    header("Authorization", "Basic $apiAuth")
+    return this
+}
+
 /**
  * Download file to some path
  * [url] - target url

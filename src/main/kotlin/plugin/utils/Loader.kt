@@ -6,6 +6,7 @@ import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.gamemodes.tdf.TDGamemode*/
 import arc.Core
 import arc.Events
+import arc.util.Http
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
@@ -15,6 +16,8 @@ import mindustry.net.Administration
 import plugin.Bundle
 import plugin.Config
 import plugin.Gamemode
+import plugin.KVars
+import plugin.KVars.globalConfigCache
 import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
@@ -34,6 +37,7 @@ import plugin.maps.MapPreview
 import plugin.menus.Menu
 import plugin.menus.TextMenu
 import plugin.menus.loadMenus
+import plugin.model.GlobalConfig
 import plugin.packets.Packets
 import plugin.patches.Patches
 import plugin.s3.S3
@@ -66,10 +70,12 @@ object Loader {
             TrailsHandler.load()
             DDoSProtect.load()
 
-            if(S3Enabled)
-                PVars.S3 = S3(PVars.S3BaseUrl, PVars.S3AccessKey, PVars.S3SecretKey)
+            loadGlobalConfig()
 
-            PVars.version = getResource("version")?.readString() ?: ""
+            if(S3Enabled)
+                S3 = S3(S3BaseUrl, S3AccessKey, S3SecretKey)
+
+            version = getResource("version")?.readString() ?: ""
 
             Vars.maps.setMapProvider(EscoMapProvider())
 
@@ -81,7 +87,7 @@ object Loader {
             }, 60f, 60f)
 
             /*
-        if(PVars.gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {
+        if(gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {
             if(state.isGame) {
                 Vars.net.closeServer()
                 ServerControl.instance.cancelPlayTask()
@@ -105,19 +111,44 @@ object Loader {
         Log.debug("Loader: OK!")
     }
 
+    private fun loadGlobalConfig() {
+        Http.get(KVars.globalConfigLink)
+            .addPluginAuth()
+            .timeout(5000)
+            .error {
+                Log.err("Failed to load global config, fallback to cache", it)
+                KVars.globalConfig = readGlobalConfigCache()
+            }
+            .submit { resp ->
+                val raw = resp.resultAsString
+                KVars.globalConfig = objectMapper.readValue(raw, GlobalConfig::class.java)
+                globalConfigCache.writeString(raw)
+            }
+    }
+
+    private fun readGlobalConfigCache(): GlobalConfig? {
+        if (!globalConfigCache.exists()) return null
+        return try {
+            objectMapper.readValue(globalConfigCache.readString(), GlobalConfig::class.java)
+        } catch (e: Exception) {
+            Log.err("Failed to read cached global config!", e)
+            null
+        }
+    }
+
     @JvmStatic
     fun loadAfterStart() {
         // ClientCrasher.load();
         // AntiFimoz.load();
         Administration.Config.showConnectMessages.set(false)
         Packets.load()
-        /*if(PVars.gamemode != Gamemode.hexed) {
+        /*if(gamemode != Gamemode.hexed) {
             Vars.maps.setMapProvider(PluginMapProvider())
         }*/
     }
 
     /*fun loadGamemode() {
-        when (PVars.gamemode) {
+        when (gamemode) {
             Gamemode.tdefense -> TDGamemode.load()
             Gamemode.hexed -> {
                 hexedGamemode = HexedGamemode()
@@ -132,10 +163,10 @@ object Loader {
 
     fun loadTimers() {
         Timer.schedule({
-            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.discord", PVars.discordLink)
+            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.discord", discordLink)
         }, (15 * 60).toFloat(), (15 * 60).toFloat())
         /*Timer.schedule({
-            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.reports", PVars.discordLink)
+            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.reports", discordLink)
         }, (15 * 60).toFloat(), (35 * 60).toFloat())*/
         Timer.schedule({
             Groups.player.each { p ->
@@ -150,7 +181,7 @@ object Loader {
             saveMessages()
         }, (5 * 60).toFloat(), (5 * 60).toFloat())
 
-        if (PVars.lokiLoggingEnabled)
+        if (lokiLoggingEnabled)
             Timer.schedule({
                 pushLogs()
             }, 0f, (5 * 60).toFloat())
@@ -162,16 +193,16 @@ object Loader {
 
     fun loadServerId() {
         val serverOpt = Server.getOrCreateServer()
-        if (serverOpt != null) PVars.serverId = serverOpt.id
+        if (serverOpt != null) serverId = serverOpt.id
         else Log.err("Сannot create/get server record. Server is unstable")
     }
 
     fun saveLogs() {
-        if(PVars.logsBuffer.isEmpty) return
-        Log.info("Saving @ logs", PVars.logsBuffer.size)
+        if(logsBuffer.isEmpty) return
+        Log.info("Saving @ logs", logsBuffer.size)
 
-        while (PVars.logsBuffer.size > 0) {
-            val log = PVars.logsBuffer.pop()
+        while (logsBuffer.size > 0) {
+            val log = logsBuffer.pop()
             globalScope.launch {
                 log.write()
             }
