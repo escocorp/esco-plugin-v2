@@ -189,7 +189,9 @@ class PEvents {
         getPlayerData(player)
 
         app.post {
+            if(!DDoSProtect.isAttackActive()) {
             Bundle.sendMessage("message.join", pd.id.toString(), player.coloredName())
+                }
             putLog(pd.id, "event", "Player joined!")
         }
 

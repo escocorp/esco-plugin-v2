@@ -145,10 +145,13 @@ fun showShop(
                 pl.team().cores().each(Cons { obj: CoreBuild -> obj.heal() })
             }
         }
-        otherMenu.add("@menu.shop.selfcopyability") { player ->
+        /*otherMenu.add("@menu.shop.selfcopyability") { player ->
+            pagfijipfhdjgsfjdhpjd
+            throw new
+            throw Exception()
             val u = player.unit()
             u.addAbility(UnitSpawnAbility(u.type, 3600f, 0f, -32f))
-        }
+        }*/
         otherMenu.show(pl)
     }
 

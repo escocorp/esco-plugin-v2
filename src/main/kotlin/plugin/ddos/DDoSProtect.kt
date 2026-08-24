@@ -61,11 +61,15 @@ object DDoSProtect {
         return true
     }
 
+    fun isAttackActive(): Boolean {
+        return attackActive.get()
+    }
+
     fun handleBot(
         player: Player,
         pd: PlayerData?,
     ): Boolean {
-        player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 5)
+        player.kick("Maybe you're a bot, try reconnect in 5s\nDiscord " + PVars.discordLink, 5)
 
         lastBotTime.set(System.currentTimeMillis())
 
