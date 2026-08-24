@@ -2,7 +2,7 @@ plugins {
     java
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.serialization") version "2.4.10"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 version = "1.0"
@@ -66,7 +66,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.18")
     implementation("org.slf4j:slf4j-simple:2.0.18")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
 
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
 
@@ -78,7 +78,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    implementation(platform("software.amazon.awssdk:bom:2.54.0"))
+    implementation(platform("software.amazon.awssdk:bom:2.54.1"))
     implementation("software.amazon.awssdk:s3")
 
     // compileOnly(files("nohorny-client.jar"))
