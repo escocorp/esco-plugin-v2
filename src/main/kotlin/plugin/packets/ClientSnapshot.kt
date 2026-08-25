@@ -6,8 +6,8 @@ import mindustry.core.NetServer
 import mindustry.gen.ClientSnapshotCallPacket
 import mindustry.net.NetConnection
 import plugin.ddos.DDoSProtect
-
-private val accamulator = Timekeeper.ofSeconds(120f)
+import plugin.model.getStatus
+import plugin.utils.infoString
 
 fun handleClientSnapshot(
     con: NetConnection,
@@ -19,6 +19,12 @@ fun handleClientSnapshot(
         Log.warn("Detected bot player by snapshot view method @ [@] (@)", player.plainName(), player.uuid(), player.ip())
         DDoSProtect.handleBot(player, null)
     }
+
+    /*if(player.unit() != null && packet.unitID != player.unit().id && player.getStatus().badSnapshots.allow(5000, 12)) {
+        Log.warn("Detected bot player by snapshot unit id method! ${player.infoString()}")
+        DDoSProtect.handleBot(player, null)
+    }*/
+
     NetServer.clientSnapshot(
         player,
         packet.snapshotID,

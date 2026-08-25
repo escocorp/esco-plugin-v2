@@ -1,5 +1,6 @@
 package plugin.model
 
+import arc.util.Ratekeeper
 import mindustry.gen.Player
 import plugin.KVars.frozenTag
 
@@ -16,6 +17,7 @@ data class PlayerStatus(
     var linkCode: String? = null,
     var pingReceived: Boolean = false,
     var fake: Boolean = false,
+    // val badSnapshots: Ratekeeper = Ratekeeper()
 )
 
 private val playerStatuses = hashMapOf<Player, PlayerStatus>()
