@@ -3,6 +3,7 @@ package plugin.events
 import arc.Events
 import kotlinx.coroutines.launch
 import plugin.KVars.eventsScope
+
 // vibecode
 object EventRegistrar {
     fun register(instance: Any) {
