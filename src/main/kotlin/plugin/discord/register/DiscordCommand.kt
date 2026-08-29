@@ -3,6 +3,7 @@ package plugin.discord.register
 import plugin.database.models.Permission
 
 /**
+ * vibecode
  * Marks a function in a command listener class as a Discord bot command.
  *
  * Functions annotated with [DiscordCommand] are discovered and registered automatically

@@ -1,3 +1,5 @@
+// vibecode
+
 package plugin.discord.register
 
 import arc.util.CommandHandler

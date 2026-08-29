@@ -1,3 +1,4 @@
+// stolen from old escoplugin
 package plugin.trails
 
 import arc.graphics.Color

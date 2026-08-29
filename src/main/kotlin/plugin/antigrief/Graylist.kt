@@ -112,6 +112,7 @@ fun reloadGraylist() {
 }
 
 /**
+ * vibecode
  * Checks whether an IP matches any entry in the list (exact match or CIDR range).
  *
  * @param list the list of IPs and CIDR ranges
@@ -134,6 +135,7 @@ private fun ipMatches(
 }
 
 /**
+ * vibecode
  * Checks whether an IP belongs to the given CIDR range (IPv4 or IPv6).
  *
  * @param ip the IP to check

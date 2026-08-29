@@ -1,3 +1,4 @@
+// stolen from foo's client
 package plugin.logic
 
 import arc.struct.Seq

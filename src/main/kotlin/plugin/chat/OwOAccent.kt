@@ -1,4 +1,5 @@
 // https://github.com/space-syndicate/space-station-14/blob/d4bad3abbd80a5e68587d70ccfc5277a49c7945b/Content.Shared/Speech/EntitySystems/OwOAccentSystem.cs#L9
+// this file translated from C#
 
 package plugin.chat
 

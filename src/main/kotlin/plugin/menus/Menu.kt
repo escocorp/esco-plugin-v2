@@ -1,3 +1,5 @@
+// stolen from old esco plugin
+
 package plugin.menus
 
 import arc.Events

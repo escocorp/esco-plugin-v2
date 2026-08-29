@@ -3,6 +3,7 @@
 https://github.com/space-syndicate/Goob-Station/blob/28e40bdd0bea3b38deeda10019a6e2f8ae5225e4/Resources/Locale/ru-RU/_Goobstation/accent/ohio.ftl#L11
 https://github.com/space-syndicate/Goob-Station/blob/28e40bdd0bea3b38deeda10019a6e2f8ae5225e4/Resources/Locale/en-US/_Goobstation/accent/ohio.ftl#L11
  */
+// this file translated from C#
 
 package plugin.chat
 

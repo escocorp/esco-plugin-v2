@@ -1,6 +1,7 @@
 package plugin.discord.register
 
 /**
+ * vibecode
  * Specifies which command handler(s) a [DiscordCommand]-annotated function is registered to.
  */
 enum class CommandType {

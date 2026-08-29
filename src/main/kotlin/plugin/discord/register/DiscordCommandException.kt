@@ -1,6 +1,7 @@
 package plugin.discord.register
 
 /**
+ * vibecode
  * Signals a user-facing error in a Discord command handler.
  *
  * When thrown inside a [DiscordCommand]-annotated function, [DiscordCommandAnnotationProcessor]

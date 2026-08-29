@@ -1,3 +1,4 @@
+// stolen from old escoplugin + fixed by ai
 package plugin.menus
 
 import arc.struct.Seq
