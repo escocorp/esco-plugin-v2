@@ -1,8 +1,10 @@
 package plugin.events
 
 import arc.Events
+import arc.util.Log
 import kotlinx.coroutines.launch
 import plugin.KVars.eventsScope
+
 // vibecode
 object EventRegistrar {
     fun register(instance: Any) {
@@ -15,6 +17,8 @@ object EventRegistrar {
 
             val eventClass = method.parameterTypes[0]
             method.isAccessible = true
+
+            Log.debug("Registering ${method.name} in ${instance.javaClass.simpleName}")
 
             @Suppress("UNCHECKED_CAST")
             Events.on(eventClass as Class<Any>) { event ->
