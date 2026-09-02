@@ -139,7 +139,7 @@ object Loader {
     fun loadAfterStart() {
         // ClientCrasher.load();
         // AntiFimoz.load();
-        Administration.Config.showConnectMessages.set(false)
+        Administration.Config.showConnectMessages.set(true)
         Packets.load()
         /*if(gamemode != Gamemode.hexed) {
             Vars.maps.setMapProvider(PluginMapProvider())
