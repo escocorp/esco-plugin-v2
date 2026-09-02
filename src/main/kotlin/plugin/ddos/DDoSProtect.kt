@@ -61,9 +61,7 @@ object DDoSProtect {
         return true
     }
 
-    fun isAttackActive(): Boolean {
-        return attackActive.get()
-    }
+    fun isAttackActive(): Boolean = attackActive.get()
 
     fun handleBot(
         player: Player,
