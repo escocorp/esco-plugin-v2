@@ -17,6 +17,7 @@ cache:
 buildJar:
   stage: build
   before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git ca-certificates
     - chmod +x gradlew
   script:
     - ./gradlew jar
