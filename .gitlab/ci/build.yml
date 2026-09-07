@@ -4,7 +4,9 @@ stages:
   - build
 
 variables:
-  GIT_SUBMODULE_STRATEGY: none
+  GIT_SUBMODULE_STRATEGY: normal
+  GIT_SUBMODULE_PATHS: src/main/resources/bundles
+  GIT_SUBMODULE_DEPTH: 1
 
 cache:
   key: gradle
@@ -15,7 +17,6 @@ cache:
 buildJar:
   stage: build
   before_script:
-    - git submodule update --init src/main/resources/bundles
     - chmod +x gradlew
   script:
     - ./gradlew jar
