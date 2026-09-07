@@ -1,0 +1,25 @@
+image: eclipse-temurin:25-jdk
+
+stages:
+  - build
+
+variables:
+  GIT_SUBMODULE_STRATEGY: none
+
+cache:
+  key: gradle
+  paths:
+    - .gradle/caches
+    - .gradle/wrapper
+
+buildJar:
+  stage: build
+  before_script:
+    - git submodule update --init src/main/resources/bundles
+    - chmod +x gradlew
+  script:
+    - ./gradlew jar
+  artifacts:
+    name: "$CI_PROJECT_NAME"
+    paths:
+      - build/libs/$CI_PROJECT_NAME.jar
