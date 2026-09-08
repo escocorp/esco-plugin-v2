@@ -31,6 +31,7 @@ object Bot {
 
             PVars.jda = jda
 
+            Log.debug("Guild id is empty/null: ${PVars.serverGuildStr.isNullOrEmpty()}")
             PVars.serverGuild = jda.getGuildById(PVars.serverGuildStr)
             if (PVars.serverGuild != null) {
                 PVars.serverChannel =
