@@ -1,4 +1,4 @@
 gemma4:31b-cloud via Claude Code
 ox-alpha via opencode
 GPT-5.6 Luna via GitHub Copilot
-Claude Sonnet 5 via Claude Code
+Claude Sonnet 5 via Claude CodeClaude Fable 5.1 via Claude Code
