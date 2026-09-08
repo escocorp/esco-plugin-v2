@@ -31,10 +31,6 @@ object KVars {
 
     val os = ManagementFactory.getOperatingSystemMXBean() as OperatingSystemMXBean
 
-    var globalConfigLink: String? = null
-    var globalConfig: GlobalConfig? = null
-    val globalConfigCache get() = KVars.cacheDir.child("globalconfig.json")
-
     val cacheDir: Fi by lazy {
         Vars.dataDirectory.child("cache").apply { mkdirs() }
     }

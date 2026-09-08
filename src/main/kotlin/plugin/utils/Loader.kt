@@ -17,7 +17,6 @@ import plugin.Bundle
 import plugin.Config
 import plugin.Gamemode
 import plugin.KVars
-import plugin.KVars.globalConfigCache
 import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
 import plugin.PVars
@@ -37,7 +36,6 @@ import plugin.maps.MapPreview
 import plugin.menus.Menu
 import plugin.menus.TextMenu
 import plugin.menus.loadMenus
-import plugin.model.GlobalConfig
 import plugin.packets.Packets
 import plugin.patches.Patches
 import plugin.s3.S3
@@ -68,8 +66,6 @@ object Loader {
             loadGraylist()
             TrailsHandler.load()
             DDoSProtect.load()
-
-            loadGlobalConfig()
 
             if (S3Enabled) {
                 S3 = S3(S3BaseUrl, S3AccessKey, S3SecretKey)
@@ -108,31 +104,6 @@ object Loader {
         }, 5f)
 
         Log.debug("Loader: OK!")
-    }
-
-    private fun loadGlobalConfig() {
-        Http
-            .get(KVars.globalConfigLink)
-            .addPluginAuth()
-            .timeout(5000)
-            .error {
-                Log.err("Failed to load global config, fallback to cache", it)
-                KVars.globalConfig = readGlobalConfigCache()
-            }.submit { resp ->
-                val raw = resp.resultAsString
-                KVars.globalConfig = objectMapper.readValue(raw, GlobalConfig::class.java)
-                globalConfigCache.writeString(raw)
-            }
-    }
-
-    private fun readGlobalConfigCache(): GlobalConfig? {
-        if (!globalConfigCache.exists()) return null
-        return try {
-            objectMapper.readValue(globalConfigCache.readString(), GlobalConfig::class.java)
-        } catch (e: Exception) {
-            Log.err("Failed to read cached global config!", e)
-            null
-        }
     }
 
     @JvmStatic

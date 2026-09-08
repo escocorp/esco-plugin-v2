@@ -49,8 +49,6 @@ object Config {
         PVars.S3Enabled = PVars.S3BaseUrl.isNotEmpty()
         PVars.S3AccessKey = getEnv("S3_ACCESS_KEY")
         PVars.S3SecretKey = getEnv("S3_SECRET_KEY")
-
-        KVars.globalConfigLink = getEnv("GLOBAL_CONFIG", "https://sapi.larzed.icu/globalconfig.json")
     }
 
     private fun getEnv(name: String): String? = getEnv(name, "")
