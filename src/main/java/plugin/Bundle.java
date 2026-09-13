@@ -63,7 +63,7 @@ public class Bundle {
     }
 
     private static void loadLocaleFallback(String locale) {
-        Fi file = getResource("bundles/" + locale);
+        Fi file = getResource("bundles").child(locale);
 
         if (file == null || !file.exists()) {
             Log.warn("No bundled fallback file found for locale '@' (submodule likely not initialized)", locale);
