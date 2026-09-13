@@ -20,12 +20,18 @@ object DDoSProtect {
     private const val RATE_AMOUNT = 5
     private const val RATE_ENTRY_TTL = 60 * 1000L
 
+    private const val UDP_RATE_SPACING = 1000L
+    private const val UDP_RATE_AMOUNT = 10
+
     private val botsKicked = AtomicInteger(0)
     private val lastBotTime = AtomicLong(0L)
     private val attackActive = AtomicBoolean(false)
 
     private val ipRatekeepers = ConcurrentHashMap<String, Ratekeeper>()
     private val blacklisted = ConcurrentHashMap.newKeySet<String>()
+
+    private val udpRatekeepers = ConcurrentHashMap<String, Ratekeeper>()
+    private val blacklistedUdp = ConcurrentHashMap.newKeySet<String>()
 
     fun load() {
         try {
@@ -42,23 +48,56 @@ object DDoSProtect {
         }
     }
 
-    fun checkRatelimit(address: String): Boolean {
+    /**
+     * Checks whether a connection must be rejected as flood.
+     *
+     * [udpAddress] is the real origin of the connection: SOCKS proxies relay the TCP
+     * stream but not the UDP one, so a proxy-spread bot attack shares a single UDP
+     * address while every TCP address differs.
+     *
+     * @return `true` if the connection is flood and must be dropped
+     */
+    fun checkRatelimit(
+        address: String,
+        udpAddress: String,
+    ): Boolean {
         if (blacklisted.contains(address)) return true
+
+        if (udpAddress != address) {
+            if (blacklistedUdp.contains(udpAddress)) {
+                blacklistAddress(address)
+                return true
+            }
+
+            val udpKeeper = udpRatekeepers.computeIfAbsent(udpAddress) { Ratekeeper() }
+            if (!udpKeeper.allow(UDP_RATE_SPACING, UDP_RATE_AMOUNT)) {
+                if (blacklistedUdp.add(udpAddress)) {
+                    Log.info("Blacklisting UDP origin @ due to connection flood", udpAddress)
+                    putLog("ddosprotect", "UDP origin $udpAddress blacklisted due to connection flood")
+                }
+                blacklistAddress(address)
+                return true
+            }
+        }
 
         val keeper = ipRatekeepers.computeIfAbsent(address) { Ratekeeper() }
         if (keeper.allow(RATE_SPACING, RATE_AMOUNT)) return false
 
-        if (blacklisted.add(address)) {
-            Vars.netServer.admins.blacklistDos(address)
-            lastBotTime.set(System.currentTimeMillis())
-            if (!attackActive.getAndSet(true)) {
-                Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
-            }
-            botsKicked.incrementAndGet()
-            Log.info("Blacklisting IP @ due to connection flood", address)
-            putLog("ddosprotect", "IP $address blacklisted due to connection flood")
-        }
+        blacklistAddress(address)
         return true
+    }
+
+    private fun blacklistAddress(address: String) {
+        if (!blacklisted.add(address)) return
+
+        Vars.netServer.admins.blacklistDos(address)
+        lastBotTime.set(System.currentTimeMillis())
+        if (!attackActive.getAndSet(true)) {
+            Bot.sendLog("\n# ⚠⚠⚠ Possible bot attack started!⚠⚠⚠")
+        }
+        botsKicked.incrementAndGet()
+        Log.info("Blacklisting IP @ due to connection flood", address)
+        putLog("ddosprotect", "IP $address blacklisted due to connection flood")
     }
 
     fun isAttackActive(): Boolean = attackActive.get()
@@ -104,10 +143,12 @@ object DDoSProtect {
         val now = System.currentTimeMillis()
 
         ipRatekeepers.entries.removeIf { now - it.value.lastTime >= RATE_ENTRY_TTL }
+        udpRatekeepers.entries.removeIf { now - it.value.lastTime >= RATE_ENTRY_TTL }
 
         if (attackActive.get() && now - lastBotTime.get() >= ATTACK_TIMEOUT) {
             attackActive.set(false)
             blacklisted.clear()
+            blacklistedUdp.clear()
             val total = botsKicked.getAndSet(0)
             Bot.sendLog("\n# Bot attack ended✅✅✅✅. Total bots caught: $total")
         }

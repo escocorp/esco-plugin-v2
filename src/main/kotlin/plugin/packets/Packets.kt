@@ -1,14 +1,11 @@
 package plugin.packets
 
-import arc.util.Log
 import mindustry.Vars
 import mindustry.gen.*
 import mindustry.io.JsonIO
 import mindustry.net.NetConnection
 import plugin.PVars
-import plugin.model.freeze
 import plugin.model.getStatus
-import plugin.utils.infoString
 
 object Packets {
     fun load() {

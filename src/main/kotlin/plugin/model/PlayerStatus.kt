@@ -1,6 +1,5 @@
 package plugin.model
 
-import arc.util.Ratekeeper
 import mindustry.gen.Player
 import plugin.KVars.frozenTag
 

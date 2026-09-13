@@ -49,7 +49,7 @@ repositories {
     }
 }
 
-val mindustryVersion = "v159.7"
+val mindustryVersion = "v160.1"
 val jabelVersion = "93fde537c7"
 var nohornyVersion = "4.0.0-beta.8"
 

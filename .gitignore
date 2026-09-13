@@ -169,3 +169,7 @@ android/libs/
 .env.*
 
 /.mcp.json
+
+# локальные скрипты деплоя, запускаются вручную
+/autodeploy.sh
+/autodeploy.bat

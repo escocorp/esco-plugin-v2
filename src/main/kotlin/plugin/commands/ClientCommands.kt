@@ -28,7 +28,6 @@ import net.dv8tion.jda.api.components.buttons.Button
 import plugin.Bundle
 import plugin.Gamemode
 import plugin.KVars.globalScope
-import plugin.PVars
 import plugin.PVars.*
 import plugin.database.models.*
 import plugin.discord.ButtonIds.testId
@@ -144,7 +143,7 @@ fun register(handler: CustomHandler) {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
         val name = "$mapName-$date.replay"
 
-        PVars.S3.putObject("replays", name, saveReplay(History.copy(), mapName))
+        S3.putObject("replays", name, saveReplay(History.copy(), mapName))
         p.sendMessage("[green]Done! Saved with name $name")
     }
 
@@ -286,7 +285,7 @@ fun register(handler: CustomHandler) {
     handler.registerCommand(
         "shop",
         CommandRunner { _: Array<String>, p: Player ->
-            if (PVars.gamemode == Gamemode.hexed || PVars.gamemode == Gamemode.crawlerArena) {
+            if (gamemode == Gamemode.hexed || gamemode == Gamemode.crawlerArena) {
                 return@CommandRunner
             }
             if (p.isFake()) {
@@ -380,7 +379,7 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("test2", "", Permission.Test) { _: Array<String>, p: Player ->
         val pd = p.getData() ?: return@registerCommand
-        PVars.notificationsChannel
+        notificationsChannel
             .sendMessage("${pd.discordId?.discordMention()} nya")
             .addComponents(ActionRow.of(Button.success(testId, "🦈")))
             .queue()
@@ -440,7 +439,7 @@ fun register(handler: CustomHandler) {
         "vnw",
         "[y/n]",
         CommandRunner { a: Array<String>, p: Player ->
-            if (PVars.gamemode == Gamemode.hexed) {
+            if (gamemode == Gamemode.hexed) {
                 Bundle.sendMessage("command.disabled-in-hexed", p)
                 return@CommandRunner
             }
@@ -455,16 +454,16 @@ fun register(handler: CustomHandler) {
                 Bundle.sendMessage("command.vote.unknown-choice", p)
                 return@CommandRunner
             }
-            if (PVars.waveVote == null) {
-                PVars.waveVote = VoteWave()
-                PVars.waveVote.vote(p, i)
+            if (waveVote == null) {
+                waveVote = VoteWave()
+                waveVote.vote(p, i)
                 return@CommandRunner
             }
-            if (PVars.waveVote.voted.containsKey(p.ip())) {
+            if (waveVote.voted.containsKey(p.ip())) {
                 Bundle.sendMessage("command.rtv.already-voted", p)
                 return@CommandRunner
             }
-            PVars.waveVote.vote(p, i)
+            waveVote.vote(p, i)
         },
     )
 
@@ -472,7 +471,7 @@ fun register(handler: CustomHandler) {
         "rtv",
         "[y/n]",
         CommandRunner { a: Array<String>, p: Player ->
-            if (PVars.gamemode == Gamemode.hexed) {
+            if (gamemode == Gamemode.hexed) {
                 Bundle.sendMessage("command.disabled-in-hexed", p)
                 return@CommandRunner
             }
@@ -483,21 +482,21 @@ fun register(handler: CustomHandler) {
                     parseBool(a[0])
                 }
 
-            if (PVars.mapVote == null) {
+            if (mapVote == null) {
                 val menu =
                     ScrollableMenu("Choose map", rowPerItems = 2).add("[orange]Random") { pl: Player ->
-                        if (PVars.mapVote == null) {
-                            PVars.mapVote = VoteMap(pl, null)
-                            PVars.mapVote.vote(pl, i)
+                        if (mapVote == null) {
+                            mapVote = VoteMap(pl, null)
+                            mapVote.vote(pl, i)
                             return@add
                         }
                     }
                 val maps = Vars.maps.customMaps()
                 for (map in maps) {
                     menu.add("${map.name()}\n[lightgray]${map.height}x${map.width}") { pl: Player ->
-                        if (PVars.mapVote == null) {
-                            PVars.mapVote = VoteMap(pl, map)
-                            PVars.mapVote.vote(pl, i)
+                        if (mapVote == null) {
+                            mapVote = VoteMap(pl, map)
+                            mapVote.vote(pl, i)
                             return@add
                         }
                     }
@@ -510,11 +509,11 @@ fun register(handler: CustomHandler) {
                 Bundle.sendMessage("command.vote.unknown-choice", p)
                 return@CommandRunner
             }
-            if (PVars.mapVote.voted.containsKey(p.ip())) {
+            if (mapVote.voted.containsKey(p.ip())) {
                 Bundle.sendMessage("command.rtv.already-voted", p)
                 return@CommandRunner
             }
-            PVars.mapVote.vote(p, i)
+            mapVote.vote(p, i)
         },
     )
 
@@ -561,7 +560,7 @@ fun register(handler: CustomHandler) {
     }
 
     handler.registerCommand("discord") { _: Array<String>, p: Player ->
-        Call.openURI(p.con, PVars.discordLink)
+        Call.openURI(p.con, discordLink)
     }
 
     handler.registerCommand(
@@ -595,7 +594,7 @@ fun register(handler: CustomHandler) {
                         player.setLinkCode(code)
                     }
 
-                    Bundle.infoMessage("discord.link.instructions", player, PVars.gamemode.botPrefix, code, PVars.discordLink)
+                    Bundle.infoMessage("discord.link.instructions", player, gamemode.botPrefix, code, discordLink)
                 }.show(player)
         },
     )
@@ -646,7 +645,7 @@ fun register(handler: CustomHandler) {
         "",
         Permission.Artv,
         CommandRunner { _: Array<String>, p: Player ->
-            if (PVars.gamemode == Gamemode.hexed) {
+            if (gamemode == Gamemode.hexed) {
                 Bundle.sendMessage("command.disabled-in-hexed", p)
                 return@CommandRunner
             }
@@ -672,7 +671,7 @@ fun register(handler: CustomHandler) {
         "vote",
         "<y/n/c>",
         CommandRunner { arg: Array<String>, player: Player ->
-            if (PVars.currentlyKicking == null) {
+            if (currentlyKicking == null) {
                 // player.sendMessage("[scarlet]Nobody is being voted on.");
                 Bundle.sendMessage("command.vote.no-vote-in-progress", player)
             } else {
@@ -681,7 +680,7 @@ fun register(handler: CustomHandler) {
                     Bundle.sendMessage("command.vote.canceled-by-admin", player.coloredName())
                 /*PVars.currentlyKicking.task.cancel()
                 PVars.currentlyKicking = null*/
-                    PVars.currentlyKicking.cancel()
+                    currentlyKicking.cancel()
                     return@CommandRunner
                 }
 
@@ -700,10 +699,10 @@ fun register(handler: CustomHandler) {
 
                 // hosts can vote all they want
                 if ((
-                        PVars.currentlyKicking.voted.get(
+                        currentlyKicking.voted.get(
                             player.uuid(),
                             2,
-                        ) == sign || PVars.currentlyKicking.voted.get(
+                        ) == sign || currentlyKicking.voted.get(
                             Vars.netServer.admins
                                 .getInfo(player.uuid())
                                 .lastIP,
@@ -716,13 +715,13 @@ fun register(handler: CustomHandler) {
                     return@CommandRunner
                 }
 
-                if (PVars.currentlyKicking.target === player) {
+                if (currentlyKicking.target === player) {
                     // player.sendMessage("[scarlet]You can't vote on your own trial.");
                     Bundle.sendMessage("command.vote.cannot-vote-self", player)
                     return@CommandRunner
                 }
 
-                if (PVars.currentlyKicking.target.team() !== player.team()) {
+                if (currentlyKicking.target.team() !== player.team()) {
                     // player.sendMessage("[scarlet]You can't vote for other teams.");
                     Bundle.sendMessage("command.vote.other-team", player)
                     return@CommandRunner
@@ -734,7 +733,7 @@ fun register(handler: CustomHandler) {
                     return@CommandRunner
                 }
 
-                PVars.currentlyKicking.vote(player, sign)
+                currentlyKicking.vote(player, sign)
             }
         },
     )
@@ -761,11 +760,18 @@ fun register(handler: CustomHandler) {
                 return@CommandRunner
             }
 
-            if (PVars.currentlyKicking != null) {
+            if (currentlyKicking != null) {
                 // player.sendMessage("[scarlet]A vote is already in progress.");
                 Bundle.sendMessage("command.votekick.already-started", player)
                 return@CommandRunner
             }
+
+            val pd = getPlayerData(player)
+            if(pd != null && pd.playtime < 600) {
+                Bundle.sendMessage("command.votekick.not-enough-time", player)
+                return@CommandRunner
+            }
+
             if (args.isEmpty()) {
                 val builder = StringBuilder()
                 builder.append(Bundle.get("command.votekick.players", player.locale)).append("\n")
@@ -825,7 +831,7 @@ fun register(handler: CustomHandler) {
                         // Call.sendMessage(Strings.format("[lightgray]Reason:[orange] @[lightgray].", args[1]));
                         Bundle.sendMessage("command.votekick.start", args[1])
                         vtime.reset()
-                        PVars.currentlyKicking = session
+                        currentlyKicking = session
                     }
                 } else {
                     // player.sendMessage("[scarlet]No player [orange]'" + args[0] + "'[scarlet] found.");

@@ -3,7 +3,6 @@ package plugin.database.models
 import mindustry.gen.Player
 import plugin.Bundle
 import plugin.PVars.discordLink
-import plugin.PVars.serverId
 import plugin.database.Database.executeQuery
 import plugin.database.Database.executeUpdate
 import plugin.utils.formatTime

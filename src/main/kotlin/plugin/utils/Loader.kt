@@ -6,7 +6,6 @@ import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.gamemodes.tdf.TDGamemode*/
 import arc.Core
 import arc.Events
-import arc.util.Http
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
@@ -16,10 +15,8 @@ import mindustry.net.Administration
 import plugin.Bundle
 import plugin.Config
 import plugin.Gamemode
-import plugin.KVars
 import plugin.KVars.globalScope
 import plugin.KVars.messageBuffer
-import plugin.PVars
 import plugin.PVars.*
 import plugin.antigrief.loadGraylist
 import plugin.database.BanListener

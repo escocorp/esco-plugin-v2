@@ -1,13 +1,10 @@
 package plugin.packets
 
 import arc.util.Log
-import arc.util.Timekeeper
 import mindustry.core.NetServer
 import mindustry.gen.ClientSnapshotCallPacket
 import mindustry.net.NetConnection
 import plugin.ddos.DDoSProtect
-import plugin.model.getStatus
-import plugin.utils.infoString
 
 fun handleClientSnapshot(
     con: NetConnection,

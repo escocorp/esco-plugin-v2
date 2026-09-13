@@ -3,3 +3,4 @@ ox-alpha via opencode
 GPT-5.6 Luna via GitHub Copilot
 Claude Sonnet 5 via Claude Code
 Claude Fable 5.1 via Claude Code
+Claude Opus 5 via Claude Code

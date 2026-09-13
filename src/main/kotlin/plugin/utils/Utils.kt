@@ -6,7 +6,6 @@ import arc.files.Fi
 import arc.func.Cons
 import arc.math.geom.Point2
 import arc.net.Connection
-import arc.struct.Seq
 import arc.util.Http
 import arc.util.Log
 import arc.util.Reflect

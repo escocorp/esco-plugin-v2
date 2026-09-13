@@ -2,13 +2,11 @@ package plugin.events
 
 // import plugin.gamemodes.hexed.HexData
 import arc.Core.app
-import arc.Events
 import arc.util.Log
 import arc.util.Strings
 import arc.util.Timekeeper
 import arc.util.Timer
 import com.xpdustry.nohorny.client.ClassificationEvent
-import com.xpdustry.nohorny.common.MindustryImageRenderer
 import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
@@ -23,12 +21,10 @@ import mindustry.world.blocks.logic.LogicBlock
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
-import net.dv8tion.jda.api.utils.FileUpload
 import plugin.Bundle
 import plugin.Gamemode
 import plugin.KVars.eventsScope
 import plugin.KVars.messageBuffer
-import plugin.PVars
 import plugin.PVars.*
 import plugin.antigrief.apply
 import plugin.chat.ohioify
@@ -68,7 +64,7 @@ class PEvents {
 
     @EventListener
     fun connectPacket(e: ConnectPacketEvent) {
-        if (DDoSProtect.checkRatelimit(e.connection.address)) return
+        if (DDoSProtect.checkRatelimit(e.connection.address, e.connection.getUDPAddress().hostAddress)) return
 
         val region = e.packet.uuid.hashCode()
         val cachedRegion = joinDemographics.get(region)
@@ -160,7 +156,7 @@ class PEvents {
                     }
                 }
             }
-            if (PVars.mapVote != null) PVars.mapVote.checkPass()
+            if (mapVote != null) mapVote.checkPass()
 
             /*Timer.schedule({
                 if(player.con.isConnected && !player.isAdded) {
@@ -217,7 +213,7 @@ class PEvents {
     @EventListener
     fun playerLeave(e: PlayerLeave) {
         val player = e.player
-        PVars.SSUsers.remove(player.id)
+        SSUsers.remove(player.id)
 
         val pd = getPlayerData(player)
         var pid: Int? = null
@@ -234,15 +230,15 @@ class PEvents {
 
         Log.info("[@] Player @ left [@] (@)", pid, player.plainName(), player.uuid(), player.ip())
 
-        if (PVars.currentlyKicking != null && PVars.currentlyKicking.target == player) {
+        if (currentlyKicking != null && currentlyKicking.target == player) {
             ban(
-                PVars.currentlyKicking.targetId,
-                PVars.currentlyKicking.startedId,
-                "AutoBan: Leave during votekick\n" + PVars.currentlyKicking.reason,
+                currentlyKicking.targetId,
+                currentlyKicking.startedId,
+                "AutoBan: Leave during votekick\n" + currentlyKicking.reason,
                 (2 * 60 * 60).toLong(),
                 "votekick",
             )
-            PVars.currentlyKicking.cancel()
+            currentlyKicking.cancel()
             Bundle.sendMessage("command.votekick.target-left")
         }
 
@@ -253,8 +249,8 @@ class PEvents {
                 Bundle.sendMessage("command.rtv.player-left", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
             }*/
         Timer.schedule({
-            if (PVars.mapVote != null) PVars.mapVote.checkPass()
-            if (Groups.player.isEmpty && PVars.needRestart) {
+            if (mapVote != null) mapVote.checkPass()
+            if (Groups.player.isEmpty && needRestart) {
                 exit()
             }
         }, 0.2f)
@@ -296,7 +292,7 @@ class PEvents {
             }
         }
 
-        val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
+        val message = nsfwChannel.sendMessageEmbeds(embed.build())
 
         playerId?.let {
             message.addComponents(
@@ -530,7 +526,7 @@ class PEvents {
 
     @EventListener
     fun gameOver(e: GameOverEvent) {
-        if (PVars.mapVote != null) PVars.mapVote.cancel()
+        if (mapVote != null) mapVote.cancel()
 
         if (S3Enabled) {
             val oldHistory = History.copy()
@@ -542,7 +538,7 @@ class PEvents {
                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm")) // yyyy-MM-dd-HH-mm
                 val name = "$mapName-$date.replay"
 
-                PVars.S3.putObject("replays", name, saveReplay(oldHistory, mapName))
+                S3.putObject("replays", name, saveReplay(oldHistory, mapName))
 
                 Log.info("New replay saved with name $name!")
             }

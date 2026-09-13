@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import mindustry.Vars
 import plugin.model.ChatMessageData
-import plugin.model.GlobalConfig
 import java.lang.management.ManagementFactory
 
 object KVars {

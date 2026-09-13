@@ -64,7 +64,7 @@ public class PVars {
 
     //public static long startTime = Time.millis();
 
-    public static final String hubIp = "node2.larzed.icu";
+    public static final String hubIp = "mindustry.larzed.icu";
     public static final int hubPort = 6568;
 
     public static final ObjectMap<Integer, String> joinDemographics = new ObjectMap<>();
