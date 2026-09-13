@@ -63,8 +63,8 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.13")
     implementation("com.zaxxer:HikariCP:7.1.0")
 
-    implementation("org.slf4j:slf4j-api:2.0.18")
-    implementation("org.slf4j:slf4j-simple:2.0.18")
+    implementation("org.slf4j:slf4j-api:2.0.19")
+    implementation("org.slf4j:slf4j-simple:2.0.19")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
 
