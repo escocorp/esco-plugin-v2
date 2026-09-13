@@ -9,11 +9,13 @@ import mindustry.content.Blocks;
 import mindustry.game.Team;
 import mindustry.io.MapIO;
 import mindustry.io.SaveIO;
+import mindustry.io.SaveReadState;
 import mindustry.io.SaveVersion;
 import mindustry.maps.Map;
 import mindustry.type.Item;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.OreBlock;
+import mindustry.world.blocks.power.LightBlock;
 import org.jspecify.annotations.NonNull;
 import plugin.utils.UtilsKt;
 
@@ -54,6 +56,8 @@ public class MapPreview {
                     if (tile.build.config() instanceof Item item) {
                         image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                         item = null;
+                    } else if (tile.build instanceof LightBlock.LightBuild light) {
+                        image.setRGB(x, tiles.height - 1 - y, convert(light.color | 0xff));
                     } else if (tile.build.block.name.contains("conveyor")) {
                         if (tile.build != null && tile.build.items != null && !tile.build.items.empty()) {
                             Item item = tile.build.items.first();
@@ -115,7 +119,7 @@ public class MapPreview {
                 if (version.version >= 11) {
                     // version.readRegion("content", stream, counter, version::skipContentPatches);
                 }
-                version.readRegion("preview_map", stream, counter, in -> version.readMap(in, new WorldContext() {
+                version.readRegion("preview_map", stream, counter, in -> version.readMap(in, new SaveReadState(new WorldContext() {
                     public void resize(int widthx, int heightx) {
                     }
 
@@ -170,7 +174,7 @@ public class MapPreview {
 
                         return tile;
                     }
-                }));
+                })));
                 fgraphics.drawImage(walls, 0, 0, null);
                 fgraphics.dispose();
                 var12 = floors;
