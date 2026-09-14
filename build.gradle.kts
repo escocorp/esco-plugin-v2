@@ -1,7 +1,7 @@
 plugins {
     java
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.serialization") version "2.4.10"
+    kotlin("jvm") version "2.4.20"
+    kotlin("plugin.serialization") version "2.4.20"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
@@ -63,14 +63,14 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.13")
     implementation("com.zaxxer:HikariCP:7.1.0")
 
-    implementation("org.slf4j:slf4j-api:2.0.18")
-    implementation("org.slf4j:slf4j-simple:2.0.18")
+    implementation("org.slf4j:slf4j-api:2.0.19")
+    implementation("org.slf4j:slf4j-simple:2.0.19")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
 
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
 
-    implementation("net.dv8tion:JDA:6.5.0") {
+    implementation("net.dv8tion:JDA:6.6.0") {
         exclude(module = "opus-java")
     }
 
@@ -78,7 +78,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    implementation(platform("software.amazon.awssdk:bom:2.54.12"))
+    implementation(platform("software.amazon.awssdk:bom:2.54.16"))
     implementation("software.amazon.awssdk:s3")
 
     // compileOnly(files("nohorny-client.jar"))
