@@ -131,10 +131,7 @@ object Loader {
     fun loadTimers() {
         Timer.schedule({
             if (!Groups.player.isEmpty) Bundle.sendMessage("announce.discord", discordLink)
-        }, (15 * 60).toFloat(), (15 * 60).toFloat())
-        /*Timer.schedule({
-            if (!Groups.player.isEmpty) Bundle.sendMessage("announce.reports", discordLink)
-        }, (15 * 60).toFloat(), (35 * 60).toFloat())*/
+        }, (15 * 60).toFloat(), (33 * 60).toFloat())
         Timer.schedule({
             Groups.player.each { p ->
                 globalScope.launch {

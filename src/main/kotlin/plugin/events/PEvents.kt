@@ -10,6 +10,7 @@ import com.xpdustry.nohorny.client.ClassificationEvent
 import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
+import mindustry.content.Blocks
 import mindustry.content.Items
 import mindustry.content.UnitTypes
 import mindustry.game.EventType.*
@@ -577,11 +578,10 @@ class PEvents {
     fun worldLoad(e: WorldLoadEvent) {
         Timer.schedule({
             if (gamemode == Gamemode.sandbox) {
-                /*Vars.state.rules.unitDamageMultiplier = 0f
-                Vars.state.rules.blockDamageMultiplier = 0f
-                Vars.state.rules.unitHealthMultiplier = 0.1f
-                Vars.state.rules.blockHealthMultiplier = 0.1f*/
-                Vars.state.rules.coreCapture = false
+                with(Vars.state.rules) {
+                    bannedBlocks.add(Blocks.targetDummy)
+                    coreCapture = false
+                }
             } else if (gamemode == Gamemode.campaign) {
                 val core =
                     Vars.state.rules.defaultTeam

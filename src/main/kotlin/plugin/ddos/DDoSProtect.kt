@@ -16,12 +16,12 @@ import java.util.concurrent.atomic.AtomicLong
 object DDoSProtect {
     private const val ATTACK_TIMEOUT = 2 * 60 * 1000L
 
-    private const val RATE_SPACING = 1000L
+    private const val RATE_SPACING = 5000L
     private const val RATE_AMOUNT = 5
     private const val RATE_ENTRY_TTL = 60 * 1000L
 
-    private const val UDP_RATE_SPACING = 1000L
-    private const val UDP_RATE_AMOUNT = 10
+    private const val UDP_RATE_SPACING = 5000L
+    private const val UDP_RATE_AMOUNT = 5
 
     private val botsKicked = AtomicInteger(0)
     private val lastBotTime = AtomicLong(0L)

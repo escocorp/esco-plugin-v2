@@ -49,7 +49,7 @@ repositories {
     }
 }
 
-val mindustryVersion = "v160.3"
+val mindustryVersion = "v160.4"
 val jabelVersion = "93fde537c7"
 var nohornyVersion = "4.0.0-beta.8"
 
@@ -97,6 +97,15 @@ dependencies {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+}
+
+tasks.javadoc {
+    options.encoding = "UTF-8"
+    (options as StandardJavadocDocletOptions).apply {
+        // Mindustry jar ships .java sources that reference missing annotations
+        addStringOption("sourcepath", "")
+        addStringOption("Xdoclint:none", "-quiet")
+    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

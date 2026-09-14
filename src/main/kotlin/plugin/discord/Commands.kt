@@ -248,6 +248,7 @@ class Commands {
         )
 
         embed.addField("Wave", Vars.state.wave.toString(), false)
+        embed.addField("Units", Groups.unit.size().toString(), false)
         embed.addField("Players: " + getPlayersCount(), sb.toString(), true)
         embed.setColor(Color.green)
         embed.setImage("attachment://minimap.png")
