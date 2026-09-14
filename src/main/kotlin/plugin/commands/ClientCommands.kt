@@ -767,7 +767,7 @@ fun register(handler: CustomHandler) {
             }
 
             val pd = getPlayerData(player)
-            if(pd != null && pd.playtime < 600) {
+            if (pd != null && pd.playtime < 600) {
                 Bundle.sendMessage("command.votekick.not-enough-time", player)
                 return@CommandRunner
             }
