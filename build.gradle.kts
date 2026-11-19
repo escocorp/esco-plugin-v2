@@ -92,7 +92,7 @@ dependencies {
     compileOnly("com.xpdustry:nohorny-common:$nohornyVersion")
     compileOnly("com.xpdustry:nohorny-client:$nohornyVersion")
 
-    implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.3.1")
 }
 
 tasks.withType<JavaCompile>().configureEach {
